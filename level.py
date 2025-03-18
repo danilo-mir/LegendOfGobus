@@ -22,7 +22,15 @@ class Level:
         y = row_index * TILESIZE
         if col == 'R':
           Tile((x, y), [self.visibile_sprites])
+        if col == 'P':
+          Player((x, y), [self.visibile_sprites])
 
 
   def run(self):
     self.visibile_sprites.draw(self.display_surface)
+    self.visibile_sprites.update()
+
+    for sprite in self.visibile_sprites:
+      pygame.draw.rect(self.display_surface, 'red', sprite.rect, 1)
+
+
