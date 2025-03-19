@@ -21,9 +21,9 @@ class Level:
         x = col_index * TILESIZE
         y = row_index * TILESIZE
         if col == 'R':
-          Tile((x, y), [self.visibile_sprites])
+          Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
         if col == 'P':
-          Player((x, y), [self.visibile_sprites])
+          Player((x, y), [self.visibile_sprites], self.obstacle_sprites)
 
 
   def run(self):
