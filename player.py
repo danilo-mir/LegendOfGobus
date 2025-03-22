@@ -7,14 +7,17 @@ class Player(pygame.sprite.Sprite):
     super().__init__(groups)
     self.image = pygame.image.load('graphics/player/down/down_0.png').convert_alpha()
     self.rect = self.image.get_rect(topleft = pos)
+    self.hitbox = self.rect.inflate(0, -26)
 
     self.direction = pygame.math.Vector2(0, 0)
     self.speed = 5
 
     self.obstacle_sprites = obstacle_sprites
 
-  def input(self):
+  def input(self): 
     keys = pygame.key.get_pressed()
+
+    # Input de movimento
     if keys[pygame.K_LEFT]:
       self.direction.x = -1
     elif keys[pygame.K_RIGHT]:
@@ -29,32 +32,35 @@ class Player(pygame.sprite.Sprite):
     else:
       self.direction.y = 0
     
+    # Normalizar vetor velocidade para que a diagonal não seja mais rápida
     if self.direction.magnitude() > 0.1:
       self.direction = self.direction.normalize()
 
   def move(self, speed):
-    self.rect.x += self.direction.x * speed
+    self.hitbox.x += self.direction.x * speed
+    # Corrigir colisões devido ao movimento horizontal
     self.collision('horizontal')
-    self.rect.y += self.direction.y * speed
+    self.hitbox.y += self.direction.y * speed
+    # Corrigir colisões devido ao movimento vertical
     self.collision('vertical')
-
+    self.rect.center = self.hitbox.center	
 
   def collision(self, direction):
     if direction == 'horizontal':
       for sprite in self.obstacle_sprites:
-        if sprite.rect.colliderect(self.rect):
+        if sprite.hitbox.colliderect(self.hitbox):
           if self.direction.x > 0:
-            self.rect.right = sprite.rect.left
+            self.hitbox.right = sprite.hitbox.left
           if self.direction.x < 0:
-            self.rect.left = sprite.rect.right
+            self.hitbox.left = sprite.hitbox.right
 
     if direction == 'vertical':
       for sprite in self.obstacle_sprites:
-        if sprite.rect.colliderect(self.rect):
-          if self.direction.y > 0:
-            self.rect.bottom = sprite.rect.top
+        if sprite.hitbox.colliderect(self.hitbox):
+          if self.hitbox.y > 0:
+            self.hitbox.bottom = sprite.hitbox.top
           if self.direction.y < 0:
-            self.rect.top = sprite.rect.bottom
+            self.hitbox.top = sprite.hitbox.bottom
 
   def update(self):
     self.input()
