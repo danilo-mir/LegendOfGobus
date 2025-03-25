@@ -18,12 +18,22 @@ class Player(pygame.sprite.Sprite):
 
     # Movimento
     self.direction = pygame.math.Vector2(0, 0)
-    self.speed = 5
     self.attacking = False
     self.attacking_cool_down = 400
     self.attack_time = None
-
     self.obstacle_sprites = obstacle_sprites
+
+    # Atributos do jogador
+    self.stats = {
+      'max_health': 100, 
+      'max_energy': 60,   
+      'attack': 10,
+      'speed': 5
+      }
+    self.health = self.stats['max_health']
+    self.energy = self.stats['max_energy']
+    self.exp = 0
+    self.speed = self.stats['speed']
 
   def import_player_assets(self):
     character_path = 'graphics/player/'

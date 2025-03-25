@@ -3,6 +3,7 @@ from settings import *
 from tile import Tile
 from player import Player
 from debug import debug
+from ui import UI
 
 class Level:
   def __init__(self):
@@ -13,8 +14,12 @@ class Level:
     self.visibile_sprites = YSortCameraGroup()
     self.obstacle_sprites = pygame.sprite.Group()
 
-    # Criar sprite do mapa
+    # Criar mapa
     self.create_map()
+
+    # Interface do usuário
+    self.ui = UI()
+
 
   def create_map(self):
     for row_index, row in enumerate(WORLD_MAP):
@@ -30,8 +35,10 @@ class Level:
   def run(self):
     self.visibile_sprites.custom_draw(self.player)
     self.visibile_sprites.update()
+    self.ui.display(self.player)
 
 # Grupo de sprites customizado para ordena-los conforme sua posicao y dando um senso de profundidade
+# Também implementa o movimento da câmera caso o mapa seja maior que a tela
 class YSortCameraGroup(pygame.sprite.Group):
   def __init__(self):
     super().__init__()
@@ -45,7 +52,6 @@ class YSortCameraGroup(pygame.sprite.Group):
     self.offset.y = 0
   
     # Descomentar se a camera for mover ao longo dos niveis
-
     # self.offset.x = player.rect.centerx - self.half_width
     # self.offset.y = player.rect.centery - self.half_height
 
