@@ -51,41 +51,48 @@ class Player(pygame.sprite.Sprite):
       keys = pygame.key.get_pressed()
 
       # Input de movimento
-      if keys[pygame.K_LEFT]:
+      if keys[pygame.K_a]:
         self.direction.x = -1
         self.status = 'left'
-      elif keys[pygame.K_RIGHT]:
+      elif keys[pygame.K_d]:
         self.direction.x = 1
         self.status = 'right'
       else:
         self.direction.x = 0
       
-      if keys[pygame.K_UP]:
+      if keys[pygame.K_w]:
         self.direction.y = -1
         self.status = 'up'
-      elif keys[pygame.K_DOWN]:
+      elif keys[pygame.K_s]:
         self.direction.y = 1
         self.status = 'down'
       else:
         self.direction.y = 0
 
-      # Input de ataque
-      if keys[pygame.K_SPACE] and not self.attacking:
+      # A direção do jogador pode mudar quando ataca
+      if keys[pygame.K_LEFT] and not self.attacking:
+        self.status = 'left'
+        debug(self.status)
+      elif keys[pygame.K_RIGHT] and not self.attacking:
+        self.status = 'right'
+      if keys[pygame.K_UP] and not self.attacking:
+        self.status = 'up'
+      elif keys[pygame.K_DOWN] and not self.attacking:
+        self.status = 'down'
+
+      # Se atacar, mudar para estado de ataque
+      if keys[pygame.K_LEFT] or keys[pygame.K_RIGHT] or keys[pygame.K_UP] or keys[pygame.K_DOWN] and not self.attacking:
         self.attacking = True
         self.attack_time = pygame.time.get_ticks()
         debug('Ataque')
-
-      # Input de magica
-      if keys[pygame.K_LCTRL] and not self.attacking:
-        self.attacking = True
-        self.attack_time = pygame.time.get_ticks()
-        debug('Magica')
       
       # Normalizar vetor velocidade para que andar na diagonal não seja mais rápido
       if self.direction.magnitude() > 0.1:
         self.direction = self.direction.normalize()
 
   def get_status(self):
+    # Aqui o sprite do jogador será atualizado para ser um sprite do tipo parado (_iddle) ou de ataque(_attack)
+
     # Estado parado
     if self.direction.x == 0 and self.direction.y == 0:
       if not 'idle' in self.status and not self.attacking:
