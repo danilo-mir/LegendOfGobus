@@ -1,6 +1,7 @@
 import pygame
 import os
 
+
 def import_folder(folder_path):
     # Carregar todos os sprites de uma pasta e retornar uma lista de sprites
     sprites = []
