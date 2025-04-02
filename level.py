@@ -33,6 +33,7 @@ class Level:
 
 
   def run(self):
+    self.display_surface.fill((0,100,0))
     self.visibile_sprites.custom_draw(self.player)
     self.visibile_sprites.update()
     self.ui.display(self.player)

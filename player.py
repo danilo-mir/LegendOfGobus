@@ -18,9 +18,12 @@ class Player(pygame.sprite.Sprite):
 
     # Movimento
     self.direction = pygame.math.Vector2(0, 0)
+
+    # Inicializar temporizadores de ataque
     self.attacking = False
     self.attacking_cool_down = 400
     self.attack_time = None
+
     self.obstacle_sprites = obstacle_sprites
 
     # Atributos do jogador
@@ -28,12 +31,14 @@ class Player(pygame.sprite.Sprite):
       'max_health': 100, 
       'max_energy': 60,   
       'attack': 10,
-      'speed': 5
+      'speed': 5,
+      'super_threshold': 10
       }
     self.health = self.stats['max_health']
     self.energy = self.stats['max_energy']
     self.exp = 0
     self.speed = self.stats['speed']
+    self.super_counter = 11
 
   def import_player_assets(self):
     character_path = 'graphics/player/'
@@ -95,6 +100,14 @@ class Player(pygame.sprite.Sprite):
         self.attacking = True
         self.attack_time = pygame.time.get_ticks()
         debug('Ataque')
+
+      # Ataque especial
+      if keys[pygame.K_r]:
+        if self.super_counter >= self.stats['super_threshold']:
+          self.super_counter = 0
+      if keys[pygame.K_m]:
+        if self.super_counter < self.stats['super_threshold']:
+          self.super_counter += 1
       
       # Normalizar vetor velocidade para que andar na diagonal não seja mais rápido
       if self.direction.magnitude() > 0.1:
