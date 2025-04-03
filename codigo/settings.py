@@ -2,7 +2,7 @@
 WIDTH    = 1280	#largura
 HEIGTH   = 720 #altura
 FPS      = 60
-TILESIZE = 64 #tamanho dos quadrados do jogo
+TAMANHO_QUADRADO = 64 #tamanho dos quadrados do jogo
 #portanto, temos 20 quadrados na largura e 11 na altura
 
 WORLD_MAP = [
@@ -27,3 +27,5 @@ WORLD_MAP = [
 ['x',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','x'],
 ['x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x'],
 ]
+
+#veja que p esta inicialmente na posicao x=2*64=128 e y=2*64=128
