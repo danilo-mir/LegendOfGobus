@@ -1,418 +1,222 @@
-import pygame
-import random
+import pygame 
 from settings import *
-from debug import debug
-from utils import import_folder
-from weapon import *
+from support import import_folder
+from entity import Entity
 
+class Player(Entity):
+	def __init__(self,pos,groups,obstacle_sprites,create_attack,destroy_attack,create_magic):
+		super().__init__(groups)
+		self.image = pygame.image.load('../graphics/test/player.png').convert_alpha()
+		self.rect = self.image.get_rect(topleft = pos)
+		self.hitbox = self.rect.inflate(-6,HITBOX_OFFSET['player'])
 
-class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, groups, obstacle_sprites, visible_sprites, player_stats=DEFAULT_PLAYER_STATS):
-        super().__init__(groups)
-        self.image = pygame.image.load('graphics/player/down/down_0.png').convert_alpha()
-        self.rect = self.image.get_rect(topleft=pos)
-        self.hitbox = self.rect.inflate(0, -26)
+		# graphics setup
+		self.import_player_assets()
+		self.status = 'down'
 
-        # Atributos usados para animação do movimento
-        self.import_player_assets()
-        self.status = 'down'
-        self.frame_index = 0
-        self.animation_speed = 0.15
+		# movimento 
+		self.attacking = False
+		self.attack_cooldown = 400
+		self.attack_time = None
+		self.obstacle_sprites = obstacle_sprites
 
-        # Movimento
-        self.direction = pygame.math.Vector2(0, 0)
+##########################################################################################
+		# armas
+		self.create_attack = create_attack # funcao para criar ataque (chamada ao atacar)
+		self.destroy_attack = destroy_attack # funcao para destruir ataque (chamada ao finalizar ataque)
+		self.weapon_index = 0 # indice da arma atual
+		self.weapon = list(weapon_data.keys())[self.weapon_index] # arma atual baseada no indice
+		self.can_switch_weapon = True # controle para verificar se pode trocar de arma
+		self.weapon_switch_time = None # tempo do ultimo switch de arma
+		self.switch_duration_cooldown = 200 # tempo de espera para trocar de arma novamente
 
-        # Inicializar temporizadores de ataque
-        self.attacking = False
-        self.attacking_cool_down = 400
-        self.attack_time = None
+##########################################################################################
 
-        self.obstacle_sprites = obstacle_sprites
-        self.visible_sprites = visible_sprites
+		# magic 
+		self.create_magic = create_magic
+		self.magic_index = 0
+		self.magic = list(magic_data.keys())[self.magic_index]
+		self.can_switch_magic = True
+		self.magic_switch_time = None
 
-        # Atributos do jogador
-        self.player_stats = player_stats
+		# stats
+		self.stats = {'health': 100,'energy':60,'attack': 10,'magic': 4,'speed': 5}
+		self.max_stats = {'health': 300, 'energy': 140, 'attack': 20, 'magic' : 10, 'speed': 10}
+		self.upgrade_cost = {'health': 100, 'energy': 100, 'attack': 100, 'magic' : 100, 'speed': 100}
+		self.health = self.stats['health'] * 0.5
+		self.energy = self.stats['energy'] * 0.8
+		self.exp = 5000
+		self.speed = self.stats['speed']
 
-        # Inventário do jogador e arma que está usando
-        self.current_weapon = 'sword'
-        self.inventory = {
-            'weapons': ['sword'],  # Armas disponíveis
-            'items': {'potions': 3, 'arrows': 10}
-        }
-    
-        # Atributos de progressão
-        self.level = 1
-        self.health = self.player_stats['max_health']
-        self.energy = self.player_stats['max_energy']
-        self.speed = self.player_stats['speed']
-        self.exp = 0
-        self.super_counter = 0
-        self.combat_dexterity = 100  # DC (Destreza de Combate)
+		# damage timer
+		self.vulnerable = True
+		self.hurt_time = None
+		self.invulnerability_duration = 500
 
-    def create_projectile(self):
-      if self.current_weapon == 'bow':
-          Projectile(
-              pos=self.rect.center,
-              direction=self.direction,
-              groups=[self.visible_sprites],
-              damage=self.weapons['bow']['damage'],
-              speed=10,
-              range=self.weapons['bow']['range'],
-              image_path='graphics/weapons/arrow.png'
-          )
+		# import a sound
+		self.weapon_attack_sound = pygame.mixer.Sound('../audio/sword.wav')
+		self.weapon_attack_sound.set_volume(0.4)
 
-    def import_player_assets(self):
-        character_path = 'graphics/player/'
-        self.animations = {
-        'up': [],
-        'down': [],
-        'left': [],
-        'right': [],
-        'up_idle': [],
-        'down_idle': [],
-        'left_idle': [],
-        'right_idle': [],
-        'up_attack': [],
-        'down_attack': [],
-        'left_attack': [],
-        'right_attack': [],
-        }
+	def import_player_assets(self):
+		character_path = '../graphics/player/'
+		self.animations = {'up': [],'down': [],'left': [],'right': [],
+			'right_idle':[],'left_idle':[],'up_idle':[],'down_idle':[],
+			'right_attack':[],'left_attack':[],'up_attack':[],'down_attack':[]}
 
-        for animation in self.animations.keys():
-            animation_folder_path = character_path + animation
-            self.animations[animation] = import_folder(animation_folder_path)
+		for animation in self.animations.keys():
+			full_path = character_path + animation
+			self.animations[animation] = import_folder(full_path)
 
-    def input(self):
-        if not self.attacking:
-            keys = pygame.key.get_pressed()
+##########################################################################################
+	#comando pelo teclado
+	def input(self):
+		if not self.attacking:
+			keys = pygame.key.get_pressed()
 
-            # Input de movimento
-            if keys[pygame.K_a]:
-                self.direction.x = -1
-                self.status = 'left'
-            elif keys[pygame.K_d]:
-                self.direction.x = 1
-                self.status = 'right'
-            else:
-                self.direction.x = 0
+			# comandos de movemento
+			if keys[pygame.K_UP]:
+				self.direction.y = -1
+				self.status = 'up'
+			elif keys[pygame.K_DOWN]:
+				self.direction.y = 1
+				self.status = 'down'
+			else:
+				self.direction.y = 0
 
-            if keys[pygame.K_w]:
-                self.direction.y = -1
-                self.status = 'up'
-            elif keys[pygame.K_s]:
-                self.direction.y = 1
-                self.status = 'down'
-            else:
-                self.direction.y = 0
+			if keys[pygame.K_RIGHT]:
+				self.direction.x = 1
+				self.status = 'right'
+			elif keys[pygame.K_LEFT]:
+				self.direction.x = -1
+				self.status = 'left'
+			else:
+				self.direction.x = 0
 
-            # A direção do jogador pode mudar quando ataca
-            if keys[pygame.K_LEFT] and not self.attacking:
-                self.status = 'left'
-                debug(self.status)
-            elif keys[pygame.K_RIGHT] and not self.attacking:
-                self.status = 'right'
-            if keys[pygame.K_UP] and not self.attacking:
-                self.status = 'up'
-            elif keys[pygame.K_DOWN] and not self.attacking:
-                self.status = 'down'
+			# teclar espaco para atacar
+			if keys[pygame.K_SPACE]:
+				self.attacking = True
+				self.attack_time = pygame.time.get_ticks()
+				self.create_attack()
+				self.weapon_attack_sound.play()
 
-            # Se atacar, mudar para estado de ataque
-            if keys[pygame.K_LEFT] or keys[pygame.K_RIGHT] or keys[pygame.K_UP] or keys[
-                pygame.K_DOWN] and not self.attacking:
-                self.attacking = True
-                self.attack_time = pygame.time.get_ticks()
-                self.create_attack()
+			# magic input 
+			if keys[pygame.K_LCTRL]:
+				self.attacking = True
+				self.attack_time = pygame.time.get_ticks()
+				style = list(magic_data.keys())[self.magic_index]
+				strength = list(magic_data.values())[self.magic_index]['strength'] + self.stats['magic']
+				cost = list(magic_data.values())[self.magic_index]['cost']
+				self.create_magic(style,strength,cost)
 
-            # Ataque especial
-            if keys[pygame.K_r]:
-                if self.super_counter >= self.player_stats['super_threshold']:
-                    self.super_counter = 0
-            if keys[pygame.K_m]:
-                if self.super_counter < self.player_stats['super_threshold']:
-                    self.super_counter += 1
+			if keys[pygame.K_q] and self.can_switch_weapon:
+				self.can_switch_weapon = False
+				self.weapon_switch_time = pygame.time.get_ticks()
+				
+				if self.weapon_index < len(list(weapon_data.keys())) - 1:
+					self.weapon_index += 1
+				else:
+					self.weapon_index = 0
+					
+				self.weapon = list(weapon_data.keys())[self.weapon_index]
 
-            # Normalizar vetor velocidade para que andar na diagonal não seja mais rápido
-            if self.direction.magnitude() > 0.1:
-                self.direction = self.direction.normalize()
+			if keys[pygame.K_e] and self.can_switch_magic:
+				self.can_switch_magic = False
+				self.magic_switch_time = pygame.time.get_ticks()
+				
+				if self.magic_index < len(list(magic_data.keys())) - 1:
+					self.magic_index += 1
+				else:
+					self.magic_index = 0
 
-    def get_status(self):
-        # Aqui o sprite do jogador será atualizado para ser um sprite do tipo parado (_iddle) ou de ataque(_attack)
+				self.magic = list(magic_data.keys())[self.magic_index]
 
-        # Estado parado
-        if self.direction.x == 0 and self.direction.y == 0:
-            if not 'idle' in self.status and not self.attacking:
-                if 'attack' in self.status:
-                    self.status = self.status.replace('_attack', '_idle')
-                else:
-                    self.status = self.status + '_idle'
+##########################################################################################
 
-        # Estado atacando
-        if self.attacking:
-            self.direction.x = 0
-            self.direction.y = 0
-            if not 'attack' in self.status:
-                if 'idle' in self.status:
-                    self.status = self.status.replace('_idle', '_attack')
-                else:
-                    self.status = self.status + '_attack'
+	def get_status(self):
 
-    def move(self, speed):
-        self.hitbox.x += self.direction.x * speed
-        # Corrigir colisões devido ao movimento horizontal
-        self.collision('horizontal')
-        self.hitbox.y += self.direction.y * speed
-        # Corrigir colisões devido ao movimento vertical
-        self.collision('vertical')
-        self.rect.center = self.hitbox.center
+		# idle status
+		if self.direction.x == 0 and self.direction.y == 0:
+			if not 'idle' in self.status and not 'attack' in self.status:
+				self.status = self.status + '_idle'
 
-    def collision(self, direction):
-        if direction == 'horizontal':
-            for sprite in self.obstacle_sprites:
-                if sprite.hitbox.colliderect(self.hitbox):
-                    if self.direction.x > 0:
-                        self.hitbox.right = sprite.hitbox.left
-                    if self.direction.x < 0:
-                        self.hitbox.left = sprite.hitbox.right
+		if self.attacking:
+			self.direction.x = 0
+			self.direction.y = 0
+			if not 'attack' in self.status:
+				if 'idle' in self.status:
+					self.status = self.status.replace('_idle','_attack')
+				else:
+					self.status = self.status + '_attack'
+		else:
+			if 'attack' in self.status:
+				self.status = self.status.replace('_attack','')
 
-        if direction == 'vertical':
-            for sprite in self.obstacle_sprites:
-                if sprite.hitbox.colliderect(self.hitbox):
-                    if self.hitbox.y > 0:
-                        self.hitbox.bottom = sprite.hitbox.top
-                    if self.direction.y < 0:
-                        self.hitbox.top = sprite.hitbox.bottom
+	# aplicar delay
+	def cooldowns(self):
+		current_time = pygame.time.get_ticks()
 
-    def cooldowns(self):
-        current_time = pygame.time.get_ticks()
+		if self.attacking:
+			if current_time - self.attack_time >= self.attack_cooldown + weapon_data[self.weapon]['cooldown']:
+				self.attacking = False
+				self.destroy_attack()
 
-        if self.attacking:
-            if current_time - self.attack_time >= self.attacking_cool_down:
-                self.attacking = False
+		if not self.can_switch_weapon:
+			if current_time - self.weapon_switch_time >= self.switch_duration_cooldown:
+				self.can_switch_weapon = True
 
-    def animate(self):
-        animation = self.animations[self.status]
+		if not self.can_switch_magic:
+			if current_time - self.magic_switch_time >= self.switch_duration_cooldown:
+				self.can_switch_magic = True
 
-        self.frame_index += self.animation_speed
-        self.frame_index = self.frame_index % len(animation)
+		if not self.vulnerable:
+			if current_time - self.hurt_time >= self.invulnerability_duration:
+				self.vulnerable = True
 
-        self.image = animation[int(self.frame_index)]
-        self.rect = self.image.get_rect(center=self.hitbox.center)
+	def animate(self):
+		animation = self.animations[self.status]
 
-    def create_attack(self):
-        create_weapon('sword', self, [self.visible_sprites])  # Creates an instance of the weapon
+		# loop nos frames
+		self.frame_index += self.animation_speed
+		if self.frame_index >= len(animation):
+			self.frame_index = 0
 
+		# iamgem
+		self.image = animation[int(self.frame_index)]
+		self.rect = self.image.get_rect(center = self.hitbox.center)
 
-    # Sistema de Combate
-    def attack(self):
-        if not self.attacking:
-            self.attacking = True
-            self.attack_time = pygame.time.get_ticks()
+		# flicker 
+		if not self.vulnerable:
+			alpha = self.wave_value()
+			self.image.set_alpha(alpha)
+		else:
+			self.image.set_alpha(255)
 
-            weapon = self.weapons[self.current_weapon]
+	def get_full_weapon_damage(self):
+		base_damage = self.stats['attack']
+		weapon_damage = weapon_data[self.weapon]['damage']
+		return base_damage + weapon_damage
 
-            if self.current_weapon == 'bow' and self.inventory['items']['arrows'] > 0:
-                self.inventory['items']['arrows'] -= 1
-                self.create_projectile()
-            elif self.current_weapon == 'bow' and self.inventory['items']['arrows'] <= 0:
-                debug('Sem flechas!')
-                self.attacking = False
-                return
+	def get_full_magic_damage(self):
+		base_damage = self.stats['magic']
+		spell_damage = magic_data[self.magic]['strength']
+		return base_damage + spell_damage
 
-            debug(f'Ataque com {self.current_weapon} - Dano: {weapon["damage"]}')
+	def get_value_by_index(self,index):
+		return list(self.stats.values())[index]
 
-            # # Verifica colisão com inimigos
-            # for enemy in self.enemy_sprites:
-            #     if self.check_attack_hit(enemy):
-            #         enemy.take_damage(weapon['damage'])
-            #         if 'effect' in weapon:
-            #             enemy.apply_effect(weapon['effect'])
+	def get_cost_by_index(self,index):
+		return list(self.upgrade_cost.values())[index]
 
-    def create_projectile(self):
-        # Cria uma flecha ou projétil mágico
-        if self.current_weapon == 'bow':
-            Projectile(
-                pos=self.rect.center,
-                direction=self.direction,
-                groups=self.visible_sprites,
-                damage=self.weapons['bow']['damage'],
-                speed=10,
-                range=self.weapons['bow']['range'],
-                image_path='graphics/weapons/arrow.png'
-            )
+	def energy_recovery(self):
+		if self.energy < self.stats['energy']:
+			self.energy += 0.01 * self.stats['magic']
+		else:
+			self.energy = self.stats['energy']
 
-    # # Checa colisão
-    # def check_collisions(self):
-    #     # Colisão com inimigos
-    #     for sprite in self.enemy_sprites:
-    #         if sprite.hitbox.colliderect(self.rect):
-    #             sprite.take_damage(self.damage)
-    #             self.kill()
-    #             return
-        
-    #     # Colisão com obstáculos
-    #     for sprite in self.obstacle_sprites:
-    #         if sprite.hitbox.colliderect(self.rect):
-    #             self.kill()
-    #             return
-            
-    def update(self):
-        # Movimenta o projétil
-        self.pos += self.direction * self.speed
-        self.rect.center = self.pos
-
-        # Verifica colisões
-        self.check_collisions()
-
-        # Calcula distância percorrida
-        self.distance_traveled = self.start_pos.distance_to(self.pos)
-
-        # Destrói o projétil se ultrapassar o alcance máximo
-        if self.distance_traveled > self.range:
-            self.kill()
-
-    #Progressão de Hbailidade
-    def gain_exp(self, amount):
-        self.exp += amount
-        if self.exp >= self.exp_to_level:
-            self.level_up()
-
-    def level_up(self):
-        self.level += 1
-        self.exp -= self.exp_to_level
-        self.exp_to_level = int(self.exp_to_level * 1.5)
-
-        # Melhorias por nível
-        self.max_health += 10
-        self.health = self.max_health
-        self.speed += 0.2
-
-        debug(f'Level Up! Novo nível: {self.level}')
-
-    def upgrade_skill(self, skill):
-        if skill == 'health':
-            self.max_health += 20
-        elif skill == 'speed':
-            self.speed += 0.5
-        elif skill == 'inventory':
-            # Implementar aumento de capacidade do inventário
-            pass
-        
-    #Interação com Lojas e NPCs
-    def interact_with_shop(self, shop):
-        # Lógica para comprar itens
-        if shop.has_item('potion') and self.inventory['coins'] >= 50:
-            self.inventory['potions'] += 1
-            self.inventory['coins'] -= 50
-        elif shop.has_item('arrows') and self.inventory['coins'] >= 10:
-            self.inventory['arrows'] += 5
-            self.inventory['coins'] -= 10
-    
-    def steal_from_shop(self, shop):
-        """
-        Tenta roubar um item da loja com 30% de chance de sucesso.
-        Em caso de falha, reduz a Destreza de Combate (DC).
-        """
-        if not hasattr(self, 'combat_dexterity'):
-            self.combat_dexterity = 100  # Valor padrão se não estiver definido
-
-        success = random.random() < 0.3  # 30% de chance de sucesso
-
-        if success:
-            stolen_item = shop.get_random_item()
-            if stolen_item:
-                # Adiciona o item ao inventário
-                if stolen_item in self.inventory['items']:
-                    self.inventory['items'][stolen_item] += 1
-                else:
-                    self.inventory['items'][stolen_item] = 1
-                debug(f'Item roubado: {stolen_item}')
-            else:
-                debug('A loja está vazia!')
-        else:
-            # Penalidade por falha no roubo
-            penalty = random.randint(5, 15)  # Valor aleatório entre 5 e 15
-            self.combat_dexterity = max(0, self.combat_dexterity - penalty)
-            debug(f'Roubo falhou! -{penalty} DC (Total: {self.combat_dexterity})')
-
-            # Verifica se os Druidas devem atacar
-            if self.combat_dexterity <= 30:
-                self.trigger_druid_attack()
-    
-    # Estado de efeito
-    def apply_effect(self, effect):
-        if effect == 'burn':
-            self.burning = True
-            self.burn_duration = 3000  # 3 segundos
-            self.burn_damage = 2
-            self.burn_time = pygame.time.get_ticks()
-        elif effect == 'freeze':
-            self.frozen = True
-            self.freeze_duration = 2000  # 2 segundos
-            self.freeze_time = pygame.time.get_ticks()
-            self.speed /= 2  # Reduz velocidade pela metade
-    
-    def update_effects(self):
-        current_time = pygame.time.get_ticks()
-        
-        if hasattr(self, 'burning') and self.burning:
-            if current_time - self.burn_time >= 1000:  # Dano a cada segundo
-                self.health -= self.burn_damage
-                self.burn_time = current_time
-            
-            if current_time - self.burn_time >= self.burn_duration:
-                self.burning = False
-        
-        if hasattr(self, 'frozen') and self.frozen:
-            if current_time - self.freeze_time >= self.freeze_duration:
-                self.frozen = False
-                self.speed *= 2  # Restaura velocidade
-
-    # Métodos adicionais
-    def switch_weapon(self):
-        # Alterna entre armas disponíveis
-        available_weapons = self.inventory['weapons']
-        current_index = available_weapons.index(self.current_weapon)
-        next_index = (current_index + 1) % len(available_weapons)
-        self.current_weapon = available_weapons[next_index]
-        debug(f'Arma equipada: {self.current_weapon}')
-    
-    def use_potion(self):
-        if self.inventory['items']['potions'] > 0:
-            self.inventory['items']['potions'] -= 1
-            self.health = min(self.health + 30, self.max_health)
-            debug('Poção usada! +30 HP')
-    
-    def trigger_druid_attack(self):
-        # Implementar ataque dos Druidas da Ordem Oculta (DOO)
-        debug('Os Druidas da Ordem Oculta estão atacando!')
-        # Adicionar inimigos DOO ao grupo de sprites
-
-    def update(self):
-        self.input()
-        self.cooldowns()
-        self.get_status()
-        self.animate()
-        self.move(self.speed)
-        self.update_effects()
-        
-        # Verifica se o jogador morreu
-        if self.health <= 0:
-            self.die()
-    
-    def die(self):
-        debug('Game Over!')
-        # Implementar lógica de morte e reinício
-
-class Shop:
-    def _init_(self):
-        self.items = {
-            'potion': {'price': 50, 'quantity': 10},
-            'arrow': {'price': 10, 'quantity': 20},
-            'fire_scroll': {'price': 100, 'quantity': 5}
-        }
-    
-    def get_random_item(self):
-        available_items = [item for item, details in self.items.items() if details['quantity'] > 0]
-        if not available_items:
-            return None
-        return random.choice(available_items)
+	def update(self):
+		self.input()
+		self.cooldowns()
+		self.get_status()
+		self.animate()
+		self.move(self.stats['speed'])
+		self.energy_recovery()
