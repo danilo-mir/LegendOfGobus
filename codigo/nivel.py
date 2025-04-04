@@ -22,7 +22,7 @@ class Nivel:
                 if col == 'x':
                     Quadrado((x, y), [self.visible_sprites, self.obstacle_sprites])
                 if col == 'p':
-                    self.player = Jogador((x, y), [self.visible_sprites])
+                    self.player = Jogador((x, y), [self.visible_sprites], self.obstacle_sprites)
     def run(self):
         self.visible_sprites.draw(self.display_surface)
         self.visible_sprites.update()
