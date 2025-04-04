@@ -23,7 +23,16 @@ class Nivel:
                     Quadrado((x, y), [self.visible_sprites, self.obstacle_sprites])
                 if col == 'p':
                     self.player = Jogador((x, y), [self.visible_sprites], self.obstacle_sprites)
+        
+        self.floor_surface = pygame.image.load("graphics/tilemap/ground.png").convert()
+        self.floor_rect = self.floor_surface.get_rect(topleft=(0,0))
+
+        self.floor_offset_pos = self.floor_rect.topleft
+
     def run(self):
+        self.display_surface.blit(self.floor_surface, self.floor_offset_pos)
+        
         self.visible_sprites.draw(self.display_surface)
         self.visible_sprites.update()
         debug(self.player.direction)
+
