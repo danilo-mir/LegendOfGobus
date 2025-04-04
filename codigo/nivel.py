@@ -3,6 +3,7 @@ from settings import *
 from quadrado import *
 from jogador import *
 from debug import *
+from arma import *
 
 class Nivel:
     def __init__(self):
@@ -28,6 +29,10 @@ class Nivel:
         self.floor_rect = self.floor_surface.get_rect(topleft=(0,0))
 
         self.floor_offset_pos = self.floor_rect.topleft
+        #self.player - Jogador((2000,1430),[self.visible_sprites], self.obstacle_sprites, self.create_ataque)
+
+    def create_ataque(self):
+        Arma(self.player, [self.visible_sprites])
 
     def run(self):
         self.display_surface.blit(self.floor_surface, self.floor_offset_pos)

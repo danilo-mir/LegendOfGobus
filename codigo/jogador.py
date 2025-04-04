@@ -1,12 +1,15 @@
 import pygame
 from settings import*
 from debug import *
+from support import *
 
 class Jogador(pygame.sprite.Sprite):
     def __init__(self, pos, groups, obstacle_sprites):
         super().__init__(groups)
-        self.image = pygame.image.load('graphics/test/rock.png').convert_alpha()
+        self.image = pygame.image.load('graphics/test/player.png').convert_alpha()
         self.rect = self.image.get_rect(topleft = pos)
+
+        self.import_player_assets()
 
         self.direction = pygame.math.Vector2()
         self.speed = 5
@@ -15,24 +18,31 @@ class Jogador(pygame.sprite.Sprite):
         self.tempo_ataque = None
 
         self.obstacle_sprites = obstacle_sprites
-        self.status = "center"
-        """
-        def import_player_assets(self):
+
+        self.status = "down"
+        self.frame_index = 0
+        self.animation_speed = 0.15
+    
+    def import_player_assets(self):
         character_path = 'graphics/player/'
         self.animations = {
             'up': [],
             'down': [],
             'left': [],
             'right': [],
-            'up_idle': [],
-            'down_idle': [],
-            'left_idle': [],
-            'right_idle': [],
-            'up_attack': [],
-            'down_attack': [],
-            'left_attack': [],
-            'right_attack': [],
-        }"""
+            'up_parado': [],
+            'down_parado': [],
+            'left_parado': [],
+            'right_parado': [],
+            'up_atacando': [],
+            'down_atacando': [],
+            'left_atacando': [],
+            'right_atacando': [],
+        }
+        for animation in self.animations.keys():
+            full_path = character_path + animation
+            self.animations[animation] = import_folder(full_path)
+
 
 
     def input(self):
@@ -62,6 +72,7 @@ class Jogador(pygame.sprite.Sprite):
             self.atacando = True
             #registra o tempo de ataque
             self.tempo_ataque = pygame.time.get_ticks()
+            self.create_ataque()
         
         #comando de tiro
         if keys[pygame.K_x] and not self.atacando:
@@ -86,7 +97,7 @@ class Jogador(pygame.sprite.Sprite):
     def get_status(self):
 
         if self.direction.x == 0 and self.direction.y == 0:
-            if not '_parado' in self.status and not 'atacando in self.status':
+            if not '_parado' in self.status and not 'atacando' in self.status:
                 self.status = self.status + '_parado' 
                 #passo a ter as informacoes de left e left_parado
 
@@ -126,11 +137,23 @@ class Jogador(pygame.sprite.Sprite):
         if self.atacando:
             if tempo_atual - self.tempo_ataque >= self.tempo_delay_ataque:
                 self.atacando = False
+            
+    def animate(self):
+        #achando a pasta
+        animation = self.animations[self.status]
+
+        #rodando pelas imagens da pasta
+        self.frame_index = (self.frame_index + self.animation_speed)%len(animation)
+
+        #a imagem q vai durar por um pequeno tempo
+        self.image = animation[int(self.frame_index)]
+        #detalhe que self.frame_index deve ser inteiro, mas eh constantemente somado a multiplos de 0.15
 
     def update(self):
         self.input()
         self.verificar_delay_ataque()
         self.move(self.speed)
 
+        self.animate()
         self.get_status()
         debug(self.status, 200, 100)
