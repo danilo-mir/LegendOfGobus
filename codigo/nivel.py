@@ -31,8 +31,7 @@ class Nivel:
 
     def run(self):
         self.display_surface.blit(self.floor_surface, self.floor_offset_pos)
-        
+
         self.visible_sprites.draw(self.display_surface)
         self.visible_sprites.update()
         debug(self.player.direction)
-
