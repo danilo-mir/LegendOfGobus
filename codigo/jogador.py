@@ -6,13 +6,13 @@ from support import *
 class Jogador(pygame.sprite.Sprite):
     def __init__(self, pos, groups, obstacle_sprites):
         super().__init__(groups)
-        self.image = pygame.image.load('graphics/test/player.png').convert_alpha()
+        self.image = pygame.image.load('graphics/test/player_redimencionado.png').convert_alpha()
         self.rect = self.image.get_rect(topleft = pos)
 
         self.import_player_assets()
 
         self.direction = pygame.math.Vector2()
-        self.speed = 5
+        self.speed = 2
         self.atacando = False
         self.tempo_delay_ataque = 400
         self.tempo_ataque = None

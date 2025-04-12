@@ -25,7 +25,7 @@ class Nivel:
                 if col == 'p':
                     self.player = Jogador((x, y), [self.visible_sprites], self.obstacle_sprites)
         
-        self.floor_surface = pygame.image.load("graphics/tilemap/ground.png").convert()
+        self.floor_surface = pygame.image.load("graphics/deepnight_map/floresta/floresta_sem_grid.png").convert()
         self.floor_rect = self.floor_surface.get_rect(topleft=(0,0))
 
         self.floor_offset_pos = self.floor_rect.topleft
