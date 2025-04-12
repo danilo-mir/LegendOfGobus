@@ -16,7 +16,7 @@ class Nivel:
         self.create_map()
 
     def create_map(self):
-        for index_linha, linha in enumerate(WORLD_MAP):
+        for index_linha, linha in enumerate(WORLD_MAP_4):
             for index_col, col in enumerate(linha):
                 x=index_col*TAMANHO_QUADRADO
                 y=index_linha*TAMANHO_QUADRADO
@@ -25,7 +25,7 @@ class Nivel:
                 if col == 'p':
                     self.player = Jogador((x, y), [self.visible_sprites], self.obstacle_sprites)
         
-        self.floor_surface = pygame.image.load("graphics/deepnight_map/floresta/floresta_sem_grid.png").convert()
+        self.floor_surface = pygame.image.load("graphics/deepnight_map/deserto/deserto_grid.png").convert()
         self.floor_rect = self.floor_surface.get_rect(topleft=(0,0))
 
         self.floor_offset_pos = self.floor_rect.topleft
