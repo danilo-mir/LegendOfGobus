@@ -4,7 +4,7 @@ from debug import *
 from support import *
 
 class Jogador(pygame.sprite.Sprite):
-    def __init__(self, pos, groups, obstacle_sprites):
+    def __init__(self, pos, groups, obstacle_sprites, bullet_group):
         super().__init__(groups)
         self.image = pygame.image.load('graphics/test/player_redimencionado.png').convert_alpha()
         self.rect = self.image.get_rect(topleft = pos)
@@ -22,6 +22,17 @@ class Jogador(pygame.sprite.Sprite):
         self.status = "down"
         self.frame_index = 0
         self.animation_speed = 0.15
+
+        # Arma
+        self.arma_visivel = False
+        self.balas = 5
+        self.bullet_group = bullet_group
+        self.arma_imgs = {
+            'up': pygame.transform.scale(pygame.image.load("graphics/weapons/gun/arma_up.png"), (20, 20)),
+            'down': pygame.transform.scale(pygame.image.load("graphics/weapons/gun/arma_down.png"), (20, 20)),
+            'left': pygame.transform.scale(pygame.image.load("graphics/weapons/gun/arma_left.png"), (20, 20)),
+            'right': pygame.transform.scale(pygame.image.load("graphics/weapons/gun/arma_right.png"), (20, 20)),
+        }
     
     def import_player_assets(self):
         character_path = 'graphics/player/'
@@ -74,12 +85,30 @@ class Jogador(pygame.sprite.Sprite):
             self.tempo_ataque = pygame.time.get_ticks()
             self.create_ataque()
         
-        #comando de tiro
-        if keys[pygame.K_x] and not self.atacando:
-            self.atacando = True
-            self.tempo_ataque = pygame.time.get_ticks()
-            #usando tempo_ataque aqui tb, pra poder usar a msm variavel
-            #na funcao delay
+        # alternar arma
+        if keys[pygame.K_g]:
+            self.arma_visivel = not self.arma_visivel
+            pygame.time.wait(200)
+
+        # tiro
+        if keys[pygame.K_k] and self.arma_visivel and self.balas > 0:
+            self.shoot()
+            pygame.time.wait(150)
+
+    def shoot(self):
+        direction = pygame.math.Vector2(0, 0)
+        if 'up' in self.status:
+            direction = pygame.math.Vector2(0, -1)
+        elif 'down' in self.status:
+            direction = pygame.math.Vector2(0, 1)
+        elif 'left' in self.status:
+            direction = pygame.math.Vector2(-1, 0)
+        elif 'right' in self.status:
+            direction = pygame.math.Vector2(1, 0)
+
+        bullet = Bala(self.rect.center, direction, self.obstacle_sprites, self.status)
+        self.bullet_group.add(bullet)
+        self.balas -= 1
 
     #usar move() para jogador e para inimigos
     #por isso n usar self.speed
@@ -139,15 +168,17 @@ class Jogador(pygame.sprite.Sprite):
                 self.atacando = False
             
     def animate(self):
-        #achando a pasta
         animation = self.animations[self.status]
-
-        #rodando pelas imagens da pasta
-        self.frame_index = (self.frame_index + self.animation_speed)%len(animation)
-
-        #a imagem q vai durar por um pequeno tempo
-        self.image = animation[int(self.frame_index)]
-        #detalhe que self.frame_index deve ser inteiro, mas eh constantemente somado a multiplos de 0.15
+        self.frame_index = (self.frame_index + self.animation_speed) % len(animation)
+        base_image = animation[int(self.frame_index)]
+        if self.arma_visivel:
+            self.image = base_image.copy()
+            direcao_base = self.status.split('_')[0]
+            if direcao_base in self.arma_imgs:
+                arma = self.arma_imgs[direcao_base]
+                self.image.blit(arma, (10, 20))
+        else:
+            self.image = base_image
 
     def update(self):
         self.input()
@@ -156,4 +187,41 @@ class Jogador(pygame.sprite.Sprite):
 
         self.animate()
         self.get_status()
-        debug(self.status, 200, 100)
+        #debug(self.status, 200, 100)
+        #debug(f"Balas: {self.balas if self.arma_visivel else ''}", 10, 10)
+        self.desenhar_interface_municao()
+
+    def desenhar_interface_municao(self):
+        if self.arma_visivel:
+            img_path = f"graphics/weapons/gun/teste/municao_{min(self.balas, 5)}.png"
+            img = pygame.image.load(img_path).convert_alpha()
+            img = pygame.transform.scale(img, (80, 40))
+            display_surface = pygame.display.get_surface()
+            display_surface.blit(img, (10, 10))
+
+class Bala(pygame.sprite.Sprite):
+    def __init__(self, pos, direction, obstacles, status):
+        super().__init__()
+        if 'up' in status:
+            self.image = pygame.image.load('graphics/weapons/gun/bala_up.png').convert_alpha()
+        elif 'down' in status:
+            self.image = pygame.image.load('graphics/weapons/gun/bala_down.png').convert_alpha()
+        elif 'left' in status:
+            self.image = pygame.image.load('graphics/weapons/gun/bala_left.png').convert_alpha()
+        elif 'right' in status:
+            self.image = pygame.image.load('graphics/weapons/gun/bala_right.png').convert_alpha()
+        else:
+            self.image = pygame.Surface((16, 16), pygame.SRCALPHA)  # fallback invisível
+
+        self.image = pygame.transform.scale(self.image, (16, 16))
+        self.rect = self.image.get_rect(center=pos)
+        self.direction = direction
+        self.speed = 6
+        self.obstacles = obstacles
+
+
+    def update(self):
+        self.rect.center += self.direction * self.speed
+        for sprite in self.obstacles:
+            if sprite.rect.colliderect(self.rect):
+                self.kill()

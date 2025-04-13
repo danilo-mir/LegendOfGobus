@@ -12,6 +12,8 @@ class Nivel:
 
         self.visible_sprites = pygame.sprite.Group()
         self.obstacle_sprites = pygame.sprite.Group()
+        self.bullet_group = pygame.sprite.Group()
+
         self.fase_jogo = 1
         self.clique_j = False
         self.tempo_clique = 0
@@ -37,7 +39,7 @@ class Nivel:
                 if col == 'x':
                     Quadrado((x, y), [self.visible_sprites, self.obstacle_sprites])
                 if col == 'p':
-                    self.player = Jogador((x, y), [self.visible_sprites], self.obstacle_sprites)
+                    self.player = Jogador((x, y), [self.visible_sprites], self.obstacle_sprites, self.bullet_group)
         
         if self.fase_jogo == 1:
             self.floor_surface = pygame.image.load("graphics/deepnight_map/floresta/floresta_sem_grid.png").convert()
@@ -59,8 +61,12 @@ class Nivel:
         self.display_surface.blit(self.floor_surface, self.floor_offset_pos)
 
         self.visible_sprites.draw(self.display_surface)
+        self.bullet_group.draw(self.display_surface)
+
         self.visible_sprites.update()
-        debug(self.player.direction)
+        self.bullet_group.update()
+
+        #debug(self.player.direction)
 
         keys = pygame.key.get_pressed()    
         if keys[pygame.K_j]:
