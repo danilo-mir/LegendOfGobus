@@ -8,10 +8,11 @@ class Quadrado(pygame.sprite.Sprite):
         #posicoes de objetos graficos para fazer as colisoes
         self.rect = self.image.get_rect(topleft = (pos[0]+6, pos[1]+6))
 
+
 """
-class Quadrado(pygame.sprite.Sprite):
-    def __init__(self, pos, groups):
+    class Quadrado(pygame.sprite.Sprite):
+        def __init__(self, pos, groups):
         super().__init__(groups)
-        self.image = pygame.Surface((0, 0))  # Surface with no visible size
-        self.rect = pygame.Rect(pos[0], pos[1], 50, 50)  # Define a rect for collisions
+        self.image = pygame.Surface((20, 20))  # Surface with no visible size
+        self.rect = pygame.Rect(pos[0]+6, pos[1]+6, 32, 32)  # Define a rect for collisions
 """

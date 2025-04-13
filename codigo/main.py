@@ -8,7 +8,7 @@ class Game:
 		# general setup
 		pygame.init() #iniciando pygame
 		self.screen = pygame.display.set_mode((WIDTH,HEIGTH)) # criandoa tela
-		pygame.display.set_caption('LegendOfGobus')
+		pygame.display.set_caption('LegendOfGobus') 
 		self.clock = pygame.time.Clock() # criando o relógio
 
 		self.nivel = Nivel()

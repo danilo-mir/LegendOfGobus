@@ -12,11 +12,25 @@ class Nivel:
 
         self.visible_sprites = pygame.sprite.Group()
         self.obstacle_sprites = pygame.sprite.Group()
+        self.fase_jogo = 1
+        self.clique_j = False
+        self.tempo_clique = 0
 
         self.create_map()
 
     def create_map(self):
-        for index_linha, linha in enumerate(WORLD_MAP_4):
+        self.visible_sprites.empty()
+        self.obstacle_sprites.empty()
+
+        if self.fase_jogo == 1:
+            WORLD_MAP = WORLD_MAP_1
+        elif self.fase_jogo == 2:
+            WORLD_MAP = WORLD_MAP_2
+        elif self.fase_jogo == 3:
+            WORLD_MAP = WORLD_MAP_3
+        elif self.fase_jogo == 4:
+            WORLD_MAP = WORLD_MAP_4
+        for index_linha, linha in enumerate(WORLD_MAP):
             for index_col, col in enumerate(linha):
                 x=index_col*TAMANHO_QUADRADO
                 y=index_linha*TAMANHO_QUADRADO
@@ -25,7 +39,14 @@ class Nivel:
                 if col == 'p':
                     self.player = Jogador((x, y), [self.visible_sprites], self.obstacle_sprites)
         
-        self.floor_surface = pygame.image.load("graphics/deepnight_map/deserto/deserto_grid.png").convert()
+        if self.fase_jogo == 1:
+            self.floor_surface = pygame.image.load("graphics/deepnight_map/floresta/floresta_sem_grid.png").convert()
+        elif self.fase_jogo == 2:
+            self.floor_surface = pygame.image.load("graphics/deepnight_map/gelo/gelo.png").convert()
+        elif self.fase_jogo == 3:
+            self.floor_surface = pygame.image.load("graphics/deepnight_map/vulcao/vulcao.png").convert()
+        elif self.fase_jogo == 4:
+            self.floor_surface = pygame.image.load("graphics/deepnight_map/deserto/deserto.png").convert()
         self.floor_rect = self.floor_surface.get_rect(topleft=(0,0))
 
         self.floor_offset_pos = self.floor_rect.topleft
@@ -40,3 +61,20 @@ class Nivel:
         self.visible_sprites.draw(self.display_surface)
         self.visible_sprites.update()
         debug(self.player.direction)
+
+        keys = pygame.key.get_pressed()    
+        if keys[pygame.K_j]:
+            self.clique_j=True
+            self.verificar_delay_clique()
+            if self.clique_j:
+                self.tempo_clique = pygame.time.get_ticks()
+                self.fase_jogo += 1
+                self.create_map()
+        
+    def verificar_delay_clique(self):
+        tempo_atual = pygame.time.get_ticks()
+
+        if self.clique_j:
+            if tempo_atual - self.tempo_clique <= 400:
+                self.clique_j = False
+        
