@@ -26,7 +26,7 @@ class Player(Entity):
 
         # Inicializar temporizadores de ataque
         self.attacking = False
-        self.attacking_cool_down = 400
+        self.attacking_cool_down = 200
         self.attack_time = None
 
         self.obstacle_sprites = obstacle_sprites
@@ -111,10 +111,10 @@ class Player(Entity):
 
             # Ataque especial
             if keys[pygame.K_r]:
-                if self.super_counter >= self.stats['super_threshold']:
+                if self.super_counter >= self.player_stats['super_threshold']:
                     self.super_counter = 0
             if keys[pygame.K_m]:
-                if self.super_counter < self.stats['super_threshold']:
+                if self.super_counter < self.player_stats['super_threshold']:
                     self.super_counter += 1
 
             # Normalizar vetor velocidade para que andar na diagonal não seja mais rápido
