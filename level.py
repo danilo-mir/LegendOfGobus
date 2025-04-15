@@ -2,6 +2,7 @@ import pygame
 from settings import *
 from tile import Tile
 from player import Player
+from enemy import Enemy
 from debug import debug
 from ui import UI
 
@@ -28,13 +29,17 @@ class Level:
                 y = row_index * TILESIZE
                 if col == 'R':
                     Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
-                if col == 'P':
+                elif col == 'P':
                     self.player = Player((x, y), [self.visibile_sprites], self.obstacle_sprites)
+                elif col in monster_symbol:
+                    monster_name = monster_symbol[col]
+                    Enemy(monster_name, (x, y), [self.visibile_sprites], self.obstacle_sprites)
 
     def run(self):
         self.display_surface.fill((0, 100, 0))
         self.visibile_sprites.custom_draw(self.player)
         self.visibile_sprites.update()
+        self.visibile_sprites.enemy_update(self.player)
         self.ui.display(self.player)
 
 
@@ -65,3 +70,8 @@ class YSortCameraGroup(pygame.sprite.Group):
                                        sprite.hitbox.height)
             pygame.draw.rect(self.display_surface, 'red', drawn_rect, 1)
             pygame.draw.rect(self.display_surface, 'green', drawn_hitbox, 1)
+
+    def enemy_update(self, player):
+        enemy_sprites = [sprite for sprite in self.sprites() if hasattr(sprite, 'sprite_type') and sprite.sprite_type == 'enemy']
+        for enemy in enemy_sprites:
+            enemy.enemy_update(player)
