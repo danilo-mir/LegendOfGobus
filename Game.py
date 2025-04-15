@@ -4,6 +4,7 @@ from level import Level
 from menu import Menu
 from pause import PauseScreen
 
+
 class Game:
     def __init__(self):
         pygame.init()
@@ -36,4 +37,3 @@ class Game:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     self.game_paused = not self.game_paused
-

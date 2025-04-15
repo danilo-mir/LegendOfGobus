@@ -1,12 +1,12 @@
 import pygame
-import random
 from settings import *
 from debug import debug
 from utils import import_folder
+from entity import Entity
 
 
-class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, groups, obstacle_sprites, create_attack, player_stats=DEFAULT_PLAYER_STATS):
+class Player(Entity):
+    def __init__(self, pos, groups, obstacle_sprites, create_attack, destroy_attack, player_stats=DEFAULT_PLAYER_STATS):
         super().__init__(groups)
         original_image = pygame.image.load('graphics/player/down/down_0.png').convert_alpha()
         self.image = pygame.transform.scale(original_image, (PLAYERSIZE, PLAYERSIZE))
@@ -17,33 +17,25 @@ class Player(pygame.sprite.Sprite):
         # Dar ao jogador acesso à função create_attack da classe Level
         self.create_attack = create_attack
 
+        # Dar ao jogador acesso à funçào destroy_weapon da classe Level
+        self.destroy_attack = destroy_attack
+
         # Orientação do jogador
         self.status = 'down'
-
-        # Atributos utilizados para animar o movimento do jogador
-        self.frame_index = 0
-        self.animation_speed = 0.15
-
-        # Movimento
-        self.direction = pygame.math.Vector2(0, 0)
 
         # Inicializar temporizadores de ataque
         self.attacking = False
         self.attacking_cool_down = 400
         self.attack_time = None
 
-        # Referência para o vetor de obstáculos do nível
         self.obstacle_sprites = obstacle_sprites
 
         # Atributos do jogador
         self.player_stats = player_stats
 
-        # Inventário do jogador e arma que está usando
-        self.current_weapon = 'sword'
-        self.inventory = {
-            'weapons': ['sword'],  # Armas disponíveis
-            'items': {'potions': 3, 'arrows': 10}
-        }
+        # Arma equipada e inventário
+        self.inventory = {}
+        self.current_weapon = 'axe'
     
         # Atributos de progressão
         self.level = 1
@@ -52,14 +44,23 @@ class Player(pygame.sprite.Sprite):
         self.speed = self.player_stats['speed']
         self.exp = 0
         self.super_counter = 0
-        self.combat_dexterity = 100  # DC (Destreza de Combate)
+
 
     def import_player_assets(self):
         character_path = 'graphics/player/'
         self.animations = {
-            'up': [], 'down': [], 'left': [], 'right': [],
-            'up_idle': [], 'down_idle': [], 'left_idle': [], 'right_idle': [],
-            'up_attack': [], 'down_attack': [], 'left_attack': [], 'right_attack': []
+            'up': [],
+            'down': [],
+            'left': [],
+            'right': [],
+            'up_idle': [],
+            'down_idle': [],
+            'left_idle': [],
+            'right_idle': [],
+            'up_attack': [],
+            'down_attack': [],
+            'left_attack': [],
+            'right_attack': [],
         }
 
         for animation in self.animations.keys():
@@ -111,14 +112,14 @@ class Player(pygame.sprite.Sprite):
                 pygame.K_DOWN] and not self.attacking:
                 self.attacking = True
                 self.attack_time = pygame.time.get_ticks()
-                self.create_attack('sword')
+                self.create_attack(self.current_weapon)
 
             # Ataque especial
             if keys[pygame.K_r]:
-                if self.super_counter >= self.player_stats['super_threshold']:
+                if self.super_counter >= self.stats['super_threshold']:
                     self.super_counter = 0
             if keys[pygame.K_m]:
-                if self.super_counter < self.player_stats['super_threshold']:
+                if self.super_counter < self.stats['super_threshold']:
                     self.super_counter += 1
 
             # Normalizar vetor velocidade para que andar na diagonal não seja mais rápido
@@ -146,38 +147,13 @@ class Player(pygame.sprite.Sprite):
                 else:
                     self.status = self.status + '_attack'
 
-    def move(self, speed):
-        self.hitbox.x += self.direction.x * speed
-        # Corrigir colisões devido ao movimento horizontal
-        self.collision('horizontal')
-        self.hitbox.y += self.direction.y * speed
-        # Corrigir colisões devido ao movimento vertical
-        self.collision('vertical')
-        self.rect.center = self.hitbox.center
-
-    def collision(self, direction):
-        if direction == 'horizontal':
-            for sprite in self.obstacle_sprites:
-                if sprite.hitbox.colliderect(self.hitbox):
-                    if self.direction.x > 0:
-                        self.hitbox.right = sprite.hitbox.left
-                    if self.direction.x < 0:
-                        self.hitbox.left = sprite.hitbox.right
-
-        if direction == 'vertical':
-            for sprite in self.obstacle_sprites:
-                if sprite.hitbox.colliderect(self.hitbox):
-                    if self.hitbox.y > 0:
-                        self.hitbox.bottom = sprite.hitbox.top
-                    if self.direction.y < 0:
-                        self.hitbox.top = sprite.hitbox.bottom
-
     def cooldowns(self):
         current_time = pygame.time.get_ticks()
 
         if self.attacking:
             if current_time - self.attack_time >= self.attacking_cool_down:
                 self.attacking = False
+                self.destroy_attack()
 
     def animate(self):
         animation = self.animations[self.status]
@@ -187,15 +163,6 @@ class Player(pygame.sprite.Sprite):
 
         self.image = animation[int(self.frame_index)]
         self.rect = self.image.get_rect(center=self.hitbox.center)
-
-
-    # Sistema de Combate
-    def attack(self):
-        if not self.attacking:
-            self.attacking = True
-            self.attack_time = pygame.time.get_ticks()
-
-            weapon = self.weapons[self.current_weapon]
 
     def update(self):
         self.input()

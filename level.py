@@ -2,9 +2,10 @@ import pygame
 from settings import *
 from tile import *
 from player import Player
-from weapon import *
+from enemy import Enemy
 from debug import debug
 from ui import UI
+from weapon import create_weapon
 
 
 class Level:
@@ -15,6 +16,9 @@ class Level:
         # Criar grupos de sprites
         self.visibile_sprites = YSortCameraGroup()
         self.obstacle_sprites = pygame.sprite.Group()
+
+        # Sprites de ataque
+        self.current_attack = None
 
         # Criar mapa
         self.create_map()
@@ -46,15 +50,32 @@ class Level:
                 if col == 'R1':
                     Rock1Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
                 if col == 'P':
-                    self.player = Player((x, y), [self.visibile_sprites], self.obstacle_sprites, self.create_attack)
+                    self.player = Player((x, y), [self.visibile_sprites], self.obstacle_sprites, self.create_attack, self.destroy_attack)
+                elif col in monster_symbol:
+                    monster_name = monster_symbol[col]
+                    Enemy(monster_name, (x, y), [self.visibile_sprites], self.obstacle_sprites)
 
     def create_attack(self, weapon_name):
-        create_weapon('sword', self.player, [self.visibile_sprites])  
+        self.current_attack = create_weapon(weapon_name, self.player, [self.visibile_sprites])  
+    
+    def destroy_attack(self):
+        if self.current_attack:
+            self.current_attack.kill()
+        self.current_attack = None
+    
+    def change_visibility(self, sprite, visible):
+        if visible:
+            if sprite not in self.visibile_sprites:
+                self.visibile_sprites.add(sprite)
+        else:
+            if sprite in self.visibile_sprites:
+                self.visibile_sprites.remove(sprite)
 
     def run(self):
         self.display_surface.fill((0, 100, 0))
         self.visibile_sprites.custom_draw(self.player)
         self.visibile_sprites.update()
+        self.visibile_sprites.enemy_update(self.player)
         self.ui.display(self.player)
 
 
@@ -84,3 +105,8 @@ class YSortCameraGroup(pygame.sprite.Group):
             drawn_hitbox = pygame.Rect(offset_pos_hitbox[0], offset_pos_hitbox[1], sprite.hitbox.width, sprite.hitbox.height)
             pygame.draw.rect(self.display_surface, 'red', drawn_rect, 1)
             pygame.draw.rect(self.display_surface, 'green', drawn_hitbox, 1)
+
+    def enemy_update(self, player):
+        enemy_sprites = [sprite for sprite in self.sprites() if hasattr(sprite, 'sprite_type') and sprite.sprite_type == 'enemy']
+        for enemy in enemy_sprites:
+            enemy.enemy_update(player)

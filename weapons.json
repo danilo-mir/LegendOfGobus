@@ -4,15 +4,17 @@
     "damage": 10,
     "cooldown": 400,
     "range": 50,
-    "graphic": "/graphics/weapons/sword/full.png"
+    "effect": "",
+    "graphic": "graphics/weapons/sword"
   },
 
-  "bow": {
-    "type" : "ranged",
-    "damage": 8,
+  "axe": {
+    "type" : "melee",
+    "damage": 20,
     "cooldown": 600,
     "range": 200,
-    "graphic": "/graphics/weapons/lance/full.png"
+    "effect": "",
+    "graphic": "graphics/weapons/axe"
   },
 
   "fire_spell": {
@@ -20,6 +22,14 @@
     "damage": 15,
     "cooldown": 800,
     "effect": "burn",
-    "graphic": "/graphics/weapons/rapier/full.png"
+    "graphic": "graphics/weapons/rapier"
+  },
+
+  "gun" : {
+    "type" : "ranged",
+    "damage": 40,
+    "cooldown": 1000,
+    "effect": "",
+    "graphic": "graphics/weapons/gun"
   }
 }
