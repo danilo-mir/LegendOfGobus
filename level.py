@@ -1,6 +1,6 @@
 import pygame
 from settings import *
-from tile import Tile
+from tile import *
 from player import Player
 from weapon import *
 from debug import debug
@@ -27,8 +27,24 @@ class Level:
             for col_index, col in enumerate(row):
                 x = col_index * TILESIZE
                 y = row_index * TILESIZE
-                if col == 'R':
-                    Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
+                if col == 'G1':
+                    Grass1Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
+                if col == 'G2':
+                    Grass2Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
+                if col == 'G3':
+                    Grass3Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
+                if col == 'TR1':
+                    Trunk1Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
+                if col == 'TR2':
+                    Trunk2Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
+                if col == 'T1':
+                    Tree1Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
+                if col == 'T2':
+                    Tree2Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
+                if col == 'T3':
+                    Tree3Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
+                if col == 'R1':
+                    Rock1Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
                 if col == 'P':
                     self.player = Player((x, y), [self.visibile_sprites], self.obstacle_sprites, self.create_attack)
 
@@ -65,7 +81,6 @@ class YSortCameraGroup(pygame.sprite.Group):
             offset_pos_hitbox = sprite.hitbox.topleft - self.offset
             self.display_surface.blit(sprite.image, offset_pos_rect)
             drawn_rect = pygame.Rect(offset_pos_rect[0], offset_pos_rect[1], sprite.rect.width, sprite.rect.height)
-            drawn_hitbox = pygame.Rect(offset_pos_hitbox[0], offset_pos_hitbox[1], sprite.hitbox.width,
-                                       sprite.hitbox.height)
+            drawn_hitbox = pygame.Rect(offset_pos_hitbox[0], offset_pos_hitbox[1], sprite.hitbox.width, sprite.hitbox.height)
             pygame.draw.rect(self.display_surface, 'red', drawn_rect, 1)
             pygame.draw.rect(self.display_surface, 'green', drawn_hitbox, 1)

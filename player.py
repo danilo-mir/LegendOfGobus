@@ -8,10 +8,10 @@ from utils import import_folder
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos, groups, obstacle_sprites, create_attack, player_stats=DEFAULT_PLAYER_STATS):
         super().__init__(groups)
-        self.image = pygame.image.load('graphics/player/down/down_0.png').convert_alpha()
+        original_image = pygame.image.load('graphics/player/down/down_0.png').convert_alpha()
+        self.image = pygame.transform.scale(original_image, (PLAYERSIZE, PLAYERSIZE))
         self.rect = self.image.get_rect(topleft=pos)
-        self.hitbox = self.rect.inflate(0, -26)
-
+        self.hitbox = self.rect.inflate(-10, -20)  # tweak this if needed
         self.import_player_assets()
 
         # Dar ao jogador acesso à função create_attack da classe Level
@@ -57,23 +57,20 @@ class Player(pygame.sprite.Sprite):
     def import_player_assets(self):
         character_path = 'graphics/player/'
         self.animations = {
-        'up': [],
-        'down': [],
-        'left': [],
-        'right': [],
-        'up_idle': [],
-        'down_idle': [],
-        'left_idle': [],
-        'right_idle': [],
-        'up_attack': [],
-        'down_attack': [],
-        'left_attack': [],
-        'right_attack': [],
+            'up': [], 'down': [], 'left': [], 'right': [],
+            'up_idle': [], 'down_idle': [], 'left_idle': [], 'right_idle': [],
+            'up_attack': [], 'down_attack': [], 'left_attack': [], 'right_attack': []
         }
 
         for animation in self.animations.keys():
             animation_folder_path = character_path + animation
-            self.animations[animation] = import_folder(animation_folder_path)
+            raw_frames = import_folder(animation_folder_path)
+            scaled_frames = [
+                pygame.transform.scale(frame, (PLAYERSIZE, PLAYERSIZE)) for frame in raw_frames
+            ]
+            self.animations[animation] = scaled_frames
+
+
 
     def input(self):
         if not self.attacking:
