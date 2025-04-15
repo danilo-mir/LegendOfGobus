@@ -29,14 +29,14 @@ class Weapon(ABC, pygame.sprite.Sprite):
     self.hitbox = self.rect
 
   @abstractmethod
-  def shoot():
+  def shoot(self):
     pass
 
 class MeleeWeapon(Weapon):
   def __init__(self, weapon_name, player, groups):
      super().__init__(weapon_name, player, groups)
 
-  def shoot():
+  def shoot(self):
      pass
 
 class RangedWeapon(Weapon):

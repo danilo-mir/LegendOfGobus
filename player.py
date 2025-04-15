@@ -1,17 +1,18 @@
 import pygame
-import random
 from settings import *
 from debug import debug
 from utils import import_folder
+from entity import Entity
 
 
-class Player(pygame.sprite.Sprite):
+class Player(Entity):
     def __init__(self, pos, groups, obstacle_sprites, create_attack, destroy_attack, player_stats=DEFAULT_PLAYER_STATS):
         super().__init__(groups)
         self.image = pygame.image.load('graphics/player/down/down_0.png').convert_alpha()
         self.rect = self.image.get_rect(topleft=pos)
         self.hitbox = self.rect.inflate(0, -26)
 
+        # Atributos usados para animação do movimento
         self.import_player_assets()
 
         # Dar ao jogador acesso à função create_attack da classe Level
@@ -23,19 +24,11 @@ class Player(pygame.sprite.Sprite):
         # Orientação do jogador
         self.status = 'down'
 
-        # Atributos utilizados para animar o movimento do jogador
-        self.frame_index = 0
-        self.animation_speed = 0.15
-
-        # Movimento
-        self.direction = pygame.math.Vector2(0, 0)
-
         # Inicializar temporizadores de ataque
         self.attacking = False
         self.attacking_cool_down = 400
         self.attack_time = None
 
-        # Referência para o vetor de obstáculos do nível
         self.obstacle_sprites = obstacle_sprites
 
         # Atributos do jogador
@@ -53,21 +46,22 @@ class Player(pygame.sprite.Sprite):
         self.exp = 0
         self.super_counter = 0
 
+
     def import_player_assets(self):
         character_path = 'graphics/player/'
         self.animations = {
-        'up': [],
-        'down': [],
-        'left': [],
-        'right': [],
-        'up_idle': [],
-        'down_idle': [],
-        'left_idle': [],
-        'right_idle': [],
-        'up_attack': [],
-        'down_attack': [],
-        'left_attack': [],
-        'right_attack': [],
+            'up': [],
+            'down': [],
+            'left': [],
+            'right': [],
+            'up_idle': [],
+            'down_idle': [],
+            'left_idle': [],
+            'right_idle': [],
+            'up_attack': [],
+            'down_attack': [],
+            'left_attack': [],
+            'right_attack': [],
         }
 
         for animation in self.animations.keys():
@@ -117,10 +111,10 @@ class Player(pygame.sprite.Sprite):
 
             # Ataque especial
             if keys[pygame.K_r]:
-                if self.super_counter >= self.player_stats['super_threshold']:
+                if self.super_counter >= self.stats['super_threshold']:
                     self.super_counter = 0
             if keys[pygame.K_m]:
-                if self.super_counter < self.player_stats['super_threshold']:
+                if self.super_counter < self.stats['super_threshold']:
                     self.super_counter += 1
 
             # Normalizar vetor velocidade para que andar na diagonal não seja mais rápido
@@ -148,32 +142,6 @@ class Player(pygame.sprite.Sprite):
                 else:
                     self.status = self.status + '_attack'
 
-    def move(self, speed):
-        self.hitbox.x += self.direction.x * speed
-        # Corrigir colisões devido ao movimento horizontal
-        self.collision('horizontal')
-        self.hitbox.y += self.direction.y * speed
-        # Corrigir colisões devido ao movimento vertical
-        self.collision('vertical')
-        self.rect.center = self.hitbox.center
-
-    def collision(self, direction):
-        if direction == 'horizontal':
-            for sprite in self.obstacle_sprites:
-                if sprite.hitbox.colliderect(self.hitbox):
-                    if self.direction.x > 0:
-                        self.hitbox.right = sprite.hitbox.left
-                    if self.direction.x < 0:
-                        self.hitbox.left = sprite.hitbox.right
-
-        if direction == 'vertical':
-            for sprite in self.obstacle_sprites:
-                if sprite.hitbox.colliderect(self.hitbox):
-                    if self.hitbox.y > 0:
-                        self.hitbox.bottom = sprite.hitbox.top
-                    if self.direction.y < 0:
-                        self.hitbox.top = sprite.hitbox.bottom
-
     def cooldowns(self):
         current_time = pygame.time.get_ticks()
 
@@ -190,15 +158,6 @@ class Player(pygame.sprite.Sprite):
 
         self.image = animation[int(self.frame_index)]
         self.rect = self.image.get_rect(center=self.hitbox.center)
-
-
-    # Sistema de Combate
-    def attack(self):
-        if not self.attacking:
-            self.attacking = True
-            self.attack_time = pygame.time.get_ticks()
-
-            weapon = self.weapons[self.current_weapon]
 
     def update(self):
         self.input()
