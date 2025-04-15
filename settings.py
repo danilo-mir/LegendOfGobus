@@ -18,6 +18,9 @@ SUPER_PADDING_Y = 10
 SUPER_RADIUS = 35
 BORDER = 3
 
+# Menu
+BG = 'graphics/tilemap/ground.png'
+
 # Cores
 WATER_COLOR = '#71ddee'
 UI_BG_COLOR = '#222222'

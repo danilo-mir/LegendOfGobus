@@ -1,15 +1,24 @@
+# Game.py
+
 import pygame
 from settings import *
-from debug import debug
 from level import Level
+from menu import Menu
 
 
 class Game:
     def __init__(self):
         pygame.init()
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
-        pygame.display.set_caption('The Legend of Goobus: Breath of the Baphen')
+        pygame.display.set_caption("The Legend of Goobus: Breath of the Baphen")
         self.clock = pygame.time.Clock()
+
+        # Show menu first
+        menu = Menu(self.screen)
+        menu.run()
+
+        # You can optionally use menu.get_volume_settings() to configure volume
+        # music_vol, sfx_vol = menu.get_volume_settings()
 
         self.level = Level()
 
