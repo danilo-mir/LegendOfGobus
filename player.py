@@ -12,11 +12,17 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft=pos)
         self.hitbox = self.rect.inflate(0, -26)
 
-    # Atributos usados para animação do movimento
-    self.import_player_assets()
-    self.status = 'down'
-    self.frame_index = 0
-    self.animation_speed = 0.15
+        self.import_player_assets()
+
+        # Dar ao jogador acesso à função create_attack da classe Level
+        self.create_attack = create_attack
+
+        # Orientação do jogador
+        self.status = 'down'
+
+        # Atributos utilizados para animar o movimento do jogador
+        self.frame_index = 0
+        self.animation_speed = 0.15
 
         # Movimento
         self.direction = pygame.math.Vector2(0, 0)
@@ -92,21 +98,35 @@ class Player(pygame.sprite.Sprite):
             else:
                 self.direction.y = 0
 
-      # Input de ataque
-      if keys[pygame.K_SPACE] and not self.attacking:
-        self.attacking = True
-        self.attack_time = pygame.time.get_ticks()
-        debug('Ataque')
+            # A direção do jogador pode mudar quando ataca
+            if keys[pygame.K_LEFT] and not self.attacking:
+                self.status = 'left'
+                debug(self.status)
+            elif keys[pygame.K_RIGHT] and not self.attacking:
+                self.status = 'right'
+            if keys[pygame.K_UP] and not self.attacking:
+                self.status = 'up'
+            elif keys[pygame.K_DOWN] and not self.attacking:
+                self.status = 'down'
 
-      # Input de magica
-      if keys[pygame.K_LCTRL] and not self.attacking:
-        self.attacking = True
-        self.attack_time = pygame.time.get_ticks()
-        debug('Magica')
-      
-      # Normalizar vetor velocidade para que andar na diagonal não seja mais rápido
-      if self.direction.magnitude() > 0.1:
-        self.direction = self.direction.normalize()
+            # Se atacar, mudar para estado de ataque
+            if keys[pygame.K_LEFT] or keys[pygame.K_RIGHT] or keys[pygame.K_UP] or keys[
+                pygame.K_DOWN] and not self.attacking:
+                self.attacking = True
+                self.attack_time = pygame.time.get_ticks()
+                self.create_attack('sword')
+
+            # Ataque especial
+            if keys[pygame.K_r]:
+                if self.super_counter >= self.player_stats['super_threshold']:
+                    self.super_counter = 0
+            if keys[pygame.K_m]:
+                if self.super_counter < self.player_stats['super_threshold']:
+                    self.super_counter += 1
+
+            # Normalizar vetor velocidade para que andar na diagonal não seja mais rápido
+            if self.direction.magnitude() > 0.1:
+                self.direction = self.direction.normalize()
 
     def get_status(self):
         # Aqui o sprite do jogador será atualizado para ser um sprite do tipo parado (_iddle) ou de ataque(_attack)
@@ -168,8 +188,17 @@ class Player(pygame.sprite.Sprite):
         self.frame_index += self.animation_speed
         self.frame_index = self.frame_index % len(animation)
 
-    self.image = animation[int(self.frame_index)]
-    self.rect = self.image.get_rect(center = self.hitbox.center)
+        self.image = animation[int(self.frame_index)]
+        self.rect = self.image.get_rect(center=self.hitbox.center)
+
+
+    # Sistema de Combate
+    def attack(self):
+        if not self.attacking:
+            self.attacking = True
+            self.attack_time = pygame.time.get_ticks()
+
+            weapon = self.weapons[self.current_weapon]
 
     def update(self):
         self.input()

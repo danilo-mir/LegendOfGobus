@@ -19,20 +19,28 @@ class Level:
         # Criar mapa
         self.create_map()
 
-  def create_map(self):
-    for row_index, row in enumerate(WORLD_MAP):
-      for col_index, col in enumerate(row):
-        x = col_index * TILESIZE
-        y = row_index * TILESIZE
-        if col == 'R':
-          Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
-        if col == 'P':
-          self.player = Player((x, y), [self.visibile_sprites], self.obstacle_sprites)
+        # Interface do usuário
+        self.ui = UI()
 
+    def create_map(self):
+        for row_index, row in enumerate(WORLD_MAP):
+            for col_index, col in enumerate(row):
+                x = col_index * TILESIZE
+                y = row_index * TILESIZE
+                if col == 'R':
+                    Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
+                if col == 'P':
+                    self.player = Player((x, y), [self.visibile_sprites], self.obstacle_sprites, self.create_attack)
 
-  def run(self):
-    self.visibile_sprites.custom_draw(self.player)
-    self.visibile_sprites.update()
+    def create_attack(self, weapon_name):
+        create_weapon('sword', self.player, [self.visibile_sprites])  
+
+    def run(self):
+        self.display_surface.fill((0, 100, 0))
+        self.visibile_sprites.custom_draw(self.player)
+        self.visibile_sprites.update()
+        self.ui.display(self.player)
+
 
 # Grupo de sprites customizado para ordena-los conforme sua posicao y dando um senso de profundidade
 # Também implementa o movimento da câmera caso o mapa seja maior que a tela
@@ -52,15 +60,12 @@ class YSortCameraGroup(pygame.sprite.Group):
         # self.offset.x = player.rect.centerx - self.half_width
         # self.offset.y = player.rect.centery - self.half_height
 
-    for sprite in sorted(self.sprites(), key = lambda sprite: sprite.rect.centery):
-      offset_pos_rect = sprite.rect.topleft - self.offset
-      offset_pos_hitbox = sprite.hitbox.topleft - self.offset
-      self.display_surface.blit(sprite.image, offset_pos_rect)
-      drawn_rect = pygame.Rect(offset_pos_rect[0], offset_pos_rect[1], sprite.rect.width, sprite.rect.height)
-      drawn_hitbox = pygame.Rect(offset_pos_hitbox[0], offset_pos_hitbox[1], sprite.hitbox.width, sprite.hitbox.height)
-      pygame.draw.rect(self.display_surface, 'red', drawn_rect, 1)
-      pygame.draw.rect(self.display_surface, 'green', drawn_hitbox, 1)
-  
-      
-
-
+        for sprite in sorted(self.sprites(), key=lambda sprite: sprite.rect.centery):
+            offset_pos_rect = sprite.rect.topleft - self.offset
+            offset_pos_hitbox = sprite.hitbox.topleft - self.offset
+            self.display_surface.blit(sprite.image, offset_pos_rect)
+            drawn_rect = pygame.Rect(offset_pos_rect[0], offset_pos_rect[1], sprite.rect.width, sprite.rect.height)
+            drawn_hitbox = pygame.Rect(offset_pos_hitbox[0], offset_pos_hitbox[1], sprite.hitbox.width,
+                                       sprite.hitbox.height)
+            pygame.draw.rect(self.display_surface, 'red', drawn_rect, 1)
+            pygame.draw.rect(self.display_surface, 'green', drawn_hitbox, 1)
