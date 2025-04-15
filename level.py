@@ -16,6 +16,9 @@ class Level:
         self.visibile_sprites = YSortCameraGroup()
         self.obstacle_sprites = pygame.sprite.Group()
 
+        # Sprites de ataque
+        self.current_attack = None
+
         # Criar mapa
         self.create_map()
 
@@ -30,10 +33,25 @@ class Level:
                 if col == 'R':
                     Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
                 if col == 'P':
-                    self.player = Player((x, y), [self.visibile_sprites], self.obstacle_sprites, self.create_attack)
+                    self.player = Player((x, y), [self.visibile_sprites], self.obstacle_sprites, self.create_attack, self.destroy_attack)
 
     def create_attack(self, weapon_name):
-        create_weapon('sword', self.player, [self.visibile_sprites])  
+        self.current_attack = create_weapon(weapon_name, self.player, [self.visibile_sprites])  
+    
+    def destroy_attack(self):
+        if self.current_attack:
+            self.current_attack.kill()
+        self.current_attack = None
+    
+    def change_visibility(self, sprite, visible):
+        if visible:
+            if sprite not in self.visibile_sprites:
+                self.visibile_sprites.add(sprite)
+        else:
+            if sprite in self.visibile_sprites:
+                self.visibile_sprites.remove(sprite)
+
+
 
     def run(self):
         self.display_surface.fill((0, 100, 0))

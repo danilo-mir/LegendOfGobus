@@ -3,14 +3,17 @@ from abc import ABC, abstractmethod
 import json
 
 class Weapon(ABC, pygame.sprite.Sprite):
-  def __init__(self, weapon_name, player, groups):
+  def __init__(self, weapon_data, player, groups):
     super().__init__(groups)
+
+    # A arma só será desenhada se estiver equipada pelo jogador
+    self.equipped = False
 
     # Achar a direção da arma com base na direção do jogador
     direction = player.status
 
     # Carregar sprite da arma
-    self.full_path = f'graphics/weapons/{weapon_name}/{direction}.png'
+    self.full_path = f'{weapon_data["graphic"]}/{direction}.png'
     self.image = pygame.image.load(self.full_path)
 
     # Posicionar a arma corretamente para ficar na mão do jogador
@@ -52,7 +55,7 @@ get_child_class = {
 # Fábrica de armas pois precisamos do nome da arma para saber a que tipo pertence
 def create_weapon(weapon_name, player, groups):
   with open('weapons.json') as weapon_data_json:
-    weapon_data = json.load(weapon_data_json)
-  weapon_type = weapon_data[weapon_name]['type']
-  weapon_child_class = get_child_class[weapon_type]
-  return weapon_child_class(weapon_name, player, groups)
+    all_weapons_data = json.load(weapon_data_json)
+  weapon_data = all_weapons_data[weapon_name]
+  weapon_child_class = get_child_class[weapon_data['type']]
+  return weapon_child_class(weapon_data, player, groups)

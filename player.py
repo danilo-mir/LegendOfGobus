@@ -6,7 +6,7 @@ from utils import import_folder
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, groups, obstacle_sprites, create_attack, player_stats=DEFAULT_PLAYER_STATS):
+    def __init__(self, pos, groups, obstacle_sprites, create_attack, destroy_attack, player_stats=DEFAULT_PLAYER_STATS):
         super().__init__(groups)
         self.image = pygame.image.load('graphics/player/down/down_0.png').convert_alpha()
         self.rect = self.image.get_rect(topleft=pos)
@@ -16,6 +16,9 @@ class Player(pygame.sprite.Sprite):
 
         # Dar ao jogador acesso à função create_attack da classe Level
         self.create_attack = create_attack
+
+        # Dar ao jogador acesso à funçào destroy_weapon da classe Level
+        self.destroy_attack = destroy_attack
 
         # Orientação do jogador
         self.status = 'down'
@@ -38,12 +41,9 @@ class Player(pygame.sprite.Sprite):
         # Atributos do jogador
         self.player_stats = player_stats
 
-        # Inventário do jogador e arma que está usando
-        self.current_weapon = 'sword'
-        self.inventory = {
-            'weapons': ['sword'],  # Armas disponíveis
-            'items': {'potions': 3, 'arrows': 10}
-        }
+        # Arma equipada e inventário
+        self.inventory = {}
+        self.current_weapon = 'axe'
     
         # Atributos de progressão
         self.level = 1
@@ -52,7 +52,6 @@ class Player(pygame.sprite.Sprite):
         self.speed = self.player_stats['speed']
         self.exp = 0
         self.super_counter = 0
-        self.combat_dexterity = 100  # DC (Destreza de Combate)
 
     def import_player_assets(self):
         character_path = 'graphics/player/'
@@ -114,7 +113,7 @@ class Player(pygame.sprite.Sprite):
                 pygame.K_DOWN] and not self.attacking:
                 self.attacking = True
                 self.attack_time = pygame.time.get_ticks()
-                self.create_attack('sword')
+                self.create_attack(self.current_weapon)
 
             # Ataque especial
             if keys[pygame.K_r]:
@@ -181,6 +180,7 @@ class Player(pygame.sprite.Sprite):
         if self.attacking:
             if current_time - self.attack_time >= self.attacking_cool_down:
                 self.attacking = False
+                self.destroy_attack()
 
     def animate(self):
         animation = self.animations[self.status]
