@@ -2,6 +2,7 @@ import pygame
 from settings import *
 from tile import Tile
 from player import Player
+from weapon import *
 from debug import debug
 from ui import UI
 
@@ -29,7 +30,10 @@ class Level:
                 if col == 'R':
                     Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
                 if col == 'P':
-                    self.player = Player((x, y), [self.visibile_sprites], self.obstacle_sprites, self.visibile_sprites)
+                    self.player = Player((x, y), [self.visibile_sprites], self.obstacle_sprites, self.create_attack)
+
+    def create_attack(self, weapon_name):
+        create_weapon('sword', self.player, [self.visibile_sprites])  
 
     def run(self):
         self.display_surface.fill((0, 100, 0))
