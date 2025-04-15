@@ -72,7 +72,7 @@ class Level:
                 self.visibile_sprites.remove(sprite)
 
     def run(self):
-        self.display_surface.fill((0, 100, 0))
+        self.display_surface.blit(pygame.transform.scale(pygame.image.load(FORESTBG).convert_alpha(), (WIDTH, HEIGHT)), (0, 0))  # Draw background image
         self.visibile_sprites.custom_draw(self.player)
         self.visibile_sprites.update()
         self.visibile_sprites.enemy_update(self.player)

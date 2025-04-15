@@ -11,7 +11,7 @@ class Player(Entity):
         original_image = pygame.image.load('graphics/player/down/down_0.png').convert_alpha()
         self.image = pygame.transform.scale(original_image, (PLAYERSIZE, PLAYERSIZE))
         self.rect = self.image.get_rect(topleft=pos)
-        self.hitbox = self.rect.inflate(-10, -20)  # tweak this if needed
+        self.hitbox = self.rect.inflate(-10, -15)  # tweak this if needed
         self.import_player_assets()
 
         # Dar ao jogador acesso à função create_attack da classe Level
