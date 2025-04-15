@@ -1,5 +1,3 @@
-# menu.py
-
 import pygame
 import sys
 from settings import *
