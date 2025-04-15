@@ -19,13 +19,13 @@ class Weapon(ABC, pygame.sprite.Sprite):
 
         # Posicionar a arma corretamente para ficar na mão do jogador
         if direction == 'right':
-          self.rect = self.image.get_rect(midleft=player.rect.midright + pygame.math.Vector2(0, 16))
+          self.rect = self.image.get_rect(midleft=player.rect.midright + pygame.math.Vector2(0, weapon_data['horizontal_offset']))
         elif direction == 'left':
-            self.rect = self.image.get_rect(midright=player.rect.midleft + pygame.math.Vector2(0, 16))
+            self.rect = self.image.get_rect(midright=player.rect.midleft + pygame.math.Vector2(0, weapon_data['horizontal_offset']))
         elif direction == 'down':
-            self.rect = self.image.get_rect(midtop=player.rect.midbottom + pygame.math.Vector2(-10, 0))
+            self.rect = self.image.get_rect(midtop=player.rect.midbottom + pygame.math.Vector2(weapon_data['vertical_offset'], 0))
         else:
-            self.rect = self.image.get_rect(midbottom=player.rect.midtop + pygame.math.Vector2(-10, 0))
+            self.rect = self.image.get_rect(midbottom=player.rect.midtop + pygame.math.Vector2(weapon_data['vertical_offset'], 0))
 
         self.hitbox = self.rect
 
@@ -59,16 +59,16 @@ class Projectile(pygame.sprite.Sprite):
     self.image = pygame.image.load(self.full_path)
     
     if direction == 'right':
-      self.rect = self.image.get_rect(midleft=player.rect.midright + pygame.math.Vector2(0, 16))
+      self.rect = self.image.get_rect(midleft=player.rect.midright + pygame.math.Vector2(0, projectile_data['horizontal_offset']))
       self.direction = pygame.Vector2(1, 0)
     elif direction == 'left':
-      self.rect = self.image.get_rect(midright=player.rect.midleft + pygame.math.Vector2(0, 16))
+      self.rect = self.image.get_rect(midright=player.rect.midleft + pygame.math.Vector2(0, projectile_data['horizontal_offset']))
       self.direction = pygame.Vector2(-1, 0)
     elif direction == 'down':
-       self.rect = self.image.get_rect(midtop=player.rect.midbottom + pygame.math.Vector2(-10, 0))
+       self.rect = self.image.get_rect(midtop=player.rect.midbottom + pygame.math.Vector2(projectile_data['vertical_offset'], 0))
        self.direction = pygame.Vector2(0, 1)
     else:
-       self.rect = self.image.get_rect(midbottom=player.rect.midtop + pygame.math.Vector2(-10, 0))
+       self.rect = self.image.get_rect(midbottom=player.rect.midtop + pygame.math.Vector2(projectile_data['vertical_offset'], 0))
        self.direction = pygame.Vector2(0, -1)
     self.hitbox = self.rect
 
