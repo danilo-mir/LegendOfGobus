@@ -15,7 +15,15 @@ class Weapon(ABC, pygame.sprite.Sprite):
 
         # Carregar sprite da arma
         self.full_path = f'{weapon_data["graphic"]}/{direction}.png'
-        self.image = pygame.image.load(self.full_path)
+        original_image = pygame.image.load(self.full_path).convert_alpha()  # Use convert_alpha for transparency
+
+        # --- NEW CODE START ---
+        # Define the desired scale factor (e.g., 2 for doubling the size)
+        scale_factor = 0.7
+        new_size = (int(original_image.get_width() * scale_factor),
+                    int(original_image.get_height() * scale_factor))
+        self.image = pygame.transform.scale(original_image, new_size)
+        # --- NEW CODE END ---
 
         # Posicionar a arma corretamente para ficar na mão do jogador
         if direction == 'right':
