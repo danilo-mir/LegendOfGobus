@@ -62,7 +62,7 @@ class Menu:
         self.overlay.set_alpha(200)
 
         self.button_font = pygame.font.Font(UI_FONT, UI_FONT_SIZE)
-        self.title_font = pygame.font.Font(UI_FONT, 30)
+        self.title_font = pygame.font.Font(UI_FONT, 60)
 
         self.buttons = [
             Button("Play", (WIDTH//2 - 100, 300), (200, 60), self.button_font, (255, 165, 0), (255, 255, 255)),
@@ -114,7 +114,7 @@ class Menu:
             self.slider_sfx.draw(self.screen)
             self.back_button.draw(self.screen, self.back_button.is_hovered(pygame.mouse.get_pos()))
         else:
-            title_surface = self.title_font.render("Legend of Göbus: Breath of Baphên", True, (255, 255, 255))
+            title_surface = self.title_font.render("Legend of Gobus: Breath of Baphen", True, (255, 255, 255))
             title_rect = title_surface.get_rect(center=(WIDTH//2, 180))
             self.screen.blit(title_surface, title_rect)
 
