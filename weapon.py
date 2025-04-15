@@ -6,9 +6,9 @@ from support import fetch_weapon_data
 class Weapon(ABC, pygame.sprite.Sprite):
     def __init__(self, weapon_data, player, groups):
         super().__init__(groups)
-
-    # The damage done by the weapon
-    self.damage = weapon_data['damage'] + player.player_stats['damage']
+        
+        # The damage done by the weapon
+        self.damage = weapon_data['damage'] + player.player_stats['damage']
 
         # Achar a direção da arma com base na direção do jogador
         direction = player.status
@@ -19,7 +19,7 @@ class Weapon(ABC, pygame.sprite.Sprite):
 
         # Posicionar a arma corretamente para ficar na mão do jogador
         if direction == 'right':
-            self.rect = self.image.get_rect(midleft=player.rect.midright + pygame.math.Vector2(0, 16))
+          self.rect = self.image.get_rect(midleft=player.rect.midright + pygame.math.Vector2(0, 16))
         elif direction == 'left':
             self.rect = self.image.get_rect(midright=player.rect.midleft + pygame.math.Vector2(0, 16))
         elif direction == 'down':
@@ -29,8 +29,8 @@ class Weapon(ABC, pygame.sprite.Sprite):
 
         self.hitbox = self.rect
 
-  def get_damage(self):
-     return self.damage
+    def get_damage(self):
+      return self.damage
 
 
 class MeleeWeapon(Weapon):
