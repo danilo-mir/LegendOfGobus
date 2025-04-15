@@ -56,7 +56,7 @@ class UI:
         pygame.draw.arc(self.display_surface, color, load_rect, pi / 2, pi / 2 + current_angle)
 
     def display(self, player):
-        self.show_bar(player.health, player.stats['max_health'], self.health_bar_rect, HEALTH_COLOR)
-        self.show_bar(player.energy, player.stats['max_energy'], self.energy_bar_rect, ENERGY_COLOR)
+        self.show_bar(player.health, player.player_stats['max_health'], self.health_bar_rect, HEALTH_COLOR)
+        self.show_bar(player.energy, player.player_stats['max_energy'], self.energy_bar_rect, ENERGY_COLOR)
         self.show_exp(player.exp)
-        self.show_super(player.super_counter, player.stats['super_threshold'], SUPER_LOADING_COLOR)
+        self.show_super(player.super_counter, player.player_stats['super_threshold'], SUPER_LOADING_COLOR)

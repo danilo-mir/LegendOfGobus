@@ -1,0 +1,25 @@
+{
+  "sword": {
+    "type" : "melee",
+    "damage": 10,
+    "cooldown": 400,
+    "range": 50,
+    "graphic": "/graphics/weapons/sword/full.png"
+  },
+
+  "bow": {
+    "type" : "ranged",
+    "damage": 8,
+    "cooldown": 600,
+    "range": 200,
+    "graphic": "/graphics/weapons/lance/full.png"
+  },
+
+  "fire_spell": {
+    "type" : "spell",
+    "damage": 15,
+    "cooldown": 800,
+    "effect": "burn",
+    "graphic": "/graphics/weapons/rapier/full.png"
+  }
+}

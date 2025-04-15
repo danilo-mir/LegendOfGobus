@@ -1,21 +1,22 @@
 import pygame
+import random
 from settings import *
 from debug import debug
 from utils import import_folder
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, groups, obstacle_sprites):
+    def __init__(self, pos, groups, obstacle_sprites, create_attack, player_stats=DEFAULT_PLAYER_STATS):
         super().__init__(groups)
         self.image = pygame.image.load('graphics/player/down/down_0.png').convert_alpha()
         self.rect = self.image.get_rect(topleft=pos)
         self.hitbox = self.rect.inflate(0, -26)
 
-        # Atributos usados para animação do movimento
-        self.import_player_assets()
-        self.status = 'down'
-        self.frame_index = 0
-        self.animation_speed = 0.15
+    # Atributos usados para animação do movimento
+    self.import_player_assets()
+    self.status = 'down'
+    self.frame_index = 0
+    self.animation_speed = 0.15
 
         # Movimento
         self.direction = pygame.math.Vector2(0, 0)
@@ -25,37 +26,43 @@ class Player(pygame.sprite.Sprite):
         self.attacking_cool_down = 400
         self.attack_time = None
 
+        # Referência para o vetor de obstáculos do nível
         self.obstacle_sprites = obstacle_sprites
 
         # Atributos do jogador
-        self.stats = {
-            'max_health': 100,
-            'max_energy': 60,
-            'attack': 10,
-            'speed': 5,
-            'super_threshold': 10
+        self.player_stats = player_stats
+
+        # Inventário do jogador e arma que está usando
+        self.current_weapon = 'sword'
+        self.inventory = {
+            'weapons': ['sword'],  # Armas disponíveis
+            'items': {'potions': 3, 'arrows': 10}
         }
-        self.health = self.stats['max_health']/2
-        self.energy = self.stats['max_energy']
+    
+        # Atributos de progressão
+        self.level = 1
+        self.health = self.player_stats['max_health']
+        self.energy = self.player_stats['max_energy']
+        self.speed = self.player_stats['speed']
         self.exp = 0
-        self.speed = self.stats['speed']
-        self.super_counter = 11
+        self.super_counter = 0
+        self.combat_dexterity = 100  # DC (Destreza de Combate)
 
     def import_player_assets(self):
         character_path = 'graphics/player/'
         self.animations = {
-            'up': [],
-            'down': [],
-            'left': [],
-            'right': [],
-            'up_idle': [],
-            'down_idle': [],
-            'left_idle': [],
-            'right_idle': [],
-            'up_attack': [],
-            'down_attack': [],
-            'left_attack': [],
-            'right_attack': [],
+        'up': [],
+        'down': [],
+        'left': [],
+        'right': [],
+        'up_idle': [],
+        'down_idle': [],
+        'left_idle': [],
+        'right_idle': [],
+        'up_attack': [],
+        'down_attack': [],
+        'left_attack': [],
+        'right_attack': [],
         }
 
         for animation in self.animations.keys():
@@ -85,35 +92,21 @@ class Player(pygame.sprite.Sprite):
             else:
                 self.direction.y = 0
 
-            # A direção do jogador pode mudar quando ataca
-            if keys[pygame.K_LEFT] and not self.attacking:
-                self.status = 'left'
-                debug(self.status)
-            elif keys[pygame.K_RIGHT] and not self.attacking:
-                self.status = 'right'
-            if keys[pygame.K_UP] and not self.attacking:
-                self.status = 'up'
-            elif keys[pygame.K_DOWN] and not self.attacking:
-                self.status = 'down'
+      # Input de ataque
+      if keys[pygame.K_SPACE] and not self.attacking:
+        self.attacking = True
+        self.attack_time = pygame.time.get_ticks()
+        debug('Ataque')
 
-            # Se atacar, mudar para estado de ataque
-            if keys[pygame.K_LEFT] or keys[pygame.K_RIGHT] or keys[pygame.K_UP] or keys[
-                pygame.K_DOWN] and not self.attacking:
-                self.attacking = True
-                self.attack_time = pygame.time.get_ticks()
-                debug('Ataque')
-
-            # Ataque especial
-            if keys[pygame.K_r]:
-                if self.super_counter >= self.stats['super_threshold']:
-                    self.super_counter = 0
-            if keys[pygame.K_m]:
-                if self.super_counter < self.stats['super_threshold']:
-                    self.super_counter += 1
-
-            # Normalizar vetor velocidade para que andar na diagonal não seja mais rápido
-            if self.direction.magnitude() > 0.1:
-                self.direction = self.direction.normalize()
+      # Input de magica
+      if keys[pygame.K_LCTRL] and not self.attacking:
+        self.attacking = True
+        self.attack_time = pygame.time.get_ticks()
+        debug('Magica')
+      
+      # Normalizar vetor velocidade para que andar na diagonal não seja mais rápido
+      if self.direction.magnitude() > 0.1:
+        self.direction = self.direction.normalize()
 
     def get_status(self):
         # Aqui o sprite do jogador será atualizado para ser um sprite do tipo parado (_iddle) ou de ataque(_attack)
@@ -175,8 +168,8 @@ class Player(pygame.sprite.Sprite):
         self.frame_index += self.animation_speed
         self.frame_index = self.frame_index % len(animation)
 
-        self.image = animation[int(self.frame_index)]
-        self.rect = self.image.get_rect(center=self.hitbox.center)
+    self.image = animation[int(self.frame_index)]
+    self.rect = self.image.get_rect(center = self.hitbox.center)
 
     def update(self):
         self.input()

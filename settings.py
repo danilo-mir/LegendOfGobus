@@ -33,6 +33,13 @@ HEALTH_COLOR = 'red'
 ENERGY_COLOR = 'blue'
 UI_BORDER_COLOR_ACTIVE = 'gold'
 
+DEFAULT_PLAYER_STATS = {
+  'max_health': 100,
+  'max_energy': 100,
+  'speed': 5,
+  'super_threshold': 10
+}
+
 WORLD_MAP = [
  [',', ',', 'R', ',' , ',', ',', 'R' , ',', 'R', ',', ',', ',' , ',', ',', ',' , ','],
  ['.', ',', ',', ',' , 'R', ',', ',' , ',', ',', ',', ',', ',' , ',', ',', ',' , ','],

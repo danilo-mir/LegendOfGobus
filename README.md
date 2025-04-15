@@ -82,13 +82,9 @@ No final, uma batalha épica contra Baphôn e seus lacaios **Bafinhos**!
 | **Menu/Pausa**      | ESC   |  
 | **Interagir**     | ESPAÇO  |  
 
-##👥 Equipe de Desenvolvimento
-Augusto Nascimento de Oliveira
-
-Bruno Victor Duarte Nascimento
-
-Danilo Miranda Oliveira
-
-Geison Vasconcelos Lira Filho
-
-José Alberto Feijão Tizon
+## 👥 Equipe de Desenvolvimento
+-Augusto Nascimento de Oliveira
+-Bruno Victor Duarte Nascimento
+-Danilo Miranda Oliveira
+-Geison Vasconcelos Lira Filho
+-José Alberto Feijão Tizon
