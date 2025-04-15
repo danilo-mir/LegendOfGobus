@@ -7,8 +7,8 @@ class Weapon(ABC, pygame.sprite.Sprite):
     def __init__(self, weapon_data, player, groups):
         super().__init__(groups)
 
-        # A arma só será desenhada se estiver equipada pelo jogador
-        self.equipped = False
+    # The damage done by the weapon
+    self.damage = weapon_data['damage'] + player.player_stats['damage']
 
         # Achar a direção da arma com base na direção do jogador
         direction = player.status
@@ -29,32 +29,64 @@ class Weapon(ABC, pygame.sprite.Sprite):
 
         self.hitbox = self.rect
 
-    @abstractmethod
-    def shoot(self):
-        pass
+  def get_damage(self):
+     return self.damage
 
 
 class MeleeWeapon(Weapon):
-    def __init__(self, weapon_name, player, groups):
-        super().__init__(weapon_name, player, groups)
+  def __init__(self, weapon_data, player, groups):
+    super().__init__(weapon_data, player, groups)
 
-    def shoot(self):
-        pass
 
 
 class RangedWeapon(Weapon):
-    pass
+  def __init__(self, weapon_data, player, groups):
+    super().__init__(weapon_data, player, groups)
+    projectile_data = weapon_data['projectile']
+    player.create_projectile(projectile_data)
+    
+
+class Projectile(pygame.sprite.Sprite):
+  def __init__(self, projectile_data, player, groups):
+    super().__init__(groups)
+
+    self.speed = projectile_data['speed']
+    self.damage = projectile_data['damage'] + player.player_stats['damage']
+    
+    direction = player.status
+
+    self.full_path = f'{projectile_data["graphic"]}/{direction}.png'
+    self.image = pygame.image.load(self.full_path)
+    
+    if direction == 'right':
+      self.rect = self.image.get_rect(midleft=player.rect.midright + pygame.math.Vector2(0, 16))
+      self.direction = pygame.Vector2(1, 0)
+    elif direction == 'left':
+      self.rect = self.image.get_rect(midright=player.rect.midleft + pygame.math.Vector2(0, 16))
+      self.direction = pygame.Vector2(-1, 0)
+    elif direction == 'down':
+       self.rect = self.image.get_rect(midtop=player.rect.midbottom + pygame.math.Vector2(-10, 0))
+       self.direction = pygame.Vector2(0, 1)
+    else:
+       self.rect = self.image.get_rect(midbottom=player.rect.midtop + pygame.math.Vector2(-10, 0))
+       self.direction = pygame.Vector2(0, -1)
+    self.hitbox = self.rect
 
 
-class Spell(Weapon):
-    pass
+  def get_damage(self):
+     return self.damage
+  
+  def update(self):
+    self.hitbox.x += self.direction.x * self.speed
+    self.hitbox.y += self.direction.y * self.speed
+    self.rect.center = self.hitbox.center
+
 
 
 # Converter tipo da arma para nome da classe
 get_child_class = {
-  'melee': MeleeWeapon,
-  'ranged': RangedWeapon,
-  'spell': Spell
+  'melee' : MeleeWeapon,
+  'ranged' : RangedWeapon
 }
 
 

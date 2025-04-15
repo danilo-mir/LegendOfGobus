@@ -7,7 +7,7 @@ from support import fetch_weapon_data
 
 
 class Player(Entity):
-    def __init__(self, pos, groups, obstacle_sprites, create_attack, destroy_attack, player_stats=DEFAULT_PLAYER_STATS):
+    def __init__(self, pos, groups, obstacle_sprites, create_attack, destroy_attack, create_projectile, player_stats=DEFAULT_PLAYER_STATS):
         super().__init__(groups)
         original_image = pygame.image.load('graphics/player/down/down_0.png').convert_alpha()
         self.image = pygame.transform.scale(original_image, (PLAYERSIZE, PLAYERSIZE))
@@ -15,11 +15,14 @@ class Player(Entity):
         self.hitbox = self.rect.inflate(-10, -15)  # tweak this if needed
         self.import_player_assets()
 
-        # Dar ao jogador acesso à função create_attack da classe Level
+        # Dar ao jogador acesso ao método create_attack da classe Level
         self.create_attack = create_attack
 
-        # Dar ao jogador acesso à funçào destroy_weapon da classe Level
+        # Dar ao jogador acesso ao método destroy_weapon da classe Level
         self.destroy_attack = destroy_attack
+
+        # Dar ao jogador acesso ao método destroy_weapon da classe Level
+        self.create_projectile = create_projectile
 
         # Orientação do jogador
         self.status = 'down'
@@ -36,7 +39,7 @@ class Player(Entity):
 
         # Arma equipada e inventário
         self.inventory = {}
-        self.current_weapon = 'axe'
+        self.current_weapon = 'gun'
     
         # Atributos de progressão
         self.level = 1
@@ -95,6 +98,11 @@ class Player(Entity):
                 self.status = 'down'
             else:
                 self.direction.y = 0
+            if keys[pygame.K_p]:
+                if self.current_weapon == 'gun':
+                    self.current_weapon = 'axe'
+                else:
+                    self.current_weapon = 'gun'
 
             # A direção do jogador pode mudar quando ataca
             if keys[pygame.K_LEFT] and not self.attacking:

@@ -5,7 +5,8 @@ from player import Player
 from enemy import Enemy
 from debug import debug
 from ui import UI
-from weapon import create_weapon
+from weapon import create_weapon, Projectile
+from support import fetch_weapon_data
 
 
 class Level:
@@ -21,6 +22,7 @@ class Level:
         self.current_attack = None
         self.attack_sprites = pygame.sprite.Group()
         self.attackable_sprites = pygame.sprite.Group()
+        self.attack_sprites = pygame.sprite.Group()
 
         # Criar mapa
         self.create_map()
@@ -58,7 +60,7 @@ class Level:
                         self.obstacle_sprites,
                         self.create_attack,
                         self.destroy_attack
-                    )
+                    , self.create_projectile)
                 elif col in monster_symbol:
                     monster_name = monster_symbol[col]
                     Enemy(
@@ -69,11 +71,12 @@ class Level:
                     )
 
     def create_attack(self, weapon_name):
-        self.current_attack = create_weapon(
-            weapon_name,
-            self.player,
-            [self.visibile_sprites, self.attack_sprites]
-        )
+        weapon_type = fetch_weapon_data()[weapon_name]['type']
+        groups = [self.visibile_sprites, self.attack_sprites] if weapon_type == 'melee' else [self.visibile_sprites]
+        self.current_attack = create_weapon(weapon_name, self.player, groups)
+
+    def create_projectile(self, projectile_data):
+        Projectile(projectile_data, self.player, [self.visibile_sprites, self.attack_sprites])
     
     def destroy_attack(self):
         if self.current_attack:
@@ -104,6 +107,7 @@ class Level:
         self.visibile_sprites.enemy_update(self.player)
         self.player_attack_logic()
         self.ui.display(self.player)
+        debug(self.attack_sprites)
 
 
 # Grupo de sprites customizado para ordena-los conforme sua posicao y dando um senso de profundidade

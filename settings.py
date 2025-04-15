@@ -46,7 +46,8 @@ DEFAULT_PLAYER_STATS = {
   'max_health': 100,
   'max_energy': 100,
   'speed': 5,
-  'super_threshold': 10
+  'super_threshold': 10,
+  'damage' : 5
 }
 
 # Mapas

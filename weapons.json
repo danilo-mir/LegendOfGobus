@@ -4,7 +4,6 @@
     "damage": 10,
     "cooldown": 400,
     "range": 50,
-    "effect": "",
     "graphic": "graphics/weapons/sword"
   },
 
@@ -13,23 +12,18 @@
     "damage": 20,
     "cooldown": 600,
     "range": 200,
-    "effect": "",
     "graphic": "graphics/weapons/axe"
-  },
-
-  "fire_spell": {
-    "type" : "spell",
-    "damage": 15,
-    "cooldown": 800,
-    "effect": "burn",
-    "graphic": "graphics/weapons/rapier"
   },
 
   "gun" : {
     "type" : "ranged",
-    "damage": 40,
+    "damage": 0,
     "cooldown": 1000,
-    "effect": "",
-    "graphic": "graphics/weapons/gun"
+    "graphic": "graphics/weapons/gun",
+    "projectile" : {
+      "speed": 10,
+      "graphic" : "graphics/weapons/gun/projectile",
+      "damage": 40
+    }
   }
 }
