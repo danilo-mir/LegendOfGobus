@@ -3,6 +3,7 @@ from settings import *
 from debug import debug
 from utils import import_folder
 from entity import Entity
+from support import fetch_weapon_data
 
 
 class Player(Entity):
@@ -45,7 +46,6 @@ class Player(Entity):
         self.speed = self.player_stats['speed']
         self.exp = 0
         self.super_counter = 0
-
 
     def import_player_assets(self):
         character_path = 'graphics/player/'

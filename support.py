@@ -1,5 +1,6 @@
 from csv import reader
 from os import walk
+import json
 import pygame
 
 
@@ -24,5 +25,6 @@ def import_folder(path):
     return surface_list
 
 
-if __name__ == '__main__':
-    import_folder('graphics/monsters/squid')
+def fetch_weapon_data():
+    with open('weapons.json') as weapon_data_json:
+        return json.load(weapon_data_json)

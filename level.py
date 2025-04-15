@@ -19,6 +19,8 @@ class Level:
 
         # Sprites de ataque
         self.current_attack = None
+        self.attack_sprites = pygame.sprite.Group()
+        self.attackable_sprites = pygame.sprite.Group()
 
         # Criar mapa
         self.create_map()
@@ -34,13 +36,28 @@ class Level:
                 if col == 'R':
                     Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
                 if col == 'P':
-                    self.player = Player((x, y), [self.visibile_sprites], self.obstacle_sprites, self.create_attack, self.destroy_attack)
+                    self.player = Player(
+                        (x, y),
+                        [self.visibile_sprites],
+                        self.obstacle_sprites,
+                        self.create_attack,
+                        self.destroy_attack
+                    )
                 elif col in monster_symbol:
                     monster_name = monster_symbol[col]
-                    Enemy(monster_name, (x, y), [self.visibile_sprites], self.obstacle_sprites)
+                    Enemy(
+                        monster_name,
+                        (x, y),
+                        [self.visibile_sprites, self.attackable_sprites],
+                        self.obstacle_sprites
+                    )
 
     def create_attack(self, weapon_name):
-        self.current_attack = create_weapon(weapon_name, self.player, [self.visibile_sprites])  
+        self.current_attack = create_weapon(
+            weapon_name,
+            self.player,
+            [self.visibile_sprites, self.attack_sprites]
+        )
     
     def destroy_attack(self):
         if self.current_attack:
@@ -55,11 +72,21 @@ class Level:
             if sprite in self.visibile_sprites:
                 self.visibile_sprites.remove(sprite)
 
+    def player_attack_logic(self):
+        if self.attack_sprites:
+            for attack_sprite in self.attack_sprites:
+                collision_sprites = pygame.sprite.spritecollide(attack_sprite, self.attackable_sprites, False)
+                if collision_sprites:
+                    for target_sprite in collision_sprites:
+                        weapon_damage = attack_sprite.get_damage()
+                        target_sprite.get_damage(self.player, )
+
     def run(self):
         self.display_surface.fill((0, 100, 0))
         self.visibile_sprites.custom_draw(self.player)
         self.visibile_sprites.update()
         self.visibile_sprites.enemy_update(self.player)
+        self.player_attack_logic()
         self.ui.display(self.player)
 
 
