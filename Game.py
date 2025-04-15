@@ -1,6 +1,6 @@
 import pygame
 from settings import *
-from level import Level
+from nivel import Nivel
 from menu import Menu
 from pause import PauseScreen
 
