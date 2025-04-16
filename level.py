@@ -40,11 +40,11 @@ class Level:
         self.ui = UI()
         
         # Controle de deslizamento no gelo
-        self.slide_factor = 0.98 if self.is_ice else 0  # Aumentado para 0.98 (desacelera menos)
+        self.slide_factor = 0.98 if self.is_ice else 0  # Fator de deslizamento (quanto mais próximo de 1, mais desliza)
         self.player_momentum = pygame.math.Vector2(0, 0)
-        self.ice_movement_penalty = 0.6 if self.is_ice else 1.0  # Penalidade de movimento no gelo
+        self.ice_movement_penalty = 1.0  # Remover a penalidade de movimento no gelo
         
-        # Mensagens de tutorial
+        # Tutorial
         self.show_ice_tip = self.is_ice  # Mostrar dica sobre o gelo uma vez
         self.ice_tip_timer = 300 if self.is_ice else 0  # 5 segundos
         self.font = pygame.font.Font(UI_FONT, 20)
@@ -164,31 +164,36 @@ class Level:
         elif self.is_ice:
             # Aplicar efeito de deslizamento no gelo
             if self.player.direction.magnitude() > 0:
-                # Reduzir a resposta dos controles no gelo
-                self.player.speed = self.player.player_stats['speed'] * self.ice_movement_penalty
-                # Armazenar momentum do jogador quando ele se move
-                self.player_momentum = self.player.direction.normalize() * self.player.speed * 0.9
-            elif self.player_momentum.magnitude() > 0.05:  # Reduzir o limiar para continuar deslizando
-                # Continuar deslizando com base no momentum armazenado
-                self.player_momentum *= self.slide_factor
-                
-                # Aplicar o movimento do deslizamento
-                self.player.hitbox.x += self.player_momentum.x
-                self.player.hitbox.y += self.player_momentum.y
-                
-                # Verificar colisões após o deslizamento
-                self.player.collision('horizontal')
-                self.player.collision('vertical')
-                
-                # Atualizar posição do retângulo
-                self.player.rect.center = self.player.hitbox.center
-                
-                # Mostrar informações de deslizamento para debug
-                debug(f"Deslizando: {self.player_momentum.x:.1f}, {self.player_momentum.y:.1f}", 40)
-            else:
-                # Restaurar velocidade normal quando não está deslizando
+                # Velocidade normal no gelo (sem penalidade)
                 self.player.speed = self.player.player_stats['speed']
-                self.player_momentum = pygame.math.Vector2(0, 0)
+                # Armazenar momentum do jogador quando ele se move
+                # Acumulação gradual do momentum para um deslizamento mais natural
+                target_momentum = self.player.direction.normalize() * self.player.speed * 1.2
+                # Transição suave para o novo momentum
+                self.player_momentum = self.player_momentum * 0.8 + target_momentum * 0.2
+            else:
+                # Quando o jogador para de pressionar teclas
+                if self.player_momentum.magnitude() > 0.1:  # Continuar deslizando
+                    # Desacelerar gradualmente
+                    self.player_momentum *= self.slide_factor
+                    
+                    # Aplicar o movimento do deslizamento
+                    self.player.hitbox.x += self.player_momentum.x
+                    self.player.hitbox.y += self.player_momentum.y
+                    
+                    # Verificar colisões após o deslizamento
+                    self.player.collision('horizontal')
+                    self.player.collision('vertical')
+                    
+                    # Atualizar posição do retângulo
+                    self.player.rect.center = self.player.hitbox.center
+                    
+                    # Mostrar informações de deslizamento para debug
+                    debug(f"Deslizando: {self.player_momentum.x:.1f}, {self.player_momentum.y:.1f}", 40)
+                else:
+                    # Parar completamente quando o momentum for muito baixo
+                    self.player_momentum = pygame.math.Vector2(0, 0)
+                    self.player.speed = self.player.player_stats['speed']
         else:
             # Restaurar a velocidade normal quando não está no deserto ou no gelo
             self.player.speed = self.player.player_stats['speed']
@@ -208,7 +213,7 @@ class Level:
         # Mostrar dica sobre o gelo
         if self.show_ice_tip and self.ice_tip_timer > 0:
             self.ice_tip_timer -= 1
-            tip_text = "Cuidado! O gelo é escorregadio - seu movimento e paradas são afetados."
+            tip_text = "Cuidado! O gelo é escorregadio - você vai continuar deslizando mesmo após parar de se mover."
             tip_surf = self.font.render(tip_text, True, (200, 220, 255))
             tip_rect = tip_surf.get_rect(center=(WIDTH//2, 50))
             # Desenhar fundo semi-transparente
