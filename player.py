@@ -161,7 +161,7 @@ class Player(Entity):
                 self.status = 'down'
             else:
                 self.direction.y = 0
-            if keys[pygame.K_q] and self.can_switch_weapon:
+            if keys[pygame.K_LSHIFT] and self.can_switch_weapon:
                 self.can_switch_weapon = False
                 self.weapon_switch_time = pygame.time.get_ticks()
                 self.weapon_index += 1
