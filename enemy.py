@@ -157,7 +157,7 @@ class Enemy(Entity):
     def check_death(self):
         if self.health <= 0:
             if hasattr(self, 'player') and self.player:
-                self.player.add_coins(3)
+                self.player.add_coins(2)
             if self.player.super_counter < self.player.player_stats['super_threshold']:
                     self.player.super_counter += 1
             self.player.exp += 1
