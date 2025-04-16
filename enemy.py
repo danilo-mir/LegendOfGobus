@@ -53,6 +53,17 @@ class Enemy(Entity):
         main_path = f"graphics/monsters/{name}/"
         for animation in animations.keys():
             animations[animation] = import_folder(main_path + animation)
+            
+        # Redimensionar imagens especificamente para o Tengu
+        if name == 'tengu':
+            for animation in animations.keys():
+                resized_frames = []
+                for frame in animations[animation]:
+                    # Multiplicar o tamanho por 3 para o Tengu
+                    resized_frame = pygame.transform.scale(frame, (frame.get_width() * 3, frame.get_height() * 3))
+                    resized_frames.append(resized_frame)
+                animations[animation] = resized_frames
+                
         return animations
 
     def get_player_distance_direction(self, player):
@@ -72,7 +83,12 @@ class Enemy(Entity):
     def get_status(self, player):
         distance = self.get_player_distance_direction(player)[0]
 
-        if distance <= self.attack_radius and self.can_attack:
+        # Ajuste especial para o Tengu: reduzir raio de ataque para evitar ataques de longe
+        attack_radius = self.attack_radius
+        if self.monster_name == 'tengu':
+            attack_radius = 80  # Valor mais razoável para ataque
+
+        if distance <= attack_radius and self.can_attack:
             if self.status != 'attack':
                 self.frame_index = 0
             self.status = 'attack'

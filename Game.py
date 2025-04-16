@@ -18,9 +18,10 @@ class Game:
         self.stages = [
             (WORLD_MAP, FORESTBG),
             (DESERT_MAP, DESERTBG),
-            (ICE_MAP, ICEBG)  # Adicionar fase de gelo
+            (ICE_MAP, ICEBG),  # Fase de gelo
+            (VOLCANO_MAP, VOLCANOBG)  # Adicionar fase do vulcão
         ]
-        self.stage_names = ["Floresta", "Deserto", "Lago Congelado"]  # Nomes das fases
+        self.stage_names = ["Floresta", "Deserto", "Lago Congelado", "Vulcão"]  # Nomes das fases
         self.current_stage = 0
         self.level = Level(*self.stages[self.current_stage])
         self.game_paused = False
