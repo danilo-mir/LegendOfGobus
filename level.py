@@ -46,9 +46,7 @@ class Level:
         # Controle de deslizamento no gelo
         self.slide_factor = 0.98 if self.is_ice else 0  # Fator de deslizamento (quanto mais próximo de 1, mais desliza)
         self.player_momentum = pygame.math.Vector2(0, 0)
-        self.ice_movement_penalty = 0.1 if self.is_ice else 1.0  # Valor inicial de aceleração no gelo (10% da velocidade)
-        self.acceleration_rate = 0.01 if self.is_ice else 0.0  # Taxa de aumento da aceleração (1% por frame)
-        self.current_ice_multiplier = self.ice_movement_penalty  # Multiplicador atual
+        self.ice_movement_penalty = 1.0  # Remover a penalidade de movimento no gelo
         
         # Tutorial
         self.show_ice_tip = self.is_ice  # Mostrar dica sobre o gelo uma vez
@@ -69,41 +67,30 @@ class Level:
                 x = col_index * TILESIZE
                 y = row_index * TILESIZE
                 if col == 'G1':
-                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/grass/grass_1.png',
-                             (GRASSSIZE, GRASSSIZE))
+                    Grass1Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
                 if col == 'G2':
-                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/grass/grass_2.png',
-                             (GRASSSIZE, GRASSSIZE))
+                    Grass2Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
                 if col == 'G3':
-                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/grass/grass_3.png',
-                             (GRASSSIZE, GRASSSIZE))
+                    Grass3Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
                 if col == 'TR1':
-                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/0.png',
-                             (TILESIZE, TILESIZE))
+                    Trunk1Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
                 if col == 'TR2':
-                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/01.png',
-                             (TILESIZE, TILESIZE))
+                    Trunk2Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
                 if col == 'T1':
-                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/02.png',
-                             (TILESIZE, TILESIZE))
+                    Tree1Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
                 if col == 'T2':
-                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/03.png',
-                             (TILESIZE, TILESIZE))
+                    Tree2Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
                 if col == 'T3':
-                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/04.png',
-                             (TILESIZE, TILESIZE))
+                    Tree3Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
                 if col == 'R1':
-                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/08.png',
-                             (TILESIZE, TILESIZE))
+                    Rock1Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
+                # Árvores de gelo
                 if col == 'I1':
-                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/05.png',
-                             (TILESIZE, TILESIZE))
+                    IceTree1Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
                 if col == 'I2':
-                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/05.png',
-                             (TILESIZE, TILESIZE))
+                    IceTree2Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
                 if col == 'I3':
-                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/05.png',
-                             (TILESIZE, TILESIZE))
+                    IceTree3Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
                 if col == 'P':
                     self.player = Player(
                         (x, y),
@@ -214,12 +201,8 @@ class Level:
                 debug(f"Acelerando: {self.current_ice_multiplier:.2f}", 80)
             else:
                 # Quando o jogador para de pressionar teclas
-                if self.player_momentum.magnitude() > 0.05:  # Continuar deslizando com um limiar menor
-                    # Resetar o multiplicador de aceleração gradualmente (mais lentamente)
-                    self.current_ice_multiplier = max(self.ice_movement_penalty, 
-                                                   self.current_ice_multiplier - self.acceleration_rate/4)
-                    
-                    # Desacelerar gradualmente (mais lentamente)
+                if self.player_momentum.magnitude() > 0.1:  # Continuar deslizando
+                    # Desacelerar gradualmente
                     self.player_momentum *= self.slide_factor
                     
                     # Em vez de usar o sistema de colisão do jogador, vamos verificar colisões manualmente
@@ -277,7 +260,6 @@ class Level:
                 else:
                     # Parar completamente quando o momentum for muito baixo
                     self.player_momentum = pygame.math.Vector2(0, 0)
-                    self.current_ice_multiplier = self.ice_movement_penalty  # Resetar multiplicador
                     self.player.speed = self.player.player_stats['speed']
         else:
             # Restaurar a velocidade normal quando não está no deserto ou no gelo
@@ -298,7 +280,7 @@ class Level:
         # Mostrar dica sobre o gelo
         if self.show_ice_tip and self.ice_tip_timer > 0:
             self.ice_tip_timer -= 1
-            tip_text = "Cuidado! No gelo você acelera lentamente e continua deslizando ao parar."
+            tip_text = "Cuidado! O gelo é escorregadio - você vai continuar deslizando mesmo após parar de se mover."
             tip_surf = self.font.render(tip_text, True, (200, 220, 255))
             tip_rect = tip_surf.get_rect(center=(WIDTH//2, 50))
             # Desenhar fundo semi-transparente
