@@ -27,6 +27,9 @@ class Level:
         # Verificar se estamos na fase da floresta (fase 1)
         self.is_forest = background == FORESTBG
         
+        # Verificar se estamos na fase do vulcão
+        self.is_volcano = background == VOLCANOBG
+        
         # Sistema de vento (apenas no deserto)
         self.wind_system = WindSystem(self.display_surface) if self.is_desert else None
         
@@ -97,6 +100,8 @@ class Level:
             pygame.mixer.music.load('audio/desert.mp3')
         elif self.is_ice:
             pygame.mixer.music.load('audio/ice.mp3')
+        elif self.is_volcano:
+            pygame.mixer.music.load('audio/grass.mp3')  # Usar a mesma música da floresta temporariamente
         else:
             pygame.mixer.music.load('audio/grass.mp3')
 

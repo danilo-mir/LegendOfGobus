@@ -143,13 +143,13 @@
     "attack_radius": 95,
     "notice_radius": 390
   },
-  "tengured": {
+  "tengu": {
     "health": 500,
     "exp": 500,
     "damage": 60,
-    "speed": 3,
+    "speed": 6,
     "resistance": 5,
-    "attack_radius": 150,
-    "notice_radius": 500
+    "attack_radius": 80,
+    "notice_radius": 1000
   }
 }
