@@ -110,6 +110,6 @@ class UI:
         self.show_bar(player.health, player.player_stats['max_health'], self.health_bar_rect, HEALTH_COLOR)
         self.show_ammo(player.ammo)  # Mostrar municao ao inves da barra de energia
         self.show_coins(player.coins)  # Mostrar quantidade de moedas
-        self.show_exp(player.exp)
+        # self.show_exp(player.exp)
         self.show_super(player.super_counter, player.player_stats['super_threshold'], SUPER_LOADING_COLOR)
         self.weapon_overlay(player.current_weapon)

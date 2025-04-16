@@ -41,9 +41,6 @@ class Level:
         self.attack_sprites = pygame.sprite.Group()
         self.attackable_sprites = pygame.sprite.Group()
         
-        # Sistema de monstros sequenciais (apenas para a floresta/nível 1)
-        self.sequential_monsters_active = self.is_forest
-        
         # Sistema de spawn para o vulcão (beasts adicionais)
         self.volcano_spawn_active = self.is_volcano
         self.boss_defeated = False  # Inicialmente o boss não foi derrotado
@@ -68,14 +65,6 @@ class Level:
         # Interface do usuário
         self.ui = UI()
         
-        # Inicializar sistema de monstros se estiver na floresta
-        if self.sequential_monsters_active:
-            self.initialize_monster_system()
-            
-        # Inicializar sistema de spawn para o vulcão
-        if self.volcano_spawn_active:
-            self.initialize_volcano_spawn_system()
-        
         # Debug do número de inimigos
         print(f"Número de inimigos criados: {len([sprite for sprite in self.attackable_sprites if hasattr(sprite, 'sprite_type') and sprite.sprite_type == 'enemy'])}")
         
@@ -94,19 +83,11 @@ class Level:
         self.level_completed = False
         
         # Inicializar inimigos no início sem sistema sequencial
-        if not self.sequential_monsters_active:
-            self.enemies_at_start = len([sprite for sprite in self.attackable_sprites if hasattr(sprite, 'sprite_type') and sprite.sprite_type == 'enemy'])
-        else:
-            # No sistema sequencial, o número total de inimigos é fixo em 3
-            self.enemies_at_start = self.total_monsters
+        self.enemies_at_start = len([sprite for sprite in self.attackable_sprites if hasattr(sprite, 'sprite_type') and sprite.sprite_type == 'enemy'])
         
         # Garantir que o nível só seja completado se havia inimigos inicialmente
-        if self.enemies_at_start == 0 and not self.sequential_monsters_active:
+        if self.enemies_at_start == 0:
             print(f"AVISO: Nenhum inimigo encontrado no nível. Verifique o mapa!")
-            
-        # Timer para spawn de novos monstros
-        self.spawn_timer = 0
-        self.spawn_cooldown = 60  # 1 segundo a 60 FPS
 
         # Música de fundo por tipo de fase
         pygame.mixer.music.stop()
@@ -121,40 +102,6 @@ class Level:
 
         pygame.mixer.music.set_volume(0.5)
         pygame.mixer.music.play(-1)
-
-
-    def initialize_monster_system(self):
-        """Inicializa o sistema de monstros sequenciais para a fase da floresta"""
-        # Encontrar posições adequadas para spawn de inimigos (longe do jogador)
-        for row_index, row in enumerate(self.game_map):
-            for col_index, col in enumerate(row):
-                if col == ',' and random.random() < 0.05:  # 5% de chance para cada espaço vazio
-                    x = col_index * TILESIZE
-                    y = row_index * TILESIZE
-                    # Verificar se está longe o suficiente do jogador
-                    if self.is_valid_spawn_position(x, y):
-                        self.spawn_positions.append((x, y))
-        
-        # Garantir que temos pelo menos algumas posições de spawn
-        if len(self.spawn_positions) < 5:
-            # Criar algumas posições padrão se não encontrarmos o suficiente
-            self.spawn_positions = [
-                (5 * TILESIZE, 2 * TILESIZE),
-                (15 * TILESIZE, 2 * TILESIZE),
-                (3 * TILESIZE, 10 * TILESIZE),
-                (18 * TILESIZE, 10 * TILESIZE),
-                (10 * TILESIZE, 11 * TILESIZE)
-            ]
-        
-        # Remover todos os inimigos existentes do mapa
-        for sprite in list(self.attackable_sprites):
-            if hasattr(sprite, 'sprite_type') and sprite.sprite_type == 'enemy':
-                sprite.kill()
-        
-        print(f"Sistema de monstros sequenciais inicializado com {len(self.spawn_positions)} posições de spawn")
-        
-        # Spawnar o primeiro monstro
-        self.spawn_monster()
     
     def is_valid_spawn_position(self, x, y):
         """Verifica se uma posição é válida para spawn (longe do jogador e não bloqueada)"""
@@ -278,7 +225,7 @@ class Level:
                         self.create_attack,
                         self.destroy_attack,
                         self.create_projectile)
-                elif col in monster_symbol and not self.sequential_monsters_active:
+                elif col in monster_symbol:
                     # Criar monstros a partir do mapa apenas se não estivermos usando o sistema sequencial
                     monster_name = monster_symbol[col]
                     Enemy(
@@ -334,20 +281,7 @@ class Level:
                             self.player.add_coins(5)
                             
                             # Processar sistema de monstros sequenciais (apenas no nível 1)
-                            if self.sequential_monsters_active:
-                                self.active_monsters -= 1
-                                self.monsters_killed += 1
-                                print(f"Monstro derrotado! {self.monsters_killed}/{self.total_monsters}. Monstros ativos: {self.active_monsters}")
-                                
-                                # Verificar se matamos todos os monstros
-                                if self.monsters_killed >= self.total_monsters:
-                                    # Completou o nível
-                                    print("Todos os monstros foram derrotados! Nível completo.")
-                                    self.level_completed = True
-                                else:
-                                    # Spawnar próximo monstro após um curto delay
-                                    self.spawn_timer = self.spawn_cooldown
-                            
+
                             # Processar sistema do vulcão
                             if self.volcano_spawn_active:
                                 if hasattr(target_sprite, 'monster_name'):
@@ -452,18 +386,6 @@ class Level:
 
     def run(self):
         self.display_surface.blit(pygame.transform.scale(pygame.image.load(self.background).convert_alpha(), (WIDTH, HEIGHT)), (0, 0))  # Draw background image
-        
-        # Processar timer de spawn para floresta
-        if self.sequential_monsters_active and self.spawn_timer > 0:
-            self.spawn_timer -= 1
-            if self.spawn_timer == 0:
-                self.spawn_monster()
-        
-        # Processar timer de spawn para vulcão
-        if self.volcano_spawn_active and hasattr(self, 'spawn_volcano_timer') and self.spawn_volcano_timer > 0:
-            self.spawn_volcano_timer -= 1
-            if self.spawn_volcano_timer == 0:
-                self.spawn_volcano_beast()
         
         # Atualizar e aplicar o sistema de vento ao jogador se estiver no deserto
         if self.is_desert and self.wind_system:
@@ -608,11 +530,10 @@ class Level:
             debug(wind_info, 40)  # Adiciona informações do vento abaixo das outras infos
         
         # Mostrar informações de monstros se o sistema sequencial estiver ativo
-        if self.sequential_monsters_active:
-            monsters_text = f"Monstros: {self.monsters_killed}/{self.total_monsters}"
-            monsters_surf = self.font.render(monsters_text, True, (255, 100, 100))
-            monsters_rect = monsters_surf.get_rect(topleft=(20, 20))
-            self.display_surface.blit(monsters_surf, monsters_rect)
+        monsters_text = f"Monstros: {self.monsters_killed}/{self.total_monsters}"
+        monsters_surf = self.font.render(monsters_text, True, (255, 100, 100))
+        monsters_rect = monsters_surf.get_rect(topleft=(20, 20))
+        self.display_surface.blit(monsters_surf, monsters_rect)
             
         # Mostrar informações do vulcão
         if self.volcano_spawn_active:
@@ -652,19 +573,18 @@ class Level:
             self.should_reset_level = self.player.check_death()
         
         # Verificar se o nível foi completado (exceto no sistema sequencial, que usa sua própria lógica)
-        if not self.sequential_monsters_active:
-            enemy_count = len([sprite for sprite in self.attackable_sprites if hasattr(sprite, 'sprite_type') and sprite.sprite_type == 'enemy'])
-            
-            # Mostrar o número de inimigos restantes
-            if enemy_count > 0 or self.enemies_at_start > 0:
-                enemy_text = f"Inimigos: {enemy_count}/{self.enemies_at_start}"
-                enemy_surf = self.font.render(enemy_text, True, (255, 100, 100))
-                enemy_rect = enemy_surf.get_rect(topright=(WIDTH - 20, 20))
-                self.display_surface.blit(enemy_surf, enemy_rect)
-            
-            # Definir se o nível foi completado apenas se havia inimigos e todos foram derrotados
-            if enemy_count == 0 and self.enemies_at_start > 0:
-                self.level_completed = True
+        enemy_count = len([sprite for sprite in self.attackable_sprites if hasattr(sprite, 'sprite_type') and sprite.sprite_type == 'enemy'])
+        
+        # Mostrar o número de inimigos restantes
+        if enemy_count > 0 or self.enemies_at_start > 0:
+            enemy_text = f"Inimigos: {enemy_count}/{self.enemies_at_start}"
+            enemy_surf = self.font.render(enemy_text, True, (255, 100, 100))
+            enemy_rect = enemy_surf.get_rect(topright=(WIDTH - 20, 20))
+            self.display_surface.blit(enemy_surf, enemy_rect)
+        
+        # Definir se o nível foi completado apenas se havia inimigos e todos foram derrotados
+        if enemy_count == 0 and self.enemies_at_start > 0:
+            self.level_completed = True
         
         return self.should_reset_level
 

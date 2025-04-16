@@ -6,7 +6,8 @@
     "speed": 3,
     "resistance": 3,
     "attack_radius": 80,
-    "notice_radius": 360
+    "notice_radius": 360,
+    "scale_factor": 0.5
   },
   "spirit": {
     "health": 90,
@@ -15,7 +16,8 @@
     "speed": 4,
     "resistance": 2,
     "attack_radius": 75,
-    "notice_radius": 350
+    "notice_radius": 350,
+    "scale_factor": 2
   },
   "bamboo": {
     "health": 85,
@@ -24,7 +26,8 @@
     "speed": 3,
     "resistance": 2,
     "attack_radius": 70,
-    "notice_radius": 330
+    "notice_radius": 330,
+    "scale_factor": 0.5
   },
   "larva": {
     "health": 80,
@@ -33,7 +36,8 @@
     "speed": 3,
     "resistance": 2,
     "attack_radius": 65,
-    "notice_radius": 320
+    "notice_radius": 320,
+    "scale_factor": 2
   },
   "lizard": {
     "health": 100,
@@ -42,7 +46,8 @@
     "speed": 3,
     "resistance": 3,
     "attack_radius": 80,
-    "notice_radius": 360
+    "notice_radius": 360,
+    "scale_factor": 2
   },
   "skull": {
     "health": 105,
@@ -51,25 +56,28 @@
     "speed": 2,
     "resistance": 4,
     "attack_radius": 85,
-    "notice_radius": 370
+    "notice_radius": 370,
+    "scale_factor": 2
   },
-  "snake2": {
+  "snake": {
     "health": 90,
     "exp": 95,
     "damage": 18,
     "speed": 4,
     "resistance": 2,
     "attack_radius": 75,
-    "notice_radius": 340
+    "notice_radius": 340,
+    "scale_factor": 2
   },
-  "spideryellow": {
+  "spider": {
     "health": 85,
     "exp": 90,
     "damage": 17,
     "speed": 4,
     "resistance": 2,
     "attack_radius": 70,
-    "notice_radius": 330
+    "notice_radius": 330,
+    "scale_factor": 2
   },
   "larva2": {
     "health": 80,
@@ -78,7 +86,8 @@
     "speed": 3,
     "resistance": 2,
     "attack_radius": 65,
-    "notice_radius": 320
+    "notice_radius": 320,
+    "scale_factor": 2
   },
   "eye": {
     "health": 95,
@@ -87,16 +96,18 @@
     "speed": 3,
     "resistance": 2,
     "attack_radius": 90,
-    "notice_radius": 350
+    "notice_radius": 350,
+    "scale_factor": 2
   },
-  "axolotlblue": {
+  "axolot": {
     "health": 90,
     "exp": 95,
     "damage": 18,
     "speed": 3,
     "resistance": 3,
     "attack_radius": 75,
-    "notice_radius": 340
+    "notice_radius": 340,
+    "scale_factor": 2
   },
   "mushroom": {
     "health": 80,
@@ -105,7 +116,8 @@
     "speed": 2,
     "resistance": 4,
     "attack_radius": 70,
-    "notice_radius": 330
+    "notice_radius": 330,
+    "scale_factor": 2
   },
   "bear": {
     "health": 120,
@@ -114,16 +126,18 @@
     "speed": 2,
     "resistance": 4,
     "attack_radius": 90,
-    "notice_radius": 380
+    "notice_radius": 380,
+    "scale_factor": 2
   },
-  "goldracoon": {
+  "racoon": {
     "health": 110,
     "exp": 125,
     "damage": 23,
     "speed": 3,
     "resistance": 3,
     "attack_radius": 85,
-    "notice_radius": 360
+    "notice_radius": 360,
+    "scale_factor": 2
   },
   "mole": {
     "health": 85,
@@ -132,7 +146,8 @@
     "speed": 2,
     "resistance": 3,
     "attack_radius": 70,
-    "notice_radius": 330
+    "notice_radius": 330,
+    "scale_factor": 2
   },
   "beast": {
     "health": 40,
@@ -141,7 +156,8 @@
     "speed": 4,
     "resistance": 4,
     "attack_radius": 40,
-    "notice_radius": 700
+    "notice_radius": 700,
+    "scale_factor": 2
   },
   "tengu": {
     "health": 500,
@@ -150,6 +166,7 @@
     "speed": 3,
     "resistance": 5,
     "attack_radius": 80,
-    "notice_radius": 1000
+    "notice_radius": 1000,
+    "scale_factor": 4
   }
 }

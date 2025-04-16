@@ -11,18 +11,9 @@ class Enemy(Entity):
     def __init__(self, name, pos, groups, obstacle_sprites, damage_player):
         super().__init__(groups)
         self.sprite_type = "enemy"
-
-        # graphics
         self.status = 'idle'
-        self.animations = self.import_graphics(name)
-        self.image = self.animations[self.status][self.frame_index]
 
-        # movement
-        self.rect = self.image.get_rect(topleft=pos)
-        self.hitbox = self.rect.inflate(0, -10)
-        self.obstacle_sprites = obstacle_sprites
-
-        # stats
+        # Store name and enemy stats first
         self.monster_name = name
         monster_info = fetch_enemy_data()[self.monster_name]
         self.health = monster_info['health']
@@ -32,6 +23,16 @@ class Enemy(Entity):
         self.resistance = monster_info['resistance']
         self.attack_radius = monster_info['attack_radius']
         self.notice_radius = monster_info['notice_radius']
+        self.scale_factor = monster_info.get('scale_factor', 1)  # must be set before import_graphics
+
+        # graphics
+        self.animations = self.import_graphics(name)
+        self.image = self.animations[self.status][self.frame_index]
+
+        # movement
+        self.rect = self.image.get_rect(topleft=pos)
+        self.hitbox = self.rect.inflate(0, -10)
+        self.obstacle_sprites = obstacle_sprites
 
         # interaction with player
         self.damage_player = damage_player
@@ -44,6 +45,7 @@ class Enemy(Entity):
         self.hit_time = None
         self.invincibility_duration = 300
 
+
     def import_graphics(self, name):
         animations = {
             'idle': [],
@@ -55,22 +57,16 @@ class Enemy(Entity):
             animations[animation] = import_folder(main_path + animation)
             
         # Redimensionar imagens especificamente para o Tengu e Beast
-        if name == 'tengu':
-            for animation in animations.keys():
-                resized_frames = []
-                for frame in animations[animation]:
-                    # Multiplicar o tamanho por 3 para o Tengu
-                    resized_frame = pygame.transform.scale(frame, (frame.get_width() * 3, frame.get_height() * 3))
-                    resized_frames.append(resized_frame)
-                animations[animation] = resized_frames
-        elif name == 'beast':
-            for animation in animations.keys():
-                resized_frames = []
-                for frame in animations[animation]:
-                    # Multiplicar o tamanho por 2 para o Beast
-                    resized_frame = pygame.transform.scale(frame, (frame.get_width() * 2, frame.get_height() * 2))
-                    resized_frames.append(resized_frame)
-                animations[animation] = resized_frames
+        # Resize frames according to the scale factor
+        for animation in animations.keys():
+            resized_frames = []
+            for frame in animations[animation]:
+                new_width = int(frame.get_width() * self.scale_factor)
+                new_height = int(frame.get_height() * self.scale_factor)
+                resized_frame = pygame.transform.scale(frame, (new_width, new_height))
+                resized_frames.append(resized_frame)
+            animations[animation] = resized_frames
+
                 
         return animations
 
