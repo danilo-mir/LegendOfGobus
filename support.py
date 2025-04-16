@@ -28,3 +28,8 @@ def import_folder(path):
 def fetch_weapon_data():
     with open('weapons.json') as weapon_data_json:
         return json.load(weapon_data_json)
+
+
+def fetch_enemy_data():
+    with open('enemies.json') as enemies_data_json:
+        return json.load(enemies_data_json)

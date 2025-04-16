@@ -24,7 +24,7 @@ class Enemy(Entity):
 
         # stats
         self.monster_name = name
-        monster_info = monster_data[self.monster_name]
+        monster_info = fetch_enemy_data()[self.monster_name]
         self.health = monster_info['health']
         self.exp = monster_info['exp']
         self.speed = monster_info['speed']
