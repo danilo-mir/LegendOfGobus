@@ -8,6 +8,7 @@ from ui import UI
 from weapon import create_weapon, Projectile
 from support import fetch_weapon_data
 from wind import WindSystem  # Importar o sistema de vento
+import random
 
 
 class Level:
@@ -23,6 +24,9 @@ class Level:
         # Verificar se estamos na fase de gelo
         self.is_ice = background == ICEBG
         
+        # Verificar se estamos na fase da floresta (fase 1)
+        self.is_forest = background == FORESTBG
+        
         # Sistema de vento (apenas no deserto)
         self.wind_system = WindSystem(self.display_surface) if self.is_desert else None
         
@@ -34,11 +38,26 @@ class Level:
         self.attack_sprites = pygame.sprite.Group()
         self.attackable_sprites = pygame.sprite.Group()
         
+        # Sistema de monstros sequenciais (apenas para a floresta/nível 1)
+        self.sequential_monsters_active = self.is_forest
+        self.monsters_killed = 0
+        self.total_monsters = 3  # Total de 3 monstros para matar no nível 1
+        self.spawn_positions = []  # Posições para spawn de inimigos
+        self.active_monsters = 0  # Número de monstros ativos no momento
+        self.max_active_monsters = 1  # Apenas 1 monstro ativo por vez
+        
+        # Fonte para mensagens
+        self.font = pygame.font.Font(UI_FONT, 20)
+        
         # Criar mapa
         self.create_map()
         
         # Interface do usuário
         self.ui = UI()
+        
+        # Inicializar sistema de monstros se estiver na floresta
+        if self.sequential_monsters_active:
+            self.initialize_monster_system()
         
         # Debug do número de inimigos
         print(f"Número de inimigos criados: {len([sprite for sprite in self.attackable_sprites if hasattr(sprite, 'sprite_type') and sprite.sprite_type == 'enemy'])}")
@@ -46,20 +65,116 @@ class Level:
         # Controle de deslizamento no gelo
         self.slide_factor = 0.98 if self.is_ice else 0  # Fator de deslizamento (quanto mais próximo de 1, mais desliza)
         self.player_momentum = pygame.math.Vector2(0, 0)
-        self.ice_movement_penalty = 1.0  # Remover a penalidade de movimento no gelo
+        self.ice_movement_penalty = 0.01  # Começar com apenas 1% da velocidade no gelo
+        self.acceleration_rate = 0.02  # Taxa de aceleração mais lenta no gelo
+        self.current_ice_multiplier = self.ice_movement_penalty  # Inicialização do multiplicador de gelo
         
         # Tutorial
         self.show_ice_tip = self.is_ice  # Mostrar dica sobre o gelo uma vez
         self.ice_tip_timer = 300 if self.is_ice else 0  # 5 segundos
-        self.font = pygame.font.Font(UI_FONT, 20)
         
         # Estado do nível
         self.level_completed = False
-        self.enemies_at_start = len([sprite for sprite in self.attackable_sprites if hasattr(sprite, 'sprite_type') and sprite.sprite_type == 'enemy'])
+        
+        # Inicializar inimigos no início sem sistema sequencial
+        if not self.sequential_monsters_active:
+            self.enemies_at_start = len([sprite for sprite in self.attackable_sprites if hasattr(sprite, 'sprite_type') and sprite.sprite_type == 'enemy'])
+        else:
+            # No sistema sequencial, o número total de inimigos é fixo em 3
+            self.enemies_at_start = self.total_monsters
         
         # Garantir que o nível só seja completado se havia inimigos inicialmente
-        if self.enemies_at_start == 0:
+        if self.enemies_at_start == 0 and not self.sequential_monsters_active:
             print(f"AVISO: Nenhum inimigo encontrado no nível. Verifique o mapa!")
+            
+        # Timer para spawn de novos monstros
+        self.spawn_timer = 0
+        self.spawn_cooldown = 60  # 1 segundo a 60 FPS
+
+    def initialize_monster_system(self):
+        """Inicializa o sistema de monstros sequenciais para a fase da floresta"""
+        # Encontrar posições adequadas para spawn de inimigos (longe do jogador)
+        for row_index, row in enumerate(self.game_map):
+            for col_index, col in enumerate(row):
+                if col == ',' and random.random() < 0.05:  # 5% de chance para cada espaço vazio
+                    x = col_index * TILESIZE
+                    y = row_index * TILESIZE
+                    # Verificar se está longe o suficiente do jogador
+                    if self.is_valid_spawn_position(x, y):
+                        self.spawn_positions.append((x, y))
+        
+        # Garantir que temos pelo menos algumas posições de spawn
+        if len(self.spawn_positions) < 5:
+            # Criar algumas posições padrão se não encontrarmos o suficiente
+            self.spawn_positions = [
+                (5 * TILESIZE, 2 * TILESIZE),
+                (15 * TILESIZE, 2 * TILESIZE),
+                (3 * TILESIZE, 10 * TILESIZE),
+                (18 * TILESIZE, 10 * TILESIZE),
+                (10 * TILESIZE, 11 * TILESIZE)
+            ]
+        
+        # Remover todos os inimigos existentes do mapa
+        for sprite in list(self.attackable_sprites):
+            if hasattr(sprite, 'sprite_type') and sprite.sprite_type == 'enemy':
+                sprite.kill()
+        
+        print(f"Sistema de monstros sequenciais inicializado com {len(self.spawn_positions)} posições de spawn")
+        
+        # Spawnar o primeiro monstro
+        self.spawn_monster()
+    
+    def is_valid_spawn_position(self, x, y):
+        """Verifica se uma posição é válida para spawn (longe do jogador e não bloqueada)"""
+        # Verificar se está longe o suficiente do jogador
+        player_pos = pygame.math.Vector2(self.player.rect.center)
+        spawn_pos = pygame.math.Vector2(x, y)
+        distance = player_pos.distance_to(spawn_pos)
+        
+        if distance < 300:  # Muito perto do jogador
+            return False
+        
+        # Verificar se não está dentro de um obstáculo
+        test_rect = pygame.Rect(x, y, TILESIZE, TILESIZE)
+        for sprite in self.obstacle_sprites:
+            if sprite.hitbox.colliderect(test_rect):
+                return False
+                
+        return True
+
+    def spawn_monster(self):
+        """Spawna um novo monstro na fase"""
+        if not self.spawn_positions:
+            return False
+            
+        # Verificar se já atingiu o limite de monstros ativos
+        if self.active_monsters >= self.max_active_monsters:
+            return False
+            
+        # Verificar se já matamos o total de monstros
+        if self.monsters_killed >= self.total_monsters:
+            return False
+            
+        # Escolher uma posição aleatória de spawn
+        pos = random.choice(self.spawn_positions)
+        
+        # Usar apenas o monstro "squid" para a fase da floresta
+        monster_type = "squid"  # Tipo fixo, igual ao que estava no WORLD_MAP
+        
+        # Criar o monstro
+        Enemy(
+            monster_type,
+            pos,
+            [self.visibile_sprites, self.attackable_sprites],
+            self.obstacle_sprites,
+            self.damage_player
+        )
+        
+        # Incrementar contador de monstros ativos
+        self.active_monsters += 1
+        
+        print(f"Spawnou monstro {monster_type} na posição {pos}. Monstros ativos: {self.active_monsters}, Monstros mortos: {self.monsters_killed}/{self.total_monsters}")
+        return True
 
     def create_map(self):
         for row_index, row in enumerate(self.game_map):
@@ -99,7 +214,8 @@ class Level:
                         self.create_attack,
                         self.destroy_attack,
                         self.create_projectile)
-                elif col in monster_symbol:
+                elif col in monster_symbol and not self.sequential_monsters_active:
+                    # Criar monstros a partir do mapa apenas se não estivermos usando o sistema sequencial
                     monster_name = monster_symbol[col]
                     Enemy(
                         monster_name,
@@ -137,8 +253,30 @@ class Level:
                 if collision_sprites:
                     for target_sprite in collision_sprites:
                         weapon_damage = attack_sprite.get_damage()
+                        # Verificar se o inimigo morreu após o ataque
+                        was_alive = target_sprite.health > 0
                         target_sprite.get_damage(self.player, weapon_damage)
-
+                        
+                        # Se o inimigo morreu com este ataque
+                        if was_alive and target_sprite.health <= 0:
+                            # Dar 5 moedas ao jogador quando derrotar um inimigo
+                            self.player.add_coins(5)
+                            
+                            # Processar sistema de monstros sequenciais (apenas no nível 1)
+                            if self.sequential_monsters_active:
+                                self.active_monsters -= 1
+                                self.monsters_killed += 1
+                                print(f"Monstro derrotado! {self.monsters_killed}/{self.total_monsters}. Monstros ativos: {self.active_monsters}")
+                                
+                                # Verificar se matamos todos os monstros
+                                if self.monsters_killed >= self.total_monsters:
+                                    # Completou o nível
+                                    print("Todos os monstros foram derrotados! Nível completo.")
+                                    self.level_completed = True
+                                else:
+                                    # Spawnar próximo monstro após um curto delay
+                                    self.spawn_timer = self.spawn_cooldown
+                            
     def damage_player(self, amount, attack_type):
         if self.player.vulnerable:
             self.player.health -= amount
@@ -147,6 +285,12 @@ class Level:
 
     def run(self):
         self.display_surface.blit(pygame.transform.scale(pygame.image.load(self.background).convert_alpha(), (WIDTH, HEIGHT)), (0, 0))  # Draw background image
+        
+        # Processar timer de spawn
+        if self.sequential_monsters_active and self.spawn_timer > 0:
+            self.spawn_timer -= 1
+            if self.spawn_timer == 0:
+                self.spawn_monster()
         
         # Atualizar e aplicar o sistema de vento ao jogador se estiver no deserto
         if self.is_desert and self.wind_system:
@@ -180,22 +324,35 @@ class Level:
                 last_direction = self.player_momentum.normalize() if self.player_momentum.magnitude() > 0 else pygame.Vector2(0, 0)
                 current_direction = self.player.direction.normalize()
                 
-                # Se mudou de direção drasticamente, resetar a aceleração
+                # Se mudou de direção drasticamente, resetar parcialmente a aceleração
                 dot_product = current_direction.dot(last_direction) if last_direction.magnitude() > 0 else 0
-                if dot_product < 0:  # Direção oposta
-                    self.current_ice_multiplier = self.ice_movement_penalty
                 
-                # Aumentar gradualmente a velocidade até atingir o valor máximo
-                # Usar uma função não-linear para aceleração mais natural
-                # Acelera mais rápido quando está mais lento, e mais devagar quando está se aproximando da velocidade máxima
-                acceleration_factor = self.acceleration_rate * (1.2 - self.current_ice_multiplier)
-                self.current_ice_multiplier = min(1.0, self.current_ice_multiplier + acceleration_factor)
+                # Em vez de resetar completamente, vamos preservar parte do movimento anterior
+                if dot_product < 0.7:  # Considerada uma mudança significativa de direção
+                    # Preservar uma parte do momentum anterior (30%)
+                    momentum_preservation = 0.3
+                    
+                    # Combinar a nova direção com uma parte da antiga
+                    combined_direction = current_direction + (last_direction * momentum_preservation)
+                    combined_direction = combined_direction.normalize() if combined_direction.magnitude() > 0 else current_direction
+                    
+                    # Manter parte da velocidade atual
+                    self.current_ice_multiplier = max(self.ice_movement_penalty, self.current_ice_multiplier * 0.7)
+                    
+                    # Atualizar a direção do player para refletir a combinação
+                    self.player_momentum = combined_direction * self.player.speed * 1.5
+                else:
+                    # Aumentar gradualmente a velocidade até atingir o valor máximo
+                    # Usar uma função não-linear para aceleração mais natural
+                    # Acelera mais rápido quando está mais lento, e mais devagar quando está se aproximando da velocidade máxima
+                    acceleration_factor = self.acceleration_rate * (1.0 - (self.current_ice_multiplier * 0.5))
+                    self.current_ice_multiplier = min(1.0, self.current_ice_multiplier + acceleration_factor)
+                    
+                    # Atualizar o momentum para deslizar depois (aumentar para 1.5)
+                    self.player_momentum = current_direction * self.player.speed * 1.5
                 
                 # Aplicar velocidade com o multiplicador atual
                 self.player.speed = self.player.player_stats['speed'] * self.current_ice_multiplier
-                
-                # Atualizar o momentum para deslizar depois (aumentar para 1.5)
-                self.player_momentum = current_direction * self.player.speed * 1.5
                 
                 # Mostrar debug de aceleração
                 debug(f"Acelerando: {self.current_ice_multiplier:.2f}", 80)
@@ -276,11 +433,18 @@ class Level:
             wind_dir, wind_strength = self.wind_system.get_player_speed_modifier()
             wind_info = f"Vento: {wind_dir.x:.1f},{wind_dir.y:.1f} | Força: {wind_strength:.1f}"
             debug(wind_info, 40)  # Adiciona informações do vento abaixo das outras infos
-            
+        
+        # Mostrar informações de monstros se o sistema sequencial estiver ativo
+        if self.sequential_monsters_active:
+            monsters_text = f"Monstros: {self.monsters_killed}/{self.total_monsters}"
+            monsters_surf = self.font.render(monsters_text, True, (255, 100, 100))
+            monsters_rect = monsters_surf.get_rect(topleft=(20, 20))
+            self.display_surface.blit(monsters_surf, monsters_rect)
+        
         # Mostrar dica sobre o gelo
         if self.show_ice_tip and self.ice_tip_timer > 0:
             self.ice_tip_timer -= 1
-            tip_text = "Cuidado! O gelo é escorregadio - você vai continuar deslizando mesmo após parar de se mover."
+            tip_text = "Superfície gelada! Você começa lentamente e acelera gradualmente. Cuidado ao mudar de direção!"
             tip_surf = self.font.render(tip_text, True, (200, 220, 255))
             tip_rect = tip_surf.get_rect(center=(WIDTH//2, 50))
             # Desenhar fundo semi-transparente
@@ -299,19 +463,20 @@ class Level:
         if hasattr(self, 'player') and hasattr(self.player, 'check_death'):
             self.should_reset_level = self.player.check_death()
         
-        # Verificar se o nível foi completado
-        enemy_count = len([sprite for sprite in self.attackable_sprites if hasattr(sprite, 'sprite_type') and sprite.sprite_type == 'enemy'])
-        
-        # Mostrar o número de inimigos restantes
-        if enemy_count > 0 or self.enemies_at_start > 0:
-            enemy_text = f"Inimigos: {enemy_count}/{self.enemies_at_start}"
-            enemy_surf = self.font.render(enemy_text, True, (255, 100, 100))
-            enemy_rect = enemy_surf.get_rect(topright=(WIDTH - 20, 20))
-            self.display_surface.blit(enemy_surf, enemy_rect)
-        
-        # Definir se o nível foi completado apenas se havia inimigos e todos foram derrotados
-        if enemy_count == 0 and self.enemies_at_start > 0:
-            self.level_completed = True
+        # Verificar se o nível foi completado (exceto no sistema sequencial, que usa sua própria lógica)
+        if not self.sequential_monsters_active:
+            enemy_count = len([sprite for sprite in self.attackable_sprites if hasattr(sprite, 'sprite_type') and sprite.sprite_type == 'enemy'])
+            
+            # Mostrar o número de inimigos restantes
+            if enemy_count > 0 or self.enemies_at_start > 0:
+                enemy_text = f"Inimigos: {enemy_count}/{self.enemies_at_start}"
+                enemy_surf = self.font.render(enemy_text, True, (255, 100, 100))
+                enemy_rect = enemy_surf.get_rect(topright=(WIDTH - 20, 20))
+                self.display_surface.blit(enemy_surf, enemy_rect)
+            
+            # Definir se o nível foi completado apenas se havia inimigos e todos foram derrotados
+            if enemy_count == 0 and self.enemies_at_start > 0:
+                self.level_completed = True
         
         return self.should_reset_level
 
