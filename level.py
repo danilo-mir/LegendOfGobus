@@ -40,9 +40,11 @@ class Level:
         self.ui = UI()
         
         # Controle de deslizamento no gelo
-        self.slide_factor = 0.98 if self.is_ice else 0  # Aumentado para 0.98 (desacelera menos)
+        self.slide_factor = 0.98 if self.is_ice else 0  # Fator de deslizamento (quanto mais próximo de 1, mais desliza)
         self.player_momentum = pygame.math.Vector2(0, 0)
-        self.ice_movement_penalty = 0.6 if self.is_ice else 1.0  # Penalidade de movimento no gelo
+        self.ice_movement_penalty = 0.1 if self.is_ice else 1.0  # Valor inicial de aceleração no gelo (10% da velocidade)
+        self.acceleration_rate = 0.01 if self.is_ice else 0.0  # Taxa de aumento da aceleração (1% por frame)
+        self.current_ice_multiplier = self.ice_movement_penalty  # Multiplicador atual
         
         # Mensagens de tutorial
         self.show_ice_tip = self.is_ice  # Mostrar dica sobre o gelo uma vez
@@ -164,31 +166,57 @@ class Level:
         elif self.is_ice:
             # Aplicar efeito de deslizamento no gelo
             if self.player.direction.magnitude() > 0:
-                # Reduzir a resposta dos controles no gelo
-                self.player.speed = self.player.player_stats['speed'] * self.ice_movement_penalty
-                # Armazenar momentum do jogador quando ele se move
-                self.player_momentum = self.player.direction.normalize() * self.player.speed * 0.9
-            elif self.player_momentum.magnitude() > 0.05:  # Reduzir o limiar para continuar deslizando
-                # Continuar deslizando com base no momentum armazenado
-                self.player_momentum *= self.slide_factor
+                # Sistema de aceleração gradual no gelo
+                last_direction = self.player_momentum.normalize() if self.player_momentum.magnitude() > 0 else pygame.math.Vector2(0, 0)
+                current_direction = self.player.direction.normalize()
                 
-                # Aplicar o movimento do deslizamento
-                self.player.hitbox.x += self.player_momentum.x
-                self.player.hitbox.y += self.player_momentum.y
+                # Se mudou de direção drasticamente, resetar a aceleração
+                dot_product = current_direction.dot(last_direction) if last_direction.magnitude() > 0 else 0
+                if dot_product < 0:  # Direção oposta
+                    self.current_ice_multiplier = self.ice_movement_penalty
                 
-                # Verificar colisões após o deslizamento
-                self.player.collision('horizontal')
-                self.player.collision('vertical')
+                # Aumentar gradualmente a velocidade até atingir o valor máximo
+                # Usar uma função não-linear para aceleração mais natural
+                # Acelera mais rápido quando está mais lento, e mais devagar quando está se aproximando da velocidade máxima
+                acceleration_factor = self.acceleration_rate * (1.2 - self.current_ice_multiplier)
+                self.current_ice_multiplier = min(1.0, self.current_ice_multiplier + acceleration_factor)
                 
-                # Atualizar posição do retângulo
-                self.player.rect.center = self.player.hitbox.center
+                # Aplicar velocidade com o multiplicador atual
+                self.player.speed = self.player.player_stats['speed'] * self.current_ice_multiplier
                 
-                # Mostrar informações de deslizamento para debug
-                debug(f"Deslizando: {self.player_momentum.x:.1f}, {self.player_momentum.y:.1f}", 40)
+                # Atualizar o momentum para deslizar depois (aumentar para 1.5)
+                self.player_momentum = current_direction * self.player.speed * 1.5
+                
+                # Mostrar debug de aceleração
+                debug(f"Acelerando: {self.current_ice_multiplier:.2f}", 80)
             else:
-                # Restaurar velocidade normal quando não está deslizando
-                self.player.speed = self.player.player_stats['speed']
-                self.player_momentum = pygame.math.Vector2(0, 0)
+                # Quando o jogador para de pressionar teclas
+                if self.player_momentum.magnitude() > 0.05:  # Continuar deslizando com um limiar menor
+                    # Resetar o multiplicador de aceleração gradualmente (mais lentamente)
+                    self.current_ice_multiplier = max(self.ice_movement_penalty, 
+                                                   self.current_ice_multiplier - self.acceleration_rate/4)
+                    
+                    # Desacelerar gradualmente (mais lentamente)
+                    self.player_momentum *= self.slide_factor
+                    
+                    # Aplicar o movimento do deslizamento
+                    self.player.hitbox.x += self.player_momentum.x
+                    self.player.hitbox.y += self.player_momentum.y
+                    
+                    # Verificar colisões após o deslizamento
+                    self.player.collision('horizontal')
+                    self.player.collision('vertical')
+                    
+                    # Atualizar posição do retângulo
+                    self.player.rect.center = self.player.hitbox.center
+                    
+                    # Mostrar informações de deslizamento para debug
+                    debug(f"Deslizando: {self.player_momentum.x:.1f}, {self.player_momentum.y:.1f}", 40)
+                else:
+                    # Parar completamente quando o momentum for muito baixo
+                    self.player_momentum = pygame.math.Vector2(0, 0)
+                    self.current_ice_multiplier = self.ice_movement_penalty  # Resetar multiplicador
+                    self.player.speed = self.player.player_stats['speed']
         else:
             # Restaurar a velocidade normal quando não está no deserto ou no gelo
             self.player.speed = self.player.player_stats['speed']
@@ -208,7 +236,7 @@ class Level:
         # Mostrar dica sobre o gelo
         if self.show_ice_tip and self.ice_tip_timer > 0:
             self.ice_tip_timer -= 1
-            tip_text = "Cuidado! O gelo é escorregadio - seu movimento e paradas são afetados."
+            tip_text = "Cuidado! No gelo você acelera lentamente e continua deslizando ao parar."
             tip_surf = self.font.render(tip_text, True, (200, 220, 255))
             tip_rect = tip_surf.get_rect(center=(WIDTH//2, 50))
             # Desenhar fundo semi-transparente
