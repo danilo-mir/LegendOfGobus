@@ -288,7 +288,7 @@ class Level:
                                     # Spawnar próximo monstro após um curto delay
                                     self.spawn_timer = self.spawn_cooldown
                             
-    def damage_player(self, amount, attack_type):
+    def damage_player(self, amount):
         if self.player.vulnerable:
             self.player.health -= amount
             self.player.vulnerable = False
