@@ -10,28 +10,26 @@ from support import fetch_weapon_data
 
 
 class Level:
-    def __init__(self):
+    def __init__(self, game_map=WORLD_MAP, background=FORESTBG):
         # Acesso à variável da tela
         self.display_surface = pygame.display.get_surface()
-
+        self.game_map = game_map
+        self.background = background
         # Criar grupos de sprites
         self.visibile_sprites = YSortCameraGroup()
         self.obstacle_sprites = pygame.sprite.Group()
-
         # Sprites de ataque
         self.current_attack = None
         self.attack_sprites = pygame.sprite.Group()
         self.attackable_sprites = pygame.sprite.Group()
         self.attack_sprites = pygame.sprite.Group()
-
         # Criar mapa
         self.create_map()
-
         # Interface do usuário
         self.ui = UI()
 
     def create_map(self):
-        for row_index, row in enumerate(WORLD_MAP):
+        for row_index, row in enumerate(self.game_map):
             for col_index, col in enumerate(row):
                 x = col_index * TILESIZE
                 y = row_index * TILESIZE
@@ -108,7 +106,7 @@ class Level:
             self.player.hit_time = pygame.time.get_ticks()
 
     def run(self):
-        self.display_surface.blit(pygame.transform.scale(pygame.image.load(FORESTBG).convert_alpha(), (WIDTH, HEIGHT)), (0, 0))  # Draw background image
+        self.display_surface.blit(pygame.transform.scale(pygame.image.load(self.background).convert_alpha(), (WIDTH, HEIGHT)), (0, 0))  # Draw background image
         self.visibile_sprites.custom_draw(self.player)
         self.visibile_sprites.update()
         self.visibile_sprites.enemy_update(self.player)

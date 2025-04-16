@@ -73,12 +73,57 @@ class Player(Entity):
         }
 
         for animation in self.animations.keys():
-            animation_folder_path = character_path + animation
-            raw_frames = import_folder(animation_folder_path)
-            scaled_frames = [
-                pygame.transform.scale(frame, (PLAYERSIZE, PLAYERSIZE)) for frame in raw_frames
-            ]
-            self.animations[animation] = scaled_frames
+            if animation == 'right':
+                # Carregar e dividir a imagem especial para andar para a direita
+                sprite_sheet = pygame.image.load('graphics/player/right_new/right.png').convert_alpha()
+                frame_width = sprite_sheet.get_width() // 4
+                frame_height = sprite_sheet.get_height()
+                frames = []
+                for i in range(4):
+                    frame = sprite_sheet.subsurface(pygame.Rect(i * frame_width, 0, frame_width, frame_height))
+                    frame = pygame.transform.scale(frame, (PLAYERSIZE, PLAYERSIZE))
+                    frames.append(frame)
+                self.animations['right'] = frames
+            elif animation == 'left':
+                # Carregar e dividir a imagem especial para andar para a esquerda
+                sprite_sheet = pygame.image.load('graphics/player/right_new/left.png').convert_alpha()
+                frame_width = sprite_sheet.get_width() // 4
+                frame_height = sprite_sheet.get_height()
+                frames = []
+                for i in range(4):
+                    frame = sprite_sheet.subsurface(pygame.Rect(i * frame_width, 0, frame_width, frame_height))
+                    frame = pygame.transform.scale(frame, (PLAYERSIZE, PLAYERSIZE))
+                    frames.append(frame)
+                self.animations['left'] = frames
+            elif animation == 'up':
+                # Carregar e dividir a imagem especial para andar para cima
+                sprite_sheet = pygame.image.load('graphics/player/right_new/up.png').convert_alpha()
+                frame_width = sprite_sheet.get_width() // 4
+                frame_height = sprite_sheet.get_height()
+                frames = []
+                for i in range(4):
+                    frame = sprite_sheet.subsurface(pygame.Rect(i * frame_width, 0, frame_width, frame_height))
+                    frame = pygame.transform.scale(frame, (PLAYERSIZE, PLAYERSIZE))
+                    frames.append(frame)
+                self.animations['up'] = frames
+            elif animation == 'down':
+                # Carregar e dividir a imagem especial para andar para baixo
+                sprite_sheet = pygame.image.load('graphics/player/right_new/down.png').convert_alpha()
+                frame_width = sprite_sheet.get_width() // 4
+                frame_height = sprite_sheet.get_height()
+                frames = []
+                for i in range(4):
+                    frame = sprite_sheet.subsurface(pygame.Rect(i * frame_width, 0, frame_width, frame_height))
+                    frame = pygame.transform.scale(frame, (PLAYERSIZE, PLAYERSIZE))
+                    frames.append(frame)
+                self.animations['down'] = frames
+            else:
+                animation_folder_path = character_path + animation
+                raw_frames = import_folder(animation_folder_path)
+                scaled_frames = [
+                    pygame.transform.scale(frame, (PLAYERSIZE, PLAYERSIZE)) for frame in raw_frames
+                ]
+                self.animations[animation] = scaled_frames
 
 
 
