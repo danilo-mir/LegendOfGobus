@@ -43,6 +43,16 @@ class Level:
         
         # Sistema de monstros sequenciais (apenas para a floresta/nível 1)
         self.sequential_monsters_active = self.is_forest
+        
+        # Sistema de spawn para o vulcão (beasts adicionais)
+        self.volcano_spawn_active = self.is_volcano
+        self.boss_defeated = False  # Inicialmente o boss não foi derrotado
+        self.beasts_killed = 0
+        self.total_beasts = 20  # Total de 20 beasts para a fase do vulcão
+        self.initial_beasts = 10  # Começamos com 10 beasts no mapa
+        self.active_beasts = 0  # Contador para beasts ativos
+        self.spawn_count = 2  # Número de beasts para spawnar de cada vez
+        
         self.monsters_killed = 0
         self.total_monsters = 3  # Total de 3 monstros para matar no nível 1
         self.spawn_positions = []  # Posições para spawn de inimigos
@@ -61,6 +71,10 @@ class Level:
         # Inicializar sistema de monstros se estiver na floresta
         if self.sequential_monsters_active:
             self.initialize_monster_system()
+            
+        # Inicializar sistema de spawn para o vulcão
+        if self.volcano_spawn_active:
+            self.initialize_volcano_spawn_system()
         
         # Debug do número de inimigos
         print(f"Número de inimigos criados: {len([sprite for sprite in self.attackable_sprites if hasattr(sprite, 'sprite_type') and sprite.sprite_type == 'enemy'])}")
@@ -286,6 +300,13 @@ class Level:
                         was_alive = target_sprite.health > 0
                         target_sprite.get_damage(self.player, weapon_damage)
                         
+                        # Verificar se o sprite de ataque é um projétil (tem a classe Projectile)
+                        if isinstance(attack_sprite, Projectile):
+                            # Destruir o projétil ao atingir um inimigo
+                            attack_sprite.kill()
+                            # Interromper o loop após destruir o projétil, já que ele não pode mais atingir outros inimigos
+                            break
+                        
                         # Se o inimigo morreu com este ataque
                         if was_alive and target_sprite.health <= 0:
                             # Dar 5 moedas ao jogador quando derrotar um inimigo
@@ -306,20 +327,122 @@ class Level:
                                     # Spawnar próximo monstro após um curto delay
                                     self.spawn_timer = self.spawn_cooldown
                             
+                            # Processar sistema do vulcão
+                            if self.volcano_spawn_active:
+                                if hasattr(target_sprite, 'monster_name'):
+                                    if target_sprite.monster_name == 'beast':
+                                        self.active_beasts -= 1
+                                        self.beasts_killed += 1
+                                        print(f"Beast derrotado! {self.beasts_killed}/{self.total_beasts}. Beasts ativos: {self.active_beasts}")
+                                        
+                                        # Spawn de beasts adicionais
+                                        self.spawn_volcano_timer = 180  # 3 segundos de delay
+                                    
+                                    elif target_sprite.monster_name == 'tengu':
+                                        print("Boss Tengu derrotado!")
+                                        self.boss_defeated = True
+                                        
+                                # Verificar condição de vitória: o boss foi derrotado e matamos pelo menos 15 beasts
+                                if self.boss_defeated and (self.beasts_killed + self.active_beasts) >= 15:
+                                    print("Nível do vulcão completo! Boss derrotado e beasts suficientes eliminados.")
+                                    self.level_completed = True
     def damage_player(self, amount):
         if self.player.vulnerable:
             self.player.health -= amount
             self.player.vulnerable = False
             self.player.hit_time = pygame.time.get_ticks()
 
+    def initialize_volcano_spawn_system(self):
+        """Inicializa o sistema de spawn para beasts adicionais na fase do vulcão"""
+        # Encontrar posições adequadas para spawn de beasts (longe do jogador)
+        for row_index, row in enumerate(self.game_map):
+            for col_index, col in enumerate(row):
+                if col == ',' and random.random() < 0.08:  # 8% de chance para cada espaço vazio
+                    x = col_index * TILESIZE
+                    y = row_index * TILESIZE
+                    # Verificar se está longe o suficiente do jogador
+                    if self.is_valid_spawn_position(x, y):
+                        self.spawn_positions.append((x, y))
+        
+        # Garantir que temos pelo menos algumas posições de spawn
+        if len(self.spawn_positions) < 10:
+            # Criar algumas posições padrão se não encontrarmos o suficiente
+            self.spawn_positions = [
+                (5 * TILESIZE, 2 * TILESIZE),
+                (15 * TILESIZE, 2 * TILESIZE),
+                (3 * TILESIZE, 9 * TILESIZE),
+                (18 * TILESIZE, 9 * TILESIZE),
+                (7 * TILESIZE, 11 * TILESIZE),
+                (12 * TILESIZE, 11 * TILESIZE),
+                (8 * TILESIZE, 3 * TILESIZE),
+                (16 * TILESIZE, 3 * TILESIZE),
+                (2 * TILESIZE, 5 * TILESIZE),
+                (20 * TILESIZE, 5 * TILESIZE)
+            ]
+        
+        # Contar os beasts iniciais no mapa
+        self.active_beasts = len([sprite for sprite in self.attackable_sprites 
+                                 if hasattr(sprite, 'monster_name') and sprite.monster_name == 'beast'])
+        
+        print(f"Sistema de spawn do vulcão inicializado com {len(self.spawn_positions)} posições e {self.active_beasts} beasts iniciais")
+
+    def spawn_volcano_beast(self):
+        """Spawna novos beasts na fase do vulcão (de 2 em 2)"""
+        if not self.spawn_positions:
+            return False
+            
+        # Verificar se já atingiu o limite de beasts totais
+        if self.active_beasts + self.beasts_killed >= self.total_beasts:
+            return False
+        
+        # Contar quantos beasts podem ser spawnados sem exceder o total
+        remaining = self.total_beasts - (self.active_beasts + self.beasts_killed)
+        to_spawn = min(remaining, self.spawn_count)
+        
+        # Spawnar os beasts
+        spawned = 0
+        for _ in range(to_spawn):
+            # Escolher uma posição aleatória de spawn
+            if not self.spawn_positions:
+                break
+                
+            pos = random.choice(self.spawn_positions)
+            
+            # Criar o beast
+            Enemy(
+                "beast",
+                pos,
+                [self.visibile_sprites, self.attackable_sprites],
+                self.obstacle_sprites,
+                self.damage_player
+            )
+            
+            # Incrementar contador de beasts ativos
+            self.active_beasts += 1
+            spawned += 1
+            
+            print(f"Spawnou beast na posição {pos}. Beasts ativos: {self.active_beasts}, Beasts mortos: {self.beasts_killed}/{self.total_beasts}")
+        
+        # Remover as posições usadas para evitar spawnar muito perto
+        if spawned > 0:
+            print(f"Spawnados {spawned} beasts. Total ativo: {self.active_beasts}, Mortos: {self.beasts_killed}/{self.total_beasts}")
+            return True
+        return False
+
     def run(self):
         self.display_surface.blit(pygame.transform.scale(pygame.image.load(self.background).convert_alpha(), (WIDTH, HEIGHT)), (0, 0))  # Draw background image
         
-        # Processar timer de spawn
+        # Processar timer de spawn para floresta
         if self.sequential_monsters_active and self.spawn_timer > 0:
             self.spawn_timer -= 1
             if self.spawn_timer == 0:
                 self.spawn_monster()
+        
+        # Processar timer de spawn para vulcão
+        if self.volcano_spawn_active and hasattr(self, 'spawn_volcano_timer') and self.spawn_volcano_timer > 0:
+            self.spawn_volcano_timer -= 1
+            if self.spawn_volcano_timer == 0:
+                self.spawn_volcano_beast()
         
         # Atualizar e aplicar o sistema de vento ao jogador se estiver no deserto
         if self.is_desert and self.wind_system:
@@ -469,6 +592,21 @@ class Level:
             monsters_surf = self.font.render(monsters_text, True, (255, 100, 100))
             monsters_rect = monsters_surf.get_rect(topleft=(20, 20))
             self.display_surface.blit(monsters_surf, monsters_rect)
+            
+        # Mostrar informações do vulcão
+        if self.volcano_spawn_active:
+            # Contador de beasts
+            beast_text = f"Beasts: {self.beasts_killed}/{self.total_beasts}"
+            beast_surf = self.font.render(beast_text, True, (255, 100, 100))
+            beast_rect = beast_surf.get_rect(topleft=(20, 20))
+            self.display_surface.blit(beast_surf, beast_rect)
+            
+            # Status do boss
+            boss_status = "Boss: Derrotado!" if self.boss_defeated else "Boss: Vivo"
+            boss_color = (100, 255, 100) if self.boss_defeated else (255, 100, 100)
+            boss_surf = self.font.render(boss_status, True, boss_color)
+            boss_rect = boss_surf.get_rect(topleft=(20, 50))
+            self.display_surface.blit(boss_surf, boss_rect)
         
         # Mostrar dica sobre o gelo
         if self.show_ice_tip and self.ice_tip_timer > 0:

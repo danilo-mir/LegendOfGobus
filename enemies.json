@@ -135,19 +135,19 @@
     "notice_radius": 330
   },
   "beast": {
-    "health": 125,
+    "health": 40,
     "exp": 135,
-    "damage": 25,
-    "speed": 2,
+    "damage": 10,
+    "speed": 4,
     "resistance": 4,
-    "attack_radius": 95,
-    "notice_radius": 390
+    "attack_radius": 40,
+    "notice_radius": 700
   },
   "tengu": {
     "health": 500,
     "exp": 500,
     "damage": 60,
-    "speed": 6,
+    "speed": 3,
     "resistance": 5,
     "attack_radius": 80,
     "notice_radius": 1000
