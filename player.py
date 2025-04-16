@@ -26,10 +26,10 @@ class Player(Entity):
         self.weapon_index = 0
         self.current_weapon = 'gun'
         
-        # Inventário
+        # Inventario
         self.inventory = ['gun', 'axe', 'sword']
 
-        # Orientação do jogador
+        # Orientacao do jogador
         self.status = 'down'
 
         # Inicializar temporizadores de ataque
@@ -42,19 +42,19 @@ class Player(Entity):
         # Atributos do jogador
         self.player_stats = player_stats
         
-        # Controle de munição
+        # Controle de municao
         self.ammo = 5  # Iniciar com 5 balas
-        self.max_ammo = 5  # Máximo de 5 balas
-        self.no_ammo_message_timer = 0  # Timer para mensagem de sem munição
+        self.max_ammo = 5  # Maximo de 5 balas
+        self.no_ammo_message_timer = 0  # Timer para mensagem de sem municao
         
         # Sistema de moedas para a lojinha
         self.coins = 0  # Iniciar sem moedas
         self.thief_count = 0  # Contador de quantas vezes o jogador roubou da loja
     
-        # Atributos de progressão
+        # Atributos de progressao
         self.level = 1
         self.health = self.player_stats['max_health']
-        self.energy = 0  # Não usamos mais energia/mana
+        self.energy = 0  # Nao usamos mais energia/mana
         self.speed = self.player_stats['speed']
         self.exp = 0
         self.super_counter = 0
@@ -168,7 +168,7 @@ class Player(Entity):
                 self.weapon_index = self.weapon_index % len(self.inventory)
                 self.current_weapon = self.inventory[self.weapon_index]
 
-            # A direção do jogador pode mudar quando ataca
+            # A direcao do jogador pode mudar quando ataca
             if keys[pygame.K_LEFT] and not self.attacking:
                 self.status = 'left'
                 debug(self.status)
@@ -182,17 +182,17 @@ class Player(Entity):
             # Se atacar, mudar para estado de ataque
             if keys[pygame.K_LEFT] or keys[pygame.K_RIGHT] or keys[pygame.K_UP] or keys[
                 pygame.K_DOWN] and not self.attacking:
-                # Verificar se tem munição quando usar gun
+                # Verificar se tem municao quando usar gun
                 if self.current_weapon == 'gun':
-                    if self.ammo > 0:  # Só permite atirar se tiver munição
+                    if self.ammo > 0:  # So permite atirar se tiver municao
                         self.attacking = True
                         self.attack_time = pygame.time.get_ticks()
                         self.create_attack(self.current_weapon)
-                        self.ammo -= 1  # Diminui munição ao atirar
+                        self.ammo -= 1  # Diminui municao ao atirar
                     else:
-                        # Feedback visual - ativar o timer da mensagem de sem munição
+                        # Feedback visual - ativar o timer da mensagem de sem municao
                         self.no_ammo_message_timer = 60  # Mostrar por 1 segundo (60 frames)
-                else:  # Armas melee não usam munição
+                else:  # Armas melee nao usam municao
                     self.attacking = True
                     self.attack_time = pygame.time.get_ticks()
                     self.create_attack(self.current_weapon)
@@ -201,21 +201,21 @@ class Player(Entity):
             if keys[pygame.K_r]:
                 if self.super_counter >= self.player_stats['super_threshold']:
                     self.super_counter = 0
-                    self.ammo = self.max_ammo  # Recarregar munição com super ataque
+                    self.ammo = self.max_ammo  # Recarregar municao com super ataque
             if keys[pygame.K_m]:
                 if self.super_counter < self.player_stats['super_threshold']:
                     self.super_counter += 1
 
-            # Recarregar munição
+            # Recarregar municao
             if keys[pygame.K_SPACE]:
                 self.ammo = self.max_ammo
 
-            # Normalizar vetor velocidade para que andar na diagonal não seja mais rápido
+            # Normalizar vetor velocidade para que andar na diagonal nao seja mais rapido
             if self.direction.magnitude() > 0.1:
                 self.direction = self.direction.normalize()
 
     def get_status(self):
-        # Aqui o sprite do jogador será atualizado para ser um sprite do tipo parado (_iddle) ou de ataque(_attack)
+        # Aqui o sprite do jogador sera atualizado para ser um sprite do tipo parado (_iddle) ou de ataque(_attack)
 
         # Estado parado
         if self.direction.x == 0 and self.direction.y == 0:
@@ -271,7 +271,7 @@ class Player(Entity):
         # Cada roubo reduz o dano em 5% (multiplicativo)
         base_damage = self.player_stats['damage']
         if self.thief_count > 0:
-            reduction_factor = 0.95 ** self.thief_count  # Redução de 5% por roubo
+            reduction_factor = 0.95 ** self.thief_count  # Reducao de 5% por roubo
             base_damage = base_damage * reduction_factor
             
         return base_damage
@@ -281,7 +281,7 @@ class Player(Entity):
         self.coins += amount
         
     def spend_coins(self, amount):
-        """Gastar moedas na loja, retorna True se a transação foi bem-sucedida"""
+        """Gastar moedas na loja, retorna True se a transacao foi bem-sucedida"""
         if self.coins >= amount:
             self.coins -= amount
             return True
@@ -304,16 +304,16 @@ class Player(Entity):
             should_reset_level = death_screen.run()
             
             if should_reset_level:
-                # Apenas retornar True para indicar que o nível deve ser recriado
+                # Apenas retornar True para indicar que o nivel deve ser recriado
                 return True
             
-            # Caso não tenha escolhido reiniciar, apenas restaurar os atributos do jogador
+            # Caso nao tenha escolhido reiniciar, apenas restaurar os atributos do jogador
             self.health = self.player_stats['max_health']
             self.ammo = self.max_ammo
             self.exp = 0
             self.super_counter = 0
             
-        return False  # Não é necessário recriar o nível
+        return False  # Nao e necessario recriar o nivel
 
     def update(self):
         self.input()
@@ -323,17 +323,17 @@ class Player(Entity):
         self.move(self.speed)
         self.check_death()
         
-        # Atualizar timer da mensagem de sem munição
+        # Atualizar timer da mensagem de sem municao
         if self.no_ammo_message_timer > 0:
             self.no_ammo_message_timer -= 1
             
-            # Exibir mensagem de sem munição
+            # Exibir mensagem de sem municao
             if self.no_ammo_message_timer > 0:
-                # Obter superfície atual
+                # Obter superficie atual
                 screen = pygame.display.get_surface()
                 
-                # Criar mensagem de sem munição
-                message = self.font.render("SEM MUNIÇÃO!", True, (255, 0, 0))
+                # Criar mensagem de sem municao
+                message = self.font.render("SEM MUNICAO!", True, (255, 0, 0))
                 message_rect = message.get_rect(center=(screen.get_width() // 2, 100))
                 
                 # Desenhar fundo semi-transparente para a mensagem
@@ -346,7 +346,7 @@ class Player(Entity):
                 screen.blit(bg_surf, bg_rect)
                 screen.blit(message, message_rect)
         
-        # Exibir contador de munição
+        # Exibir contador de municao
         screen = pygame.display.get_surface()
-        ammo_text = self.font.render(f"Munição: {self.ammo}/{self.max_ammo}", True, (255, 255, 255))
+        ammo_text = self.font.render(f"Municao: {self.ammo}/{self.max_ammo}", True, (255, 255, 255))
         screen.blit(ammo_text, (20, 80))

@@ -17,14 +17,14 @@ class LevelTransition:
         self.delay_timer = 0
         self.delay_duration = 60  # 1 segundo a 60 FPS
         
-        # Superfície para fade
+        # Superficie para fade
         self.fade_surf = pygame.Surface((WIDTH, HEIGHT))
         self.fade_surf.fill((0, 0, 0))
         
     def input(self):
         keys = pygame.key.get_pressed()
         
-        # Verificar se o usuário pressionou espaço ou enter para avançar
+        # Verificar se o usuario pressionou espaco ou enter para avancar
         if keys[pygame.K_SPACE] or keys[pygame.K_RETURN]:
             self.should_transition = True
             
@@ -37,7 +37,7 @@ class LevelTransition:
                 self.should_transition = True
     
     def draw(self):
-        # Desenhar o fundo escuro com transparência
+        # Desenhar o fundo escuro com transparencia
         self.fade_surf.set_alpha(self.alpha)
         self.screen.blit(self.fade_surf, (0, 0))
         
@@ -46,20 +46,20 @@ class LevelTransition:
         center_y = HEIGHT // 2
         
         # Texto principal
-        victory_text = self.big_font.render("Nível Completado!", True, (255, 215, 0))
+        victory_text = self.big_font.render("Nivel Completado!", True, (255, 215, 0))
         victory_rect = victory_text.get_rect(center=(center_x, center_y - 80))
         
-        # Texto do nível concluído
-        current_level_text = self.font.render(f"Você completou: {self.current_level_name}", True, (200, 200, 200))
+        # Texto do nivel concluido
+        current_level_text = self.font.render(f"Voce completou: {self.current_level_name}", True, (200, 200, 200))
         current_level_rect = current_level_text.get_rect(center=(center_x, center_y))
         
-        # Texto do próximo nível
-        next_level_text = self.font.render(f"Próximo nível: {self.next_level_name}", True, (200, 200, 200))
+        # Texto do proximo nivel
+        next_level_text = self.font.render(f"Proximo nivel: {self.next_level_name}", True, (200, 200, 200))
         next_level_rect = next_level_text.get_rect(center=(center_x, center_y + 50))
         
-        # Texto de instrução
-        if self.alpha > 200:  # Só mostrar quando o fade estiver quase completo
-            instruction_text = self.font.render("Clique ou pressione ESPAÇO para continuar", True, (255, 255, 255))
+        # Texto de instrucao
+        if self.alpha > 200:  # So mostrar quando o fade estiver quase completo
+            instruction_text = self.font.render("Clique ou pressione ESPACO para continuar", True, (255, 255, 255))
             instruction_rect = instruction_text.get_rect(center=(center_x, center_y + 150))
             self.screen.blit(instruction_text, instruction_rect)
         
@@ -84,7 +84,7 @@ class LevelTransition:
         self.fading_in = True
         self.should_transition = False
         
-        # Loop principal da tela de transição
+        # Loop principal da tela de transicao
         while not self.should_transition:
             self.input()
             self.update_fade()
@@ -94,7 +94,7 @@ class LevelTransition:
             
             # Se estamos apenas esperando o clique
             if not self.fading_in and self.delay_timer <= 0:
-                pass  # Apenas esperando input do usuário
+                pass  # Apenas esperando input do usuario
         
-        # Retornar True para indicar que devemos avançar para o próximo nível
+        # Retornar True para indicar que devemos avancar para o proximo nivel
         return True 

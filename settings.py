@@ -8,7 +8,7 @@ PLAYERSIZE = 45
 # UI
 BAR_HEIGHT = 20
 HEALTH_BAR_WIDTH = 200
-# ENERGY_BAR_WIDTH = 140  # Não usado mais
+# ENERGY_BAR_WIDTH = 140  # Nao usado mais
 ITEM_BOX_SIZE= 80
 UI_FONT = 'graphics/font/medieval-pixel.otf'
 UI_FONT_SIZE = 30
@@ -40,12 +40,12 @@ SUPER_LOADING_COLOR = (218, 165, 32)
 
 # Cores da UI
 HEALTH_COLOR = 'red'
-# ENERGY_COLOR = 'blue'  # Não usado mais
+# ENERGY_COLOR = 'blue'  # Nao usado mais
 UI_BORDER_COLOR_ACTIVE = 'gold'
 
 DEFAULT_PLAYER_STATS = {
   'max_health': 100,
-  'max_ammo': 5,  # Munição máxima
+  'max_ammo': 5,  # Municao maxima
   'speed': 5,
   'super_threshold': 10,
   'damage': 5
@@ -68,7 +68,7 @@ WORLD_MAP = [
  ['T2', 'T2', 'T2', 'T2' , 'T2', 'T2', 'T2', 'T2', 'T2', 'T2', ',', ',', ',', 'T2', 'T2' , 'T2', 'T2', 'T2', 'T2', 'T2', 'T2', 'T2', 'T2'],
 ]
 
-# Símbolos de monstros para os mapas
+# Simbolos de monstros para os mapas
 monster_symbol = {
     'sq': "squid", 
     'rc': "raccoon"

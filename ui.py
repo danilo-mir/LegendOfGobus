@@ -13,7 +13,7 @@ class UI:
         # Barra de vida
         self.health_bar_rect = pygame.Rect(10, 10, HEALTH_BAR_WIDTH, BAR_HEIGHT)
         
-        # Carregar imagens de munição
+        # Carregar imagens de municao
         self.ammo_images = []
         for i in range(6):  # 0 a 5 balas
             img = pygame.image.load(f'graphics/weapons/municao/municao_{i}.png').convert_alpha()
@@ -23,7 +23,7 @@ class UI:
             img = pygame.transform.scale(img, (img_width, img_height))
             self.ammo_images.append(img)
         
-        # Posição da imagem de munição (ajustada para o novo tamanho)
+        # Posicao da imagem de municao (ajustada para o novo tamanho)
         self.ammo_rect = pygame.Rect(10, 40, 50, 20)  # x, y, width, height reduzidos pela metade
 
         self.weapon_data = fetch_weapon_data()
@@ -44,7 +44,7 @@ class UI:
         # Garantir que ammo esteja nos limites (0-5)
         ammo_index = max(0, min(ammo, 5))
         
-        # Mostrar a imagem correspondente à quantidade de munição
+        # Mostrar a imagem correspondente a quantidade de municao
         ammo_image = self.ammo_images[ammo_index]
         self.display_surface.blit(ammo_image, self.ammo_rect)
 
@@ -58,7 +58,7 @@ class UI:
         
     def show_coins(self, coins):
         """Mostrar quantidade de moedas do jogador"""
-        # Definir posição (canto superior direito)
+        # Definir posicao (canto superior direito)
         coin_text = self.font.render(f'Moedas: {coins}', False, (255, 215, 0))  # Cor dourada para moedas
         coin_rect = coin_text.get_rect(topright=(WIDTH - 20, 10))
         
@@ -85,7 +85,7 @@ class UI:
         self.display_surface.blit(weapon_image, weapon_rect)
 
 
-    # Mostrar o círculo do super ataque
+    # Mostrar o circulo do super ataque
     def show_super(self, current, max_amount, color):
         ratio = current / max_amount
         current_angle = ratio * 2 * pi
@@ -96,7 +96,7 @@ class UI:
             color_button = SUPER_BUTTON_NOT_AVAILABLE_COLOR
         current_angle = ratio * 2 * pi
 
-        # Círculo do super ataque
+        # Circulo do super ataque
         pos = (WIDTH - SUPER_PADDING_X - SUPER_RADIUS, HEIGHT - SUPER_PADDING_Y - SUPER_RADIUS)
         text_surf = self.bigger_font.render('R', False, TEXT_COLOR)
         text_rect = text_surf.get_rect(center=pos)
@@ -109,7 +109,7 @@ class UI:
 
     def display(self, player):
         self.show_bar(player.health, player.player_stats['max_health'], self.health_bar_rect, HEALTH_COLOR)
-        self.show_ammo(player.ammo)  # Mostrar munição ao invés da barra de energia
+        self.show_ammo(player.ammo)  # Mostrar municao ao inves da barra de energia
         self.show_coins(player.coins)  # Mostrar quantidade de moedas
         self.show_exp(player.exp)
         self.show_super(player.super_counter, player.player_stats['super_threshold'], SUPER_LOADING_COLOR)
