@@ -59,15 +59,16 @@ class Level:
                         [self.visibile_sprites],
                         self.obstacle_sprites,
                         self.create_attack,
-                        self.destroy_attack
-                    , self.create_projectile)
+                        self.destroy_attack,
+                        self.create_projectile)
                 elif col in monster_symbol:
                     monster_name = monster_symbol[col]
                     Enemy(
                         monster_name,
                         (x, y),
                         [self.visibile_sprites, self.attackable_sprites],
-                        self.obstacle_sprites
+                        self.obstacle_sprites,
+                        self.damage_player
                     )
 
     def create_attack(self, weapon_name):
@@ -98,7 +99,13 @@ class Level:
                 if collision_sprites:
                     for target_sprite in collision_sprites:
                         weapon_damage = attack_sprite.get_damage()
-                        target_sprite.get_damage(self.player, )
+                        target_sprite.get_damage(self.player, weapon_damage)
+
+    def damage_player(self, amount, attack_type):
+        if self.player.vulnerable:
+            self.player.health -= amount
+            self.player.vulnerable = False
+            self.player.hit_time = pygame.time.get_ticks()
 
     def run(self):
         self.display_surface.blit(pygame.transform.scale(pygame.image.load(FORESTBG).convert_alpha(), (WIDTH, HEIGHT)), (0, 0))  # Draw background image
@@ -107,7 +114,6 @@ class Level:
         self.visibile_sprites.enemy_update(self.player)
         self.player_attack_logic()
         self.ui.display(self.player)
-        debug(self.attack_sprites)
 
 
 # Grupo de sprites customizado para ordena-los conforme sua posicao y dando um senso de profundidade

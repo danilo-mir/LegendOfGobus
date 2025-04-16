@@ -9,7 +9,7 @@ class Weapon(ABC, pygame.sprite.Sprite):
         super().__init__(groups)
 
         # The damage done by the weapon
-        self.damage = weapon_data['damage'] + player.player_stats['damage']
+        self.damage = weapon_data['damage']
 
         # Achar a direção da arma com base na direção do jogador
         direction = player.status

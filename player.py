@@ -51,6 +51,11 @@ class Player(Entity):
         self.exp = 0
         self.super_counter = 0
 
+        # damage timer
+        self.vulnerable = True
+        self.hit_time = None
+        self.invulnerability_duration = 500
+
     def import_player_assets(self):
         character_path = 'graphics/player/'
         self.animations = {
@@ -165,6 +170,10 @@ class Player(Entity):
                 self.attacking = False
                 self.destroy_attack()
 
+        if not self.vulnerable:
+            if current_time - self.hit_time >= self.invulnerability_duration:
+                self.vulnerable = True
+
     def animate(self):
         animation = self.animations[self.status]
 
@@ -173,6 +182,15 @@ class Player(Entity):
 
         self.image = animation[int(self.frame_index)]
         self.rect = self.image.get_rect(center=self.hitbox.center)
+
+        if not self.vulnerable:
+            alpha = self.wave_value()
+            self.image.set_alpha(alpha)
+        else:
+            self.image.set_alpha(255)
+
+    def get_base_damage(self):
+        return self.player_stats['damage']
 
     def update(self):
         self.input()
