@@ -460,7 +460,7 @@ class Level:
         # Mostrar informações do vento quando estiver no deserto
         if self.is_desert and self.wind_system:
             wind_dir, wind_strength = self.wind_system.get_player_speed_modifier()
-            wind_info = f"Vento: {wind_dir.x:.1f},{wind_dir.y:.1f} | Força: {wind_strength:.1f}"
+            wind_info = f"Vento: {wind_dir.x:.1f},{wind_dir.y:.1f} | Forca: {wind_strength:.1f}"
             debug(wind_info, 40)  # Adiciona informações do vento abaixo das outras infos
         
         # Mostrar informações de monstros se o sistema sequencial estiver ativo
@@ -473,7 +473,7 @@ class Level:
         # Mostrar dica sobre o gelo
         if self.show_ice_tip and self.ice_tip_timer > 0:
             self.ice_tip_timer -= 1
-            tip_text = "Superfície gelada! Você começa lentamente e acelera gradualmente. Cuidado ao mudar de direção!"
+            tip_text = "Superficie gelada! Voce comeca lentamente e acelera gradualmente. Cuidado ao mudar de direcao!"
             tip_surf = self.font.render(tip_text, True, (200, 220, 255))
             tip_rect = tip_surf.get_rect(center=(WIDTH//2, 50))
             # Desenhar fundo semi-transparente

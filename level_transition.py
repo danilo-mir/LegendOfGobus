@@ -46,20 +46,20 @@ class LevelTransition:
         center_y = HEIGHT // 2
         
         # Texto principal
-        victory_text = self.big_font.render("Nível Completado!", True, (255, 215, 0))
+        victory_text = self.big_font.render("Nivel Completado!", True, (255, 215, 0))
         victory_rect = victory_text.get_rect(center=(center_x, center_y - 80))
         
-        # Texto do nível concluído
-        current_level_text = self.font.render(f"Você completou: {self.current_level_name}", True, (200, 200, 200))
+        # Texto do nivel concluido
+        current_level_text = self.font.render(f"Voce completou: {self.current_level_name}", True, (200, 200, 200))
         current_level_rect = current_level_text.get_rect(center=(center_x, center_y))
         
-        # Texto do próximo nível
-        next_level_text = self.font.render(f"Próximo nível: {self.next_level_name}", True, (200, 200, 200))
+        # Texto do proximo nivel
+        next_level_text = self.font.render(f"Proximo nivel: {self.next_level_name}", True, (200, 200, 200))
         next_level_rect = next_level_text.get_rect(center=(center_x, center_y + 50))
         
-        # Texto de instrução
-        if self.alpha > 200:  # Só mostrar quando o fade estiver quase completo
-            instruction_text = self.font.render("Clique ou pressione ESPAÇO para continuar", True, (255, 255, 255))
+        # Texto de instrucao
+        if self.alpha > 200:  # So mostrar quando o fade estiver quase completo
+            instruction_text = self.font.render("Clique ou pressione ESPACO para continuar", True, (255, 255, 255))
             instruction_rect = instruction_text.get_rect(center=(center_x, center_y + 150))
             self.screen.blit(instruction_text, instruction_rect)
         

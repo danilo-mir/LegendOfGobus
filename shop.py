@@ -84,7 +84,7 @@ class Shop:
         if self.player.coins >= coin_cost:
             # Verificar se o jogador já tem munição cheia
             if self.player.ammo >= self.player.max_ammo:
-                self.show_feedback("Munição já está cheia!", (255, 165, 0))
+                self.show_feedback("Municao ja esta cheia!", (255, 165, 0))
                 return
                 
             # Gastar moedas e adicionar munição
@@ -96,10 +96,10 @@ class Shop:
             self.show_feedback("Moedas insuficientes! Precisa de 3 moedas.", (255, 0, 0))
             
     def steal_from_shop(self):
-        """Roubar a loja para ganhar munição, mas sofrer penalidades permanentes"""
+        """Roubar a loja para ganhar municao, mas sofrer penalidades permanentes"""
         # Verificar se o jogador já tem munição cheia
         if self.player.ammo >= self.player.max_ammo:
-            self.show_feedback("Munição já está cheia!", (255, 165, 0))
+            self.show_feedback("Municao ja esta cheia!", (255, 165, 0))
             return
             
         # Roubar a loja (adicionar munição e aplicar penalidade)
@@ -111,7 +111,7 @@ class Shop:
         
         # Mensagem informando a penalidade
         penalty_percentage = int((1 - 0.95**thief_level) * 100)
-        self.show_feedback(f"Você roubou a loja! -5% de destreza #{thief_level} (total: -{penalty_percentage}%)", (255, 0, 0))
+        self.show_feedback(f"Voce roubou a loja! -5% de destreza #{thief_level} (total: -{penalty_percentage}%)", (255, 0, 0))
             
     def show_feedback(self, message, color=(255, 255, 255)):
         """Mostrar mensagem de feedback temporária"""
@@ -124,7 +124,7 @@ class Shop:
         self.screen.blit(self.bg, (0, 0))
         
         # Desenhar título
-        title_surf = self.title_font.render("LOJINHA DO URÛB'UZON", True, (255, 215, 0))
+        title_surf = self.title_font.render("LOJINHA DO URUB'UZON", True, (255, 215, 0))
         title_rect = title_surf.get_rect(center=(WIDTH//2, HEIGHT//4))
         self.screen.blit(title_surf, title_rect)
         
@@ -133,7 +133,7 @@ class Shop:
         coins_rect = coins_surf.get_rect(center=(WIDTH//2, HEIGHT//4 + 50))
         self.screen.blit(coins_surf, coins_rect)
         
-        ammo_surf = self.info_font.render(f"Munição: {self.player.ammo}/{self.player.max_ammo}", True, (255, 255, 255))
+        ammo_surf = self.info_font.render(f"Municao: {self.player.ammo}/{self.player.max_ammo}", True, (255, 255, 255))
         ammo_rect = ammo_surf.get_rect(center=(WIDTH//2, HEIGHT//4 + 80))
         self.screen.blit(ammo_surf, ammo_rect)
         
