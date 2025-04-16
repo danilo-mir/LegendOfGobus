@@ -150,7 +150,6 @@ class Level:
         self.visibile_sprites.enemy_update(self.player)
         self.player_attack_logic()
         self.ui.display(self.player)
-        debug(self.attack_sprites)
         
         # Mostrar informações do vento quando estiver no deserto
         if self.is_desert and self.wind_system:

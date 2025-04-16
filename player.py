@@ -41,10 +41,6 @@ class Player(Entity):
 
         # Atributos do jogador
         self.player_stats = player_stats
-
-        # Arma equipada e inventário
-        self.inventory = {}
-        self.current_weapon = 'gun'
         
         # Controle de munição
         self.ammo = 5  # Iniciar com 5 balas
