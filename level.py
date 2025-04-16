@@ -112,6 +112,15 @@ class Level:
         self.visibile_sprites.enemy_update(self.player)
         self.player_attack_logic()
         self.ui.display(self.player)
+        debug(self.attack_sprites)
+        
+        # Verificar se o jogador morreu e o nível deve ser recriado
+        # Este valor será utilizado pela classe Game
+        self.should_reset_level = False
+        if hasattr(self.player, 'check_death'):
+            self.should_reset_level = self.player.check_death()
+        
+        return self.should_reset_level
 
 
 # Grupo de sprites customizado para ordena-los conforme sua posicao y dando um senso de profundidade

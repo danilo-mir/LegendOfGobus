@@ -21,6 +21,11 @@ class Game:
         self.level = Level(*self.stages[self.current_stage])
         self.game_paused = False
 
+    def reset_level(self):
+        """Recria completamente o nível atual, reposicionando o jogador e inimigos."""
+        # Recriar o nível com o mapa atual
+        self.level = Level(*self.stages[self.current_stage])
+
     def run(self):
         while True:
             if self.game_paused:
@@ -29,7 +34,12 @@ class Game:
             else:
                 self.handle_events()
                 self.screen.fill('black')
-                self.level.run()
+                
+                # Verificar se o nível precisa ser recriado após a execução
+                should_reset_level = self.level.run()
+                if should_reset_level:
+                    self.reset_level()
+                
                 pygame.display.update()
                 self.clock.tick(FPS)
 

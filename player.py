@@ -256,11 +256,19 @@ class Player(Entity):
     def check_death(self):
         if self.health <= 0:
             death_screen = DeathScreen(pygame.display.get_surface())
-            death_screen.run()
-            self.health = self.player_stats['max_health']  # Reiniciar a vida após morrer
-            self.ammo = self.max_ammo  # Recarregar munição
-            self.exp = 0  # Reiniciar experiência
-            self.super_counter = 0  # Reiniciar contador do super
+            should_reset_level = death_screen.run()
+            
+            if should_reset_level:
+                # Apenas retornar True para indicar que o nível deve ser recriado
+                return True
+            
+            # Caso não tenha escolhido reiniciar, apenas restaurar os atributos do jogador
+            self.health = self.player_stats['max_health']
+            self.ammo = self.max_ammo
+            self.exp = 0
+            self.super_counter = 0
+            
+        return False  # Não é necessário recriar o nível
 
     def update(self):
         self.input()
