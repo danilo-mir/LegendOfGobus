@@ -13,7 +13,7 @@ import random
 
 class Level:
     def __init__(self, game_map=WORLD_MAP, background=FORESTBG):
-        # Acesso à variável da tela
+        # Acesso a variavel da tela
         self.display_surface = pygame.display.get_surface()
         self.game_map = game_map
         self.background = background
@@ -52,9 +52,9 @@ class Level:
         # Criar mapa
         self.create_map()
         
-        # Interface do usuário
+        # Interface do usuario
         self.ui = UI()
-        
+
         # Inicializar sistema de monstros se estiver na floresta
         if self.sequential_monsters_active:
             self.initialize_monster_system()
@@ -63,7 +63,7 @@ class Level:
         print(f"Número de inimigos criados: {len([sprite for sprite in self.attackable_sprites if hasattr(sprite, 'sprite_type') and sprite.sprite_type == 'enemy'])}")
         
         # Controle de deslizamento no gelo
-        self.slide_factor = 0.98 if self.is_ice else 0  # Fator de deslizamento (quanto mais próximo de 1, mais desliza)
+        self.slide_factor = 0.98 if self.is_ice else 0  # Fator de deslizamento (quanto mais proximo de 1, mais desliza)
         self.player_momentum = pygame.math.Vector2(0, 0)
         self.ice_movement_penalty = 0.01  # Começar com apenas 1% da velocidade no gelo
         self.acceleration_rate = 0.02  # Taxa de aceleração mais lenta no gelo
@@ -73,7 +73,7 @@ class Level:
         self.show_ice_tip = self.is_ice  # Mostrar dica sobre o gelo uma vez
         self.ice_tip_timer = 300 if self.is_ice else 0  # 5 segundos
         
-        # Estado do nível
+        # Estado do nivel
         self.level_completed = False
         
         # Inicializar inimigos no início sem sistema sequencial
@@ -182,30 +182,41 @@ class Level:
                 x = col_index * TILESIZE
                 y = row_index * TILESIZE
                 if col == 'G1':
-                    Grass1Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
+                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/grass/grass_1.png',
+                             (GRASSSIZE, GRASSSIZE))
                 if col == 'G2':
-                    Grass2Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
+                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/grass/grass_2.png',
+                             (GRASSSIZE, GRASSSIZE))
                 if col == 'G3':
-                    Grass3Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
+                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/grass/grass_3.png',
+                             (GRASSSIZE, GRASSSIZE))
                 if col == 'TR1':
-                    Trunk1Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
+                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/0.png',
+                             (TILESIZE, TILESIZE))
                 if col == 'TR2':
-                    Trunk2Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
+                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/01.png',
+                             (TILESIZE, TILESIZE))
                 if col == 'T1':
-                    Tree1Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
+                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/02.png',
+                             (TILESIZE, TILESIZE))
                 if col == 'T2':
-                    Tree2Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
+                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/03.png',
+                             (TILESIZE, TILESIZE))
                 if col == 'T3':
-                    Tree3Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
+                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/04.png',
+                             (TILESIZE, TILESIZE))
                 if col == 'R1':
-                    Rock1Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
-                # Árvores de gelo
+                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/08.png',
+                             (TILESIZE, TILESIZE))
                 if col == 'I1':
-                    IceTree1Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
+                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/05.png',
+                             (TILESIZE, TILESIZE))
                 if col == 'I2':
-                    IceTree2Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
+                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/06.png',
+                             (TILESIZE, TILESIZE))
                 if col == 'I3':
-                    IceTree3Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
+                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/07.png',
+                             (TILESIZE, TILESIZE))
                 if col == 'P':
                     self.player = Player(
                         (x, y),
@@ -299,28 +310,28 @@ class Level:
             # Aplicar o efeito do vento no jogador
             wind_dir, wind_strength = self.wind_system.get_player_speed_modifier()
             
-            # Calcular o produto escalar entre a direção do jogador e a direção do vento
-            # Valores positivos indicam que o jogador está se movendo a favor do vento
-            # Valores negativos indicam que o jogador está se movendo contra o vento
+            # Calcular o produto escalar entre a direcao do jogador e a direcao do vento
+            # Valores positivos indicam que o jogador esta se movendo a favor do vento
+            # Valores negativos indicam que o jogador esta se movendo contra o vento
             player_dir = self.player.direction.normalize() if self.player.direction.magnitude() > 0 else pygame.Vector2(0, 0)
             dot_product = player_dir.dot(wind_dir) if wind_dir.magnitude() > 0 else 0
             
             # Ajustar a velocidade do jogador
             speed_modifier = 1.0
             if dot_product > 0.3:  # Jogador a favor do vento
-                speed_modifier = 1.0 + (wind_strength * 0.5)  # Aumento de até 50% na velocidade
+                speed_modifier = 1.0 + (wind_strength * 0.5)  # Aumento de ate 50% na velocidade
             elif dot_product < -0.3:  # Jogador contra o vento
-                speed_modifier = 1.0 - (wind_strength * 0.6)  # Redução de até 60% na velocidade
+                speed_modifier = 1.0 - (wind_strength * 0.6)  # Reducao de ate 60% na velocidade
             
             # Aplicar o modificador de velocidade
             self.player.speed = self.player.player_stats['speed'] * speed_modifier
             
-            # Desenhar as partículas do vento
+            # Desenhar as particulas do vento
             self.wind_system.draw()
         elif self.is_ice:
             # Aplicar efeito de deslizamento no gelo
             if self.player.direction.magnitude() > 0:
-                # Sistema de aceleração gradual no gelo
+                # Sistema de aceleracao gradual no gelo
                 last_direction = self.player_momentum.normalize() if self.player_momentum.magnitude() > 0 else pygame.Vector2(0, 0)
                 current_direction = self.player.direction.normalize()
                 
@@ -362,19 +373,19 @@ class Level:
                     # Desacelerar gradualmente
                     self.player_momentum *= self.slide_factor
                     
-                    # Em vez de usar o sistema de colisão do jogador, vamos verificar colisões manualmente
+                    # Em vez de usar o sistema de colisao do jogador, vamos verificar colisoes manualmente
                     # para o movimento de deslizamento
                     
                     # Testar o movimento horizontal
                     future_hitbox_x = self.player.hitbox.copy()
                     future_hitbox_x.x += self.player_momentum.x
                     
-                    # Verificar colisão horizontal
+                    # Verificar colisao horizontal
                     horizontal_collision = False
                     for sprite in self.obstacle_sprites:
                         if sprite.hitbox.colliderect(future_hitbox_x):
                             horizontal_collision = True
-                            # Ajustar a posição para que fique encostado no obstáculo
+                            # Ajustar a posicao para que fique encostado no obstaculo
                             if self.player_momentum.x > 0:  # Movimento para a direita
                                 self.player.hitbox.right = sprite.hitbox.left
                             else:  # Movimento para a esquerda
@@ -383,7 +394,7 @@ class Level:
                             self.player_momentum.x = 0
                             break
                     
-                    # Se não houve colisão horizontal, aplicar o movimento
+                    # Se nao houve colisao horizontal, aplicar o movimento
                     if not horizontal_collision:
                         self.player.hitbox.x += self.player_momentum.x
                     
@@ -391,12 +402,12 @@ class Level:
                     future_hitbox_y = self.player.hitbox.copy()
                     future_hitbox_y.y += self.player_momentum.y
                     
-                    # Verificar colisão vertical
+                    # Verificar colisao vertical
                     vertical_collision = False
                     for sprite in self.obstacle_sprites:
                         if sprite.hitbox.colliderect(future_hitbox_y):
                             vertical_collision = True
-                            # Ajustar a posição para que fique encostado no obstáculo
+                            # Ajustar a posicao para que fique encostado no obstaculo
                             if self.player_momentum.y > 0:  # Movimento para baixo
                                 self.player.hitbox.bottom = sprite.hitbox.top
                             else:  # Movimento para cima
@@ -405,21 +416,21 @@ class Level:
                             self.player_momentum.y = 0
                             break
                     
-                    # Se não houve colisão vertical, aplicar o movimento
+                    # Se nao houve colisao vertical, aplicar o movimento
                     if not vertical_collision:
                         self.player.hitbox.y += self.player_momentum.y
                     
-                    # Atualizar posição do retângulo
+                    # Atualizar posicao do retangulo
                     self.player.rect.center = self.player.hitbox.center
                     
-                    # Mostrar informações de deslizamento para debug
+                    # Mostrar informacoes de deslizamento para debug
                     debug(f"Deslizando: {self.player_momentum.x:.1f}, {self.player_momentum.y:.1f}", 40)
                 else:
                     # Parar completamente quando o momentum for muito baixo
                     self.player_momentum = pygame.math.Vector2(0, 0)
                     self.player.speed = self.player.player_stats['speed']
         else:
-            # Restaurar a velocidade normal quando não está no deserto ou no gelo
+            # Restaurar a velocidade normal quando nao esta no deserto ou no gelo
             self.player.speed = self.player.player_stats['speed']
         
         self.visibile_sprites.custom_draw(self.player)
@@ -428,7 +439,7 @@ class Level:
         self.player_attack_logic()
         self.ui.display(self.player)
         
-        # Mostrar informações do vento quando estiver no deserto
+        # Mostrar informacoes do vento quando estiver no deserto
         if self.is_desert and self.wind_system:
             wind_dir, wind_strength = self.wind_system.get_player_speed_modifier()
             wind_info = f"Vento: {wind_dir.x:.1f},{wind_dir.y:.1f} | Força: {wind_strength:.1f}"
@@ -458,7 +469,7 @@ class Level:
             if self.ice_tip_timer <= 0:
                 self.show_ice_tip = False
         
-        # Verificar se o jogador morreu e o nível deve ser recriado
+        # Verificar se o jogador morreu e o nivel deve ser recriado
         self.should_reset_level = False
         if hasattr(self, 'player') and hasattr(self.player, 'check_death'):
             self.should_reset_level = self.player.check_death()
@@ -482,7 +493,8 @@ class Level:
 
 
 # Grupo de sprites customizado para ordena-los conforme sua posicao y dando um senso de profundidade
-# Também implementa o movimento da câmera caso o mapa seja maior que a tela
+# Tambem implementa o movimento da camera caso o mapa seja maior que a tela
+# Também implementa o movimento da camera caso o mapa seja maior que a tela
 class YSortCameraGroup(pygame.sprite.Group):
     def __init__(self):
         super().__init__()

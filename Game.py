@@ -4,7 +4,7 @@ from level import Level
 from menu import Menu
 from pause import PauseScreen
 from shop import Shop  # Importar a classe Shop
-from level_transition import LevelTransition  # Importar a tela de transição de nível
+from level_transition import LevelTransition  # Importar a tela de transicao de nivel
 
 
 class Game:
@@ -25,7 +25,7 @@ class Game:
         self.level = Level(*self.stages[self.current_stage])
         self.game_paused = False
         self.shop_open = False  # Flag para controlar a abertura da lojinha
-        self.level_transition_active = False  # Flag para controlar a transição de níveis
+        self.level_transition_active = False  # Flag para controlar a transicao de niveis
         
         # Sistema de mensagens
         self.message = ""
@@ -33,30 +33,30 @@ class Game:
         self.message_timer = 0
         self.font = pygame.font.Font(UI_FONT, 32)
 
-    def show_message(self, text, color=(255, 255, 255), duration=180):
-        """Mostrar uma mensagem temporária na tela"""
-        self.message = text
-        self.message_color = color
+    def show_message(self, message, duration=3):
+        """Mostrar uma mensagem temporaria na tela"""
+        self.message = message
+        self.message_color = (255, 255, 255)
         self.message_timer = duration  # 3 segundos a 60 FPS
 
-    def reset_level(self):
-        """Recria completamente o nível atual, reposicionando o jogador e inimigos."""
-        # Recriar o nível com o mapa atual
+    def recreate_level(self):
+        """Recria completamente o nivel atual, reposicionando o jogador e inimigos."""
+        # Recriar o nivel com o mapa atual
         self.level = Level(*self.stages[self.current_stage])
         
-    def advance_to_next_level(self):
-        """Avança para o próximo nível"""
+    def advance_level(self):
+        """Avanca para o proximo nivel"""
         current_name = self.stage_names[self.current_stage]
         
-        # Avançar para o próximo nível
+        # Avancar para o proximo nivel
         self.current_stage = (self.current_stage + 1) % len(self.stages)
         next_name = self.stage_names[self.current_stage]
         
-        # Mostrar a tela de transição
+        # Mostrar a tela de transicao
         self.level_transition_active = True
         transition = LevelTransition(self.screen, current_name, next_name)
         if transition.run():
-            # Se a transição foi concluída, carregar o próximo nível
+            # Se a transicao foi concluida, carregar o proximo nivel
             self.level = Level(*self.stages[self.current_stage])
             self.level_transition_active = False
             self.show_message(f"Fase: {next_name}", (255, 215, 0), 180)
@@ -67,28 +67,28 @@ class Game:
                 pause_screen = PauseScreen(self.screen, self)
                 pause_screen.run()
             elif self.level_transition_active:
-                # Se estiver em transição de nível, não fazer nada até que seja concluído
+                # Se estiver em transicao de nivel, nao fazer nada ate que seja concluida
                 pass
             elif self.shop_open:
                 # Abrir a lojinha se a flag estiver ativa
                 shop = Shop(self.screen, self.level.player)
                 shop.run()
-                self.shop_open = False  # Fechar a lojinha após o uso
+                self.shop_open = False  # Fechar a lojinha apos o uso
             else:
                 self.handle_events()
                 self.screen.fill('black')
                 
-                # Executar o nível e verificar se ele foi concluído
+                # Executar o nivel e verificar se ele foi concluido
                 should_reset_level = self.level.run()
                 
-                # Se o nível foi concluído (todos os inimigos derrotados), avançar
+                # Se o nivel foi concluido (todos os inimigos derrotados), avancar
                 if self.level.level_completed:
-                    self.advance_to_next_level()
-                # Se o jogador morreu, reiniciar o nível
+                    self.advance_level()
+                # Se o jogador morreu, reiniciar o nivel
                 elif should_reset_level:
-                    self.reset_level()
+                    self.recreate_level()
                 
-                # Mostrar mensagem temporária se o timer estiver ativo
+                # Mostrar mensagem temporaria se o timer estiver ativo
                 if self.message_timer > 0:
                     self.message_timer -= 1
                     msg_surf = self.font.render(self.message, True, self.message_color)

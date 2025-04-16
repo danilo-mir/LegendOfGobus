@@ -8,7 +8,7 @@ class DeathScreen:
         self.screen = screen
         self.running = True
         self.clock = pygame.time.Clock()
-        self.should_reset_level = False  # Indica se o nível deve ser recriado
+        self.should_reset_level = False  # Indica se o nivel deve ser recriado
         
         # Fundo
         self.bg = pygame.Surface((WIDTH, HEIGHT))
@@ -30,7 +30,7 @@ class DeathScreen:
             self.draw()
             pygame.display.flip()
             self.clock.tick(60)
-        return self.should_reset_level  # Retorna se o nível deve ser recriado
+        return self.should_reset_level  # Retorna se o nivel deve ser recriado
 
     def handle_events(self):
         for event in pygame.event.get():
@@ -44,7 +44,7 @@ class DeathScreen:
                 
                 if self.buttons[0].is_clicked(mouse_pos, mouse_click):  # Reiniciar
                     self.running = False
-                    self.should_reset_level = True  # Sinaliza que o nível deve ser recriado
+                    self.should_reset_level = True  # Sinaliza que o nivel deve ser recriado
                     return
                 
                 if self.buttons[1].is_clicked(mouse_pos, mouse_click):  # Sair
@@ -60,7 +60,7 @@ class DeathScreen:
         title_rect = title_surf.get_rect(center=(WIDTH//2, HEIGHT//3))
         self.screen.blit(title_surf, title_rect)
         
-        # Desenhar subtítulo
+        # Desenhar subtitulo
         subtitle_surf = self.button_font.render("Voce morreu!", True, (255, 255, 255))
         subtitle_rect = subtitle_surf.get_rect(center=(WIDTH//2, HEIGHT//2))
         self.screen.blit(subtitle_surf, subtitle_rect)

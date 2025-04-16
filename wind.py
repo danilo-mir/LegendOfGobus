@@ -3,36 +3,36 @@ import random
 from settings import *
 
 class WindParticle:
-    """Partícula visual que representa o vento na tela"""
+    """Particula visual que representa o vento na tela"""
     def __init__(self, x, y, direction, speed):
         self.x = x
         self.y = y
-        self.direction = direction  # Vetor de direção (x, y)
+        self.direction = direction  # Vetor de direcao (x, y)
         self.speed = speed
-        self.alpha = random.randint(150, 255)  # Transparência
+        self.alpha = random.randint(150, 255)  # Transparencia
         self.size = random.randint(1, 3)
-        self.lifetime = random.randint(30, 120)  # Duração da partícula em frames
-        self.color = (255, 255, 255)  # Cor branca para partículas de areia
+        self.lifetime = random.randint(30, 120)  # Duracao da particula em frames
+        self.color = (255, 255, 255)  # Cor branca para particulas de areia
         
     def update(self):
-        # Mover a partícula na direção do vento
+        # Mover a particula na direcao do vento
         self.x += self.direction[0] * self.speed
         self.y += self.direction[1] * self.speed
         
-        # Diminuir a transparência com o tempo
+        # Diminuir a transparencia com o tempo
         self.alpha = max(0, self.alpha - 2)
         self.lifetime -= 1
         
-        # Retornar True se a partícula ainda está viva
+        # Retornar True se a particula ainda esta viva
         return self.lifetime > 0 and self.alpha > 0
         
     def draw(self, surface):
-        # Criar superfície temporária para a partícula com transparência
+        # Criar superficie temporaria para a particula com transparencia
         particle_surf = pygame.Surface((self.size, self.size))
         particle_surf.fill(self.color)
         particle_surf.set_alpha(self.alpha)
         
-        # Desenhar a partícula na tela
+        # Desenhar a particula na tela
         surface.blit(particle_surf, (self.x, self.y))
 
 
@@ -43,8 +43,8 @@ class WindSystem:
         self.particles = []
         
         # Estado do vento
-        self.direction = pygame.Vector2(0, 0)  # Direção inicial (sem vento)
-        self.strength = 0  # Força do vento (0 a 1)
+        self.direction = pygame.Vector2(0, 0)  # Direcao inicial (sem vento)
+        self.strength = 0  # Forca do vento (0 a 1)
         
         # Temporizadores
         self.wind_timer = 0
@@ -55,19 +55,19 @@ class WindSystem:
         # Atualizar temporizador do vento
         self.wind_timer += 1
         
-        # Verificar se é hora de mudar o vento
+        # Verificar se e hora de mudar o vento
         if self.wind_timer >= self.wind_change_interval:
             self._change_wind()
             self.wind_timer = 0
             self.wind_change_interval = random.randint(300, 600)
             
-        # Gerar novas partículas
+        # Gerar novas particulas
         self.particle_timer += 1
-        if self.particle_timer >= 3 and self.strength > 0:  # Gerar partículas a cada 3 frames se tiver vento
+        if self.particle_timer >= 3 and self.strength > 0:  # Gerar particulas a cada 3 frames se tiver vento
             self._spawn_particles()
             self.particle_timer = 0
             
-        # Atualizar partículas existentes
+        # Atualizar particulas existentes
         updated_particles = []
         for particle in self.particles:
             if particle.update():
@@ -75,13 +75,13 @@ class WindSystem:
         self.particles = updated_particles
         
     def draw(self):
-        # Desenhar todas as partículas
+        # Desenhar todas as particulas
         for particle in self.particles:
             particle.draw(self.screen)
             
     def _change_wind(self):
-        """Alterar aleatoriamente a direção e força do vento"""
-        # Possíveis direções (direita, esquerda, cima, baixo, diagonais)
+        """Alterar aleatoriamente a direcao e forca do vento"""
+        # Possiveis direcoes (direita, esquerda, cima, baixo, diagonais)
         possible_directions = [
             (1, 0),    # direita
             (-1, 0),   # esquerda
@@ -94,24 +94,24 @@ class WindSystem:
             (0, 0)     # sem vento
         ]
         
-        # Escolher uma direção aleatória
+        # Escolher uma direcao aleatoria
         chosen_dir = random.choice(possible_directions)
         self.direction = pygame.Vector2(chosen_dir)
         
-        # Definir força aleatória
+        # Definir forca aleatoria
         if chosen_dir == (0, 0):
             self.strength = 0
         else:
             self.strength = random.uniform(0.2, 0.8)
             
-        print(f"Vento mudou: Direção {self.direction}, Força {self.strength}")
+        print(f"Vento mudou: Direcao {self.direction}, Forca {self.strength}")
         
     def _spawn_particles(self):
-        """Criar novas partículas nas bordas da tela, no lado oposto à direção do vento"""
-        num_particles = int(5 * self.strength)  # Mais partículas para ventos mais fortes
+        """Criar novas particulas nas bordas da tela, no lado oposto a direcao do vento"""
+        num_particles = int(5 * self.strength)  # Mais particulas para ventos mais fortes
         
         for _ in range(num_particles):
-            # Determinar a posição inicial com base na direção do vento
+            # Determinar a posicao inicial com base na direcao do vento
             if self.direction.x > 0:  # Vento da esquerda para a direita
                 x = random.randint(0, 50)
             elif self.direction.x < 0:  # Vento da direita para a esquerda
@@ -126,11 +126,11 @@ class WindSystem:
             else:
                 y = random.randint(0, HEIGHT)
                 
-            # Criar a partícula
+            # Criar a particula
             particle = WindParticle(x, y, (self.direction.x, self.direction.y), 
                                    random.uniform(2, 5) * self.strength)
             self.particles.append(particle)
             
     def get_player_speed_modifier(self):
-        """Retorna um modificador de velocidade para o jogador com base na direção do vento"""
+        """Retorna um modificador de velocidade para o jogador com base na direcao do vento"""
         return self.direction, self.strength 

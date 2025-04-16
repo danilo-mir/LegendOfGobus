@@ -11,7 +11,7 @@ class Weapon(ABC, pygame.sprite.Sprite):
         # The damage done by the weapon
         self.damage = weapon_data['damage']
 
-        # Achar a direção da arma com base na direção do jogador
+        # Achar a direcao da arma com base na direcao do jogador
         direction = player.status
 
         # Carregar sprite da arma
@@ -26,7 +26,7 @@ class Weapon(ABC, pygame.sprite.Sprite):
         self.image = pygame.transform.scale(original_image, new_weapon_size)
         # --- NEW CODE END ---
 
-        # Posicionar a arma corretamente para ficar na mão do jogador
+        # Posicionar a arma corretamente para ficar na mao do jogador
         if direction == 'right':
             self.rect = self.image.get_rect(midleft=player.rect.midright + pygame.math.Vector2(weapon_data["r_horizontal_offset"], weapon_data['lr_vertical_offset']))
         elif direction == 'left':
@@ -108,7 +108,7 @@ class Projectile(Entity):
       "Check for collision and remove the object if it occurs"
       collided = super().collision(direction)
       if collided:
-        self.kill()  # A bala desaparece se colidir com algum obstáculo
+        self.kill()  # A bala desaparece se colidir com algum obstaculo
       return collided
     
     def kill_if_out_of_bounds(self):
@@ -127,7 +127,7 @@ get_child_class = {
 }
 
 
-# Fábrica de armas pois precisamos do nome da arma para saber a que tipo pertence
+# Fabrica de armas pois precisamos do nome da arma para saber a que tipo pertence
 def create_weapon(weapon_name, player, groups):
     all_weapons_data = fetch_weapon_data()
     weapon_data = all_weapons_data[weapon_name]

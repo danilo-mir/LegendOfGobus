@@ -57,7 +57,7 @@ class UI:
         
     def show_coins(self, coins):
         """Mostrar quantidade de moedas do jogador"""
-        # Definir posição (canto superior direito)
+        # Definir posicao (canto superior direito)
         coin_text = self.font.render(f'Moedas: {coins}', False, (255, 215, 0))  # Cor dourada para moedas
         coin_rect = coin_text.get_rect(topright=(WIDTH - 20, 10))
         
@@ -84,7 +84,7 @@ class UI:
         self.display_surface.blit(weapon_image, weapon_rect)
 
 
-    # Mostrar o círculo do super ataque
+    # Mostrar o circulo do super ataque
     def show_super(self, current, max_amount, color):
         ratio = current / max_amount
         current_angle = ratio * 2 * pi
@@ -95,7 +95,7 @@ class UI:
             color_button = SUPER_BUTTON_NOT_AVAILABLE_COLOR
         current_angle = ratio * 2 * pi
 
-        # Círculo do super ataque
+        # Circulo do super ataque
         pos = (WIDTH - SUPER_PADDING_X - SUPER_RADIUS, HEIGHT - SUPER_PADDING_Y - SUPER_RADIUS)
         text_surf = self.bigger_font.render('R', False, TEXT_COLOR)
         text_rect = text_surf.get_rect(center=pos)
@@ -108,7 +108,7 @@ class UI:
 
     def display(self, player):
         self.show_bar(player.health, player.player_stats['max_health'], self.health_bar_rect, HEALTH_COLOR)
-        self.show_ammo(player.ammo)  # Mostrar munição ao invés da barra de energia
+        self.show_ammo(player.ammo)  # Mostrar municao ao inves da barra de energia
         self.show_coins(player.coins)  # Mostrar quantidade de moedas
         self.show_exp(player.exp)
         self.show_super(player.super_counter, player.player_stats['super_threshold'], SUPER_LOADING_COLOR)
