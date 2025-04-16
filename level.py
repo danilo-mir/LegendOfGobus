@@ -101,7 +101,7 @@ class Level:
         elif self.is_ice:
             pygame.mixer.music.load('audio/ice.mp3')
         elif self.is_volcano:
-            pygame.mixer.music.load('audio/grass.mp3')  # Usar a mesma música da floresta temporariamente
+            pygame.mixer.music.load('audio/bafao_fight.mp3')  # Usar a mesma música da floresta temporariamente
         else:
             pygame.mixer.music.load('audio/grass.mp3')
 

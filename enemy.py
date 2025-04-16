@@ -152,7 +152,7 @@ class Enemy(Entity):
                 self.player.add_coins(1)
             if self.player.super_counter < self.player.player_stats['super_threshold']:
                     self.player.super_counter += 1
-            self.exp += 1
+            self.player.exp += 1
             self.kill()
 
     def update(self):
