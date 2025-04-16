@@ -80,7 +80,7 @@ class UI:
     def weapon_overlay(self, current_weapon):
         bg_rect = self.selection_box(10, 630)
         weapon_surf = self.weapon_data[current_weapon]['graphic']
-        weapon_image = pygame.image.load(weapon_surf + '/up.png').convert_alpha()
+        weapon_image = pygame.image.load(weapon_surf + '/right.png').convert_alpha()
         weapon_rect = weapon_image.get_rect(center = bg_rect.center)
         self.display_surface.blit(weapon_image, weapon_rect)
 
