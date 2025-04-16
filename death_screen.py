@@ -56,7 +56,7 @@ class DeathScreen:
         self.screen.blit(self.bg, (0, 0))
         
         # Desenhar título "FOI DE GELAS"
-        title_surf = self.title_font.render("FOI DE GELAS", True, (255, 0, 0))
+        title_surf = self.title_font.render("FIM DE JOGO", True, (255, 0, 0))
         title_rect = title_surf.get_rect(center=(WIDTH//2, HEIGHT//3))
         self.screen.blit(title_surf, title_rect)
         
