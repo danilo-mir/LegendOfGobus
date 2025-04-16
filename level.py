@@ -249,6 +249,27 @@ class Level:
                 if col == 'I3':
                     BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/07.png',
                              (TILESIZE, TILESIZE))
+                if col == 'D1':
+                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/28.png',
+                             (TILESIZE, TILESIZE))
+                if col == 'D2':
+                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/29.png',
+                             (TILESIZE, TILESIZE))
+                if col == 'D3':
+                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/30.png',
+                             (TILESIZE, TILESIZE))
+                if col == 'O1':
+                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/21.png',
+                             (GRASSSIZE, GRASSSIZE))
+                if col == 'O2':
+                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/22.png',
+                            (GRASSSIZE, GRASSSIZE))
+                if col == 'O3':
+                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/23.png',
+                             (GRASSSIZE, GRASSSIZE))
+                if col == 'O4':
+                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/24.png',
+                             (GRASSSIZE, GRASSSIZE))
                 if col == 'P':
                     self.player = Player(
                         (x, y),
