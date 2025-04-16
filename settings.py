@@ -8,7 +8,7 @@ PLAYERSIZE = 50
 # UI
 BAR_HEIGHT = 20
 HEALTH_BAR_WIDTH = 200
-ENERGY_BAR_WIDTH = 140
+# ENERGY_BAR_WIDTH = 140  # Não usado mais
 ITEM_BOX_SIZE= 80
 UI_FONT = 'graphics/font/medieval-pixel.otf'
 UI_FONT_SIZE = 30
@@ -39,12 +39,12 @@ SUPER_LOADING_COLOR = (218, 165, 32)
 
 # Cores da UI
 HEALTH_COLOR = 'red'
-ENERGY_COLOR = 'blue'
+# ENERGY_COLOR = 'blue'  # Não usado mais
 UI_BORDER_COLOR_ACTIVE = 'gold'
 
 DEFAULT_PLAYER_STATS = {
   'max_health': 100,
-  'max_energy': 100,
+  'max_ammo': 5,  # Munição máxima
   'speed': 5,
   'super_threshold': 10,
   'damage': 5

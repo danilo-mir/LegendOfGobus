@@ -4,6 +4,7 @@ from debug import debug
 from utils import import_folder
 from entity import Entity
 from support import fetch_weapon_data
+from death_screen import DeathScreen
 
 
 class Player(Entity):
@@ -41,11 +42,15 @@ class Player(Entity):
         # Arma equipada e inventário
         self.inventory = {}
         self.current_weapon = 'gun'
+        
+        # Controle de munição
+        self.ammo = 5  # Iniciar com 5 balas
+        self.max_ammo = 5  # Máximo de 5 balas
     
         # Atributos de progressão
         self.level = 1
         self.health = self.player_stats['max_health']
-        self.energy = self.player_stats['max_energy']
+        self.energy = 0  # Não usamos mais energia/mana
         self.speed = self.player_stats['speed']
         self.exp = 0
         self.super_counter = 0
@@ -169,17 +174,29 @@ class Player(Entity):
             # Se atacar, mudar para estado de ataque
             if keys[pygame.K_LEFT] or keys[pygame.K_RIGHT] or keys[pygame.K_UP] or keys[
                 pygame.K_DOWN] and not self.attacking:
-                self.attacking = True
-                self.attack_time = pygame.time.get_ticks()
-                self.create_attack(self.current_weapon)
+                # Verificar se tem munição quando usar gun
+                if self.current_weapon == 'gun' and self.ammo > 0:
+                    self.attacking = True
+                    self.attack_time = pygame.time.get_ticks()
+                    self.create_attack(self.current_weapon)
+                    self.ammo -= 1  # Diminui munição ao atirar
+                elif self.current_weapon == 'axe':  # Arma melee não usa munição
+                    self.attacking = True
+                    self.attack_time = pygame.time.get_ticks()
+                    self.create_attack(self.current_weapon)
 
             # Ataque especial
             if keys[pygame.K_r]:
                 if self.super_counter >= self.player_stats['super_threshold']:
                     self.super_counter = 0
+                    self.ammo = self.max_ammo  # Recarregar munição com super ataque
             if keys[pygame.K_m]:
                 if self.super_counter < self.player_stats['super_threshold']:
                     self.super_counter += 1
+
+            # Recarregar munição
+            if keys[pygame.K_SPACE]:
+                self.ammo = self.max_ammo
 
             # Normalizar vetor velocidade para que andar na diagonal não seja mais rápido
             if self.direction.magnitude() > 0.1:
@@ -235,6 +252,15 @@ class Player(Entity):
 
     def get_base_damage(self):
         return self.player_stats['damage']
+    
+    def check_death(self):
+        if self.health <= 0:
+            death_screen = DeathScreen(pygame.display.get_surface())
+            death_screen.run()
+            self.health = self.player_stats['max_health']  # Reiniciar a vida após morrer
+            self.ammo = self.max_ammo  # Recarregar munição
+            self.exp = 0  # Reiniciar experiência
+            self.super_counter = 0  # Reiniciar contador do super
 
     def update(self):
         self.input()
@@ -242,3 +268,4 @@ class Player(Entity):
         self.get_status()
         self.animate()
         self.move(self.speed)
+        self.check_death()
