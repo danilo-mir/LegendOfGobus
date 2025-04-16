@@ -16,15 +16,18 @@ class Player(Entity):
         self.hitbox = self.rect.inflate(-10, -15)  # tweak this if needed
         self.import_player_assets()
 
-
-        # Dar ao jogador acesso ao método create_attack da classe Level
+        # Armas
         self.create_attack = create_attack
-
-        # Dar ao jogador acesso ao método destroy_weapon da classe Level
         self.destroy_attack = destroy_attack
-
-        # Dar ao jogador acesso ao método destroy_weapon da classe Level
         self.create_projectile = create_projectile
+        self.can_switch_weapon = True
+        self.weapon_switch_time = None
+        self.switch_duration_cooldown = 200
+        self.weapon_index = 0
+        self.current_weapon = 'gun'
+        
+        # Inventário
+        self.inventory = ['gun', 'axe', 'sword']
 
         # Orientação do jogador
         self.status = 'down'
@@ -154,11 +157,12 @@ class Player(Entity):
                 self.status = 'down'
             else:
                 self.direction.y = 0
-            if keys[pygame.K_p]:
-                if self.current_weapon == 'gun':
-                    self.current_weapon = 'axe'
-                else:
-                    self.current_weapon = 'gun'
+            if keys[pygame.K_q] and self.can_switch_weapon:
+                self.can_switch_weapon = False
+                self.weapon_switch_time = pygame.time.get_ticks()
+                self.weapon_index += 1
+                self.weapon_index = self.weapon_index % len(self.inventory)
+                self.current_weapon = self.inventory[self.weapon_index]
 
             # A direção do jogador pode mudar quando ataca
             if keys[pygame.K_LEFT] and not self.attacking:
@@ -180,7 +184,7 @@ class Player(Entity):
                     self.attack_time = pygame.time.get_ticks()
                     self.create_attack(self.current_weapon)
                     self.ammo -= 1  # Diminui munição ao atirar
-                elif self.current_weapon == 'axe':  # Arma melee não usa munição
+                else:  # Arma melee não usa munição
                     self.attacking = True
                     self.attack_time = pygame.time.get_ticks()
                     self.create_attack(self.current_weapon)
@@ -234,6 +238,10 @@ class Player(Entity):
         if not self.vulnerable:
             if current_time - self.hit_time >= self.invulnerability_duration:
                 self.vulnerable = True
+
+        if not self.can_switch_weapon:
+            if current_time - self.weapon_switch_time >= self.switch_duration_cooldown:
+                self.can_switch_weapon = True
 
     def animate(self):
         animation = self.animations[self.status]

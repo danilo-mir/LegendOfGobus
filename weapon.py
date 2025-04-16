@@ -2,7 +2,7 @@ import pygame
 from abc import ABC, abstractmethod
 from support import fetch_weapon_data
 from entity import Entity
-
+from settings import *
 
 class Weapon(ABC, pygame.sprite.Sprite):
     def __init__(self, weapon_data, player, groups):
@@ -110,9 +110,14 @@ class Projectile(Entity):
       if collided:
         self.kill()  # A bala desaparece se colidir com algum obstáculo
       return collided
+    
+    def kill_if_out_of_bounds(self):
+        if abs(self.rect.x-WIDTH/2) > 1000 or abs(self.rect.y-HEIGHT/2) > 1000:
+            self.kill() 
 
     def update(self):
         self.move(self.speed)
+        self.kill_if_out_of_bounds()
 
 
 # Converter tipo da arma para nome da classe

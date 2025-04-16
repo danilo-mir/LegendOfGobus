@@ -1,6 +1,7 @@
 import pygame
 from settings import *
 from math import pi
+from support import fetch_weapon_data
 
 
 class UI:
@@ -24,6 +25,8 @@ class UI:
         
         # Posição da imagem de munição (ajustada para o novo tamanho)
         self.ammo_rect = pygame.Rect(10, 40, 50, 20)  # x, y, width, height reduzidos pela metade
+
+        self.weapon_data = fetch_weapon_data()
 
     def show_bar(self, current, max_amount, bg_rect, color):
         # Background da barra
@@ -53,6 +56,20 @@ class UI:
         self.display_surface.blit(text_surf, text_rect)
         pygame.draw.rect(self.display_surface, UI_BORDER_COLOR, text_rect.inflate(20, 20), 3)
 
+    def selection_box(self, left, top):
+        bg_rect = pygame.Rect(left, top, ITEM_BOX_SIZE, ITEM_BOX_SIZE)
+        pygame.draw.rect(self.display_surface, UI_BG_COLOR, bg_rect)
+        pygame.draw.rect(self.display_surface, UI_BORDER_COLOR, bg_rect, 3)
+        return bg_rect
+
+    def weapon_overlay(self, current_weapon):
+        bg_rect = self.selection_box(10, 630)
+        weapon_surf = self.weapon_data[current_weapon]['graphic']
+        weapon_image = pygame.image.load(weapon_surf + '/up.png').convert_alpha()
+        weapon_rect = weapon_image.get_rect(center = bg_rect.center)
+        self.display_surface.blit(weapon_image, weapon_rect)
+
+
     # Mostrar o círculo do super ataque
     def show_super(self, current, max_amount, color):
         ratio = current / max_amount
@@ -80,3 +97,4 @@ class UI:
         self.show_ammo(player.ammo)  # Mostrar munição ao invés da barra de energia
         self.show_exp(player.exp)
         self.show_super(player.super_counter, player.player_stats['super_threshold'], SUPER_LOADING_COLOR)
+        self.weapon_overlay(player.current_weapon)
