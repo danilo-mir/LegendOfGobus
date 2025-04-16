@@ -104,7 +104,7 @@ class UI:
 
         # Barra de carregamento do super ataque
         load_rect = pygame.Rect(pos[0] - SUPER_RADIUS, pos[1] - SUPER_RADIUS, 2 * SUPER_RADIUS, 2 * SUPER_RADIUS)
-        pygame.draw.arc(self.display_surface, color, load_rect, pi / 2, pi / 2 + current_angle)
+        pygame.draw.arc(self.display_surface, color, load_rect, pi / 2, pi / 2 + current_angle, 8)
 
     def display(self, player):
         self.show_bar(player.health, player.player_stats['max_health'], self.health_bar_rect, HEALTH_COLOR)
