@@ -79,8 +79,8 @@ class Level:
                     BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/04.png',
                              (TILESIZE, TILESIZE))
                 if col == 'R1':
-                    Rock1Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
-                # Árvores de gelo
+                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/05.png',
+                             (TILESIZE, TILESIZE))                # Árvores de gelo
                 if col == 'I1':
                     IceTree1Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
                 if col == 'I2':
