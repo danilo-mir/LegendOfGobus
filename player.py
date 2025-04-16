@@ -15,6 +15,8 @@ class Player(Entity):
         self.hitbox = self.rect.inflate(-10, -15)  # tweak this if needed
         self.import_player_assets()
 
+        #dsjhfhbshfgkshjgfhs
+
         # Dar ao jogador acesso ao método create_attack da classe Level
         self.create_attack = create_attack
 
