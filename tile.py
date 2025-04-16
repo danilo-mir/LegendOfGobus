@@ -9,15 +9,4 @@ class BaseTile(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft=pos)
         self.hitbox = self.rect.inflate(-15, -10)
 
-# Novos tiles para a fase de gelo
-class IceTree1Tile(BaseTile):
-    def __init__(self, pos, groups):
-        super().__init__(pos, groups, 'graphics/objects/05.png', (TILESIZE, TILESIZE))
 
-class IceTree2Tile(BaseTile):
-    def __init__(self, pos, groups):
-        super().__init__(pos, groups, 'graphics/objects/06.png', (TILESIZE, TILESIZE))
-
-class IceTree3Tile(BaseTile):
-    def __init__(self, pos, groups):
-        super().__init__(pos, groups, 'graphics/objects/07.png', (TILESIZE, TILESIZE))
