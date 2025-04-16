@@ -45,7 +45,7 @@ HEALTH_COLOR = 'red'
 UI_BORDER_COLOR_ACTIVE = 'gold'
 
 DEFAULT_PLAYER_STATS = {
-  'max_health': 200,
+  'max_health': 500,
   'max_ammo': 10,  # Munição máxima
   'speed': 5,
   'super_threshold': 10,
