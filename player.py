@@ -179,16 +179,11 @@ class Player(Entity):
             if keys[pygame.K_LEFT] or keys[pygame.K_RIGHT] or keys[pygame.K_UP] or keys[
                 pygame.K_DOWN] and not self.attacking:
                 # Verificar se tem munição quando usar gun
-                if self.current_weapon == 'gun':
-                    if self.ammo > 0:
-                        self.attacking = True
-                        self.attack_time = pygame.time.get_ticks()
-                        self.create_attack(self.current_weapon)
-                        self.ammo -= 1  # Diminui munição ao atirar
-                        debug(f"Munição: {self.ammo}/{self.max_ammo}", y=80)
-                    else:
-                        # Feedback visual/sonoro quando tentar atirar sem munição
-                        debug("Sem munição! Visite a loja (Y)", y=80)
+                if self.current_weapon == 'gun' and self.ammo > 0:
+                    self.attacking = True
+                    self.attack_time = pygame.time.get_ticks()
+                    self.create_attack(self.current_weapon)
+                    self.ammo -= 1  # Diminui munição ao atirar
                 else:  # Arma melee não usa munição
                     self.attacking = True
                     self.attack_time = pygame.time.get_ticks()
@@ -199,10 +194,13 @@ class Player(Entity):
                 if self.super_counter >= self.player_stats['super_threshold']:
                     self.super_counter = 0
                     self.ammo = self.max_ammo  # Recarregar munição com super ataque
-                    debug("Super ataque! Munição recarregada.", y=80)
             if keys[pygame.K_m]:
                 if self.super_counter < self.player_stats['super_threshold']:
                     self.super_counter += 1
+
+            # Recarregar munição
+            if keys[pygame.K_SPACE]:
+                self.ammo = self.max_ammo
 
             # Normalizar vetor velocidade para que andar na diagonal não seja mais rápido
             if self.direction.magnitude() > 0.1:

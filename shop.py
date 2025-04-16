@@ -39,15 +39,7 @@ class Shop:
         self.feedback_color = (255, 255, 255)
         self.feedback_timer = 0
         
-        # Dica inicial sobre o sistema de munição
-        self.initial_tip = True
-        
     def run(self):
-        # Mostrar dica inicial sobre munição limitada
-        if self.initial_tip:
-            self.show_feedback("ATENÇÃO: Sua munição é limitada! Compre mais ou roube se necessário.", (220, 220, 100), 240)
-            self.initial_tip = False
-            
         while self.running:
             self.handle_events()
             self.draw()
@@ -121,11 +113,11 @@ class Shop:
         penalty_percentage = int((1 - 0.95**thief_level) * 100)
         self.show_feedback(f"Você roubou a loja! -5% de destreza #{thief_level} (total: -{penalty_percentage}%)", (255, 0, 0))
             
-    def show_feedback(self, message, color=(255, 255, 255), duration=180):
+    def show_feedback(self, message, color=(255, 255, 255)):
         """Mostrar mensagem de feedback temporária"""
         self.feedback_message = message
         self.feedback_color = color
-        self.feedback_timer = duration  # 3 segundos a 60 FPS por padrão
+        self.feedback_timer = 180  # 3 segundos a 60 FPS
             
     def draw(self):
         # Desenhar fundo
@@ -141,21 +133,9 @@ class Shop:
         coins_rect = coins_surf.get_rect(center=(WIDTH//2, HEIGHT//4 + 50))
         self.screen.blit(coins_surf, coins_rect)
         
-        # Destacar o status da munição
-        ammo_color = (255, 255, 255)
-        if self.player.ammo == 0:
-            ammo_color = (255, 100, 100)  # Vermelho se estiver sem munição
-        elif self.player.ammo < self.player.max_ammo // 2:
-            ammo_color = (255, 200, 0)  # Amarelo se estiver com pouca munição
-            
-        ammo_surf = self.info_font.render(f"Munição: {self.player.ammo}/{self.player.max_ammo}", True, ammo_color)
+        ammo_surf = self.info_font.render(f"Munição: {self.player.ammo}/{self.player.max_ammo}", True, (255, 255, 255))
         ammo_rect = ammo_surf.get_rect(center=(WIDTH//2, HEIGHT//4 + 80))
         self.screen.blit(ammo_surf, ammo_rect)
-        
-        # Adicionar informação sobre como obter munição
-        tip_surf = self.button_font.render("Munição só pode ser obtida na loja ou com o super ataque (R)", True, (180, 180, 200))
-        tip_rect = tip_surf.get_rect(center=(WIDTH//2, HEIGHT//4 + 120))
-        self.screen.blit(tip_surf, tip_rect)
         
         # Desenhar botões
         mouse_pos = pygame.mouse.get_pos()
