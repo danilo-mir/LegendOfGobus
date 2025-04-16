@@ -5,8 +5,12 @@
     "cooldown": 400,
     "range": 50,
     "graphic": "graphics/weapons/sword",
-    "horizontal_offset" : 16,
-    "vertical_offset" : -10
+    "lr_vertical_offset" : 10,
+    "l_horizontal_offset": 0,
+    "r_horizontal_offset": 0,
+    "u_vertical_offset": 0,
+    "d_vertical_offset": 0,
+    "ud_horizontal_offset" : 0
   },
 
   "axe": {
@@ -15,8 +19,12 @@
     "cooldown": 600,
     "range": 200,
     "graphic": "graphics/weapons/axe",
-    "horizontal_offset" : 16,
-    "vertical_offset" : -10
+    "lr_vertical_offset" : 10,
+    "l_horizontal_offset": 0,
+    "r_horizontal_offset": 0,
+    "u_vertical_offset": 0,
+    "d_vertical_offset": 0,
+    "ud_horizontal_offset" : 0
   },
 
   "gun" : {
@@ -24,14 +32,22 @@
     "damage": 0,
     "cooldown": 1000,
     "graphic": "graphics/weapons/gun",
-    "horizontal_offset" : 10,
-    "vertical_offset" : -10,
+    "lr_vertical_offset" : 10,
+    "l_horizontal_offset": 5,
+    "r_horizontal_offset": -5,
+    "u_vertical_offset": 5,
+    "d_vertical_offset": -5,
+    "ud_horizontal_offset" : 0,
     "projectile" : {
       "speed": 10,
       "graphic" : "graphics/weapons/gun/projectile",
       "damage": 40,
-      "horizontal_offset" : 16,
-      "vertical_offset" : -10
+      "lr_vertical_offset" : 10,
+      "l_horizontal_offset": 0,
+      "r_horizontal_offset": 0,
+      "u_vertical_offset": 0,
+      "d_vertical_offset": 0,
+      "ud_horizontal_offset" : 0
     }
   }
 }
