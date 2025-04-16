@@ -8,157 +8,148 @@
     "attack_radius": 80,
     "notice_radius": 360
   },
-  "raccoon": {
-    "health": 300,
-    "exp": 250,
-    "damage": 40,
-    "speed": 2,
-    "resistance": 3,
-    "attack_radius": 120,
-    "notice_radius": 400
-  },
   "spirit": {
-    "health": 100,
-    "exp": 110,
-    "damage": 8,
+    "health": 90,
+    "exp": 95,
+    "damage": 18,
     "speed": 4,
-    "resistance": 3,
-    "attack_radius": 60,
+    "resistance": 2,
+    "attack_radius": 75,
     "notice_radius": 350
   },
   "bamboo": {
-    "health": 70,
-    "exp": 120,
-    "damage": 6,
+    "health": 85,
+    "exp": 90,
+    "damage": 16,
     "speed": 3,
-    "resistance": 3,
-    "attack_radius": 50,
-    "notice_radius": 300
+    "resistance": 2,
+    "attack_radius": 70,
+    "notice_radius": 330
   },
   "larva": {
-    "health": 0,
-    "exp": 0,
-    "damage": 0,
-    "speed": 0,
-    "resistance": 0,
-    "attack_radius": 0,
-    "notice_radius": 0
+    "health": 80,
+    "exp": 85,
+    "damage": 15,
+    "speed": 3,
+    "resistance": 2,
+    "attack_radius": 65,
+    "notice_radius": 320
   },
   "lizard": {
-    "health": 0,
-    "exp": 0,
-    "damage": 0,
-    "speed": 0,
-    "resistance": 0,
-    "attack_radius": 0,
-    "notice_radius": 0
+    "health": 100,
+    "exp": 110,
+    "damage": 20,
+    "speed": 3,
+    "resistance": 3,
+    "attack_radius": 80,
+    "notice_radius": 360
   },
   "skull": {
-    "health": 0,
-    "exp": 0,
-    "damage": 0,
-    "speed": 0,
-    "resistance": 0,
-    "attack_radius": 0,
-    "notice_radius": 0
+    "health": 105,
+    "exp": 115,
+    "damage": 21,
+    "speed": 2,
+    "resistance": 4,
+    "attack_radius": 85,
+    "notice_radius": 370
   },
   "snake2": {
-    "health": 0,
-    "exp": 0,
-    "damage": 0,
-    "speed": 0,
-    "resistance": 0,
-    "attack_radius": 0,
-    "notice_radius": 0
+    "health": 90,
+    "exp": 95,
+    "damage": 18,
+    "speed": 4,
+    "resistance": 2,
+    "attack_radius": 75,
+    "notice_radius": 340
   },
   "spideryellow": {
-    "health": 0,
-    "exp": 0,
-    "damage": 0,
-    "speed": 0,
-    "resistance": 0,
-    "attack_radius": 0,
-    "notice_radius": 0
+    "health": 85,
+    "exp": 90,
+    "damage": 17,
+    "speed": 4,
+    "resistance": 2,
+    "attack_radius": 70,
+    "notice_radius": 330
   },
   "larva2": {
-    "health": 0,
-    "exp": 0,
-    "damage": 0,
-    "speed": 0,
-    "resistance": 0,
-    "attack_radius": 0,
-    "notice_radius": 0
+    "health": 80,
+    "exp": 85,
+    "damage": 15,
+    "speed": 3,
+    "resistance": 2,
+    "attack_radius": 65,
+    "notice_radius": 320
   },
   "eye": {
-    "health": 0,
-    "exp": 0,
-    "damage": 0,
-    "speed": 0,
-    "resistance": 0,
-    "attack_radius": 0,
-    "notice_radius": 0
+    "health": 95,
+    "exp": 100,
+    "damage": 19,
+    "speed": 3,
+    "resistance": 2,
+    "attack_radius": 90,
+    "notice_radius": 350
   },
   "axolotlblue": {
-    "health": 0,
-    "exp": 0,
-    "damage": 0,
-    "speed": 0,
-    "resistance": 0,
-    "attack_radius": 0,
-    "notice_radius": 0
+    "health": 90,
+    "exp": 95,
+    "damage": 18,
+    "speed": 3,
+    "resistance": 3,
+    "attack_radius": 75,
+    "notice_radius": 340
   },
   "mushroom": {
-    "health": 0,
-    "exp": 0,
-    "damage": 0,
-    "speed": 0,
-    "resistance": 0,
-    "attack_radius": 0,
-    "notice_radius": 0
+    "health": 80,
+    "exp": 85,
+    "damage": 16,
+    "speed": 2,
+    "resistance": 4,
+    "attack_radius": 70,
+    "notice_radius": 330
   },
   "bear": {
-    "health": 0,
-    "exp": 0,
-    "damage": 0,
-    "speed": 0,
-    "resistance": 0,
-    "attack_radius": 0,
-    "notice_radius": 0
+    "health": 120,
+    "exp": 130,
+    "damage": 24,
+    "speed": 2,
+    "resistance": 4,
+    "attack_radius": 90,
+    "notice_radius": 380
   },
   "goldracoon": {
-    "health": 0,
-    "exp": 0,
-    "damage": 0,
-    "speed": 0,
-    "resistance": 0,
-    "attack_radius": 0,
-    "notice_radius": 0
+    "health": 110,
+    "exp": 125,
+    "damage": 23,
+    "speed": 3,
+    "resistance": 3,
+    "attack_radius": 85,
+    "notice_radius": 360
   },
   "mole": {
-    "health": 0,
-    "exp": 0,
-    "damage": 0,
-    "speed": 0,
-    "resistance": 0,
-    "attack_radius": 0,
-    "notice_radius": 0
+    "health": 85,
+    "exp": 90,
+    "damage": 16,
+    "speed": 2,
+    "resistance": 3,
+    "attack_radius": 70,
+    "notice_radius": 330
   },
   "beast": {
-    "health": 0,
-    "exp": 0,
-    "damage": 0,
-    "speed": 0,
-    "resistance": 0,
-    "attack_radius": 0,
-    "notice_radius": 0
+    "health": 125,
+    "exp": 135,
+    "damage": 25,
+    "speed": 2,
+    "resistance": 4,
+    "attack_radius": 95,
+    "notice_radius": 390
   },
   "tengured": {
-    "health": 0,
-    "exp": 0,
-    "damage": 0,
-    "speed": 0,
-    "resistance": 0,
-    "attack_radius": 0,
-    "notice_radius": 0
+    "health": 500,
+    "exp": 500,
+    "damage": 60,
+    "speed": 3,
+    "resistance": 5,
+    "attack_radius": 150,
+    "notice_radius": 500
   }
 }
