@@ -340,8 +340,8 @@ class Player(Entity):
                 # Obter superfície atual
                 screen = pygame.display.get_surface()
                 
-                # Criar mensagem de sem munição
-                message = self.font.render("SEM MUNIÇÃO!", True, (255, 0, 0))
+                # Criar mensagem de sem municao
+                message = self.font.render("SEM MUNICAO!", True, (255, 0, 0))
                 message_rect = message.get_rect(center=(screen.get_width() // 2, 100))
                 
                 # Desenhar fundo semi-transparente para a mensagem
