@@ -139,7 +139,7 @@ class Level:
                         weapon_damage = attack_sprite.get_damage()
                         target_sprite.get_damage(self.player, weapon_damage)
 
-    def damage_player(self, amount, attack_type):
+    def damage_player(self, amount):
         if self.player.vulnerable:
             self.player.health -= amount
             self.player.vulnerable = False
