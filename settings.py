@@ -48,7 +48,7 @@ DEFAULT_PLAYER_STATS = {
   'max_health': 500,
   'max_ammo': 10,  # Munição máxima
   'speed': 5,
-  'super_threshold': 10,
+  'super_threshold': 5,
   'damage': 5
 }
 
