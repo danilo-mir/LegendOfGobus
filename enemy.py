@@ -123,6 +123,7 @@ class Enemy(Entity):
         if self.vulnerable:
             self.direction = self.get_player_distance_direction(player)[1]
             self.health -= player.get_base_damage() + weapon_damage
+            self.player = player
         self.hit_time = pygame.time.get_ticks()
         self.vulnerable = False
 
@@ -132,6 +133,8 @@ class Enemy(Entity):
 
     def check_death(self):
         if self.health <= 0:
+            if hasattr(self, 'player') and self.player:
+                self.player.add_coins(1)
             self.kill()
 
     def update(self):

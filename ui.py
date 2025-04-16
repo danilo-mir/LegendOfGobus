@@ -55,6 +55,21 @@ class UI:
         pygame.draw.rect(self.display_surface, UI_BG_COLOR, text_rect.inflate(20, 20))
         self.display_surface.blit(text_surf, text_rect)
         pygame.draw.rect(self.display_surface, UI_BORDER_COLOR, text_rect.inflate(20, 20), 3)
+        
+    def show_coins(self, coins):
+        """Mostrar quantidade de moedas do jogador"""
+        # Definir posição (canto superior direito)
+        coin_text = self.font.render(f'Moedas: {coins}', False, (255, 215, 0))  # Cor dourada para moedas
+        coin_rect = coin_text.get_rect(topright=(WIDTH - 20, 10))
+        
+        # Desenhar fundo
+        pygame.draw.rect(self.display_surface, UI_BG_COLOR, coin_rect.inflate(20, 10))
+        
+        # Desenhar texto
+        self.display_surface.blit(coin_text, coin_rect)
+        
+        # Desenhar borda
+        pygame.draw.rect(self.display_surface, UI_BORDER_COLOR, coin_rect.inflate(20, 10), 3)
 
     def selection_box(self, left, top):
         bg_rect = pygame.Rect(left, top, ITEM_BOX_SIZE, ITEM_BOX_SIZE)
@@ -95,6 +110,7 @@ class UI:
     def display(self, player):
         self.show_bar(player.health, player.player_stats['max_health'], self.health_bar_rect, HEALTH_COLOR)
         self.show_ammo(player.ammo)  # Mostrar munição ao invés da barra de energia
+        self.show_coins(player.coins)  # Mostrar quantidade de moedas
         self.show_exp(player.exp)
         self.show_super(player.super_counter, player.player_stats['super_threshold'], SUPER_LOADING_COLOR)
         self.weapon_overlay(player.current_weapon)

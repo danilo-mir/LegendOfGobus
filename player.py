@@ -45,6 +45,10 @@ class Player(Entity):
         # Controle de munição
         self.ammo = 5  # Iniciar com 5 balas
         self.max_ammo = 5  # Máximo de 5 balas
+        
+        # Sistema de moedas para a lojinha
+        self.coins = 0  # Iniciar sem moedas
+        self.thief_count = 0  # Contador de quantas vezes o jogador roubou da loja
     
         # Atributos de progressão
         self.level = 1
@@ -255,8 +259,37 @@ class Player(Entity):
             self.image.set_alpha(255)
 
     def get_base_damage(self):
-        return self.player_stats['damage']
-    
+        # Calcular dano base reduzido com base em quantas vezes o jogador roubou
+        # Cada roubo reduz o dano em 5% (multiplicativo)
+        base_damage = self.player_stats['damage']
+        if self.thief_count > 0:
+            reduction_factor = 0.95 ** self.thief_count  # Redução de 5% por roubo
+            base_damage = base_damage * reduction_factor
+            
+        return base_damage
+        
+    def add_coins(self, amount=1):
+        """Adicionar moedas ao jogador, normalmente ao derrotar inimigos"""
+        self.coins += amount
+        
+    def spend_coins(self, amount):
+        """Gastar moedas na loja, retorna True se a transação foi bem-sucedida"""
+        if self.coins >= amount:
+            self.coins -= amount
+            return True
+        return False
+        
+    def steal_from_shop(self):
+        """Roubar da lojinha, mas perder Destreza de Combate"""
+        self.thief_count += 1
+        
+        # Reduzir a velocidade do jogador em 5% por cada roubo (cumulativo)
+        reduction_factor = 0.95 ** self.thief_count
+        self.player_stats['speed'] *= reduction_factor
+        self.speed = self.player_stats['speed']
+        
+        return True
+
     def check_death(self):
         if self.health <= 0:
             death_screen = DeathScreen(pygame.display.get_surface())
