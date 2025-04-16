@@ -43,8 +43,8 @@ class Player(Entity):
         self.player_stats = player_stats
         
         # Controle de munição
-        self.ammo = 5  # Iniciar com 5 balas
-        self.max_ammo = 5  # Máximo de 5 balas
+        self.ammo = 10  # Iniciar com 10 balas
+        self.max_ammo = self.player_stats['max_ammo']  # Máximo de balas vindo das estatísticas do jogador
         self.no_ammo_message_timer = 0  # Timer para mensagem de sem munição
         
         # Sistema de moedas para a lojinha
@@ -277,8 +277,16 @@ class Player(Entity):
         return base_damage
         
     def add_coins(self, amount=1):
-        """Adicionar moedas ao jogador, normalmente ao derrotar inimigos"""
+        """Adiciona moedas ao inventário do jogador"""
         self.coins += amount
+        # Mostrar na tela quantas moedas o jogador ganhou
+        if amount > 0:
+            print(f"Ganhou {amount} moedas! Total: {self.coins}")
+            
+            # Mostrar mensagem visual na tela
+            if hasattr(self, 'font'):
+                self.coin_message_timer = 60  # Mostrar por 1 segundo
+                self.coin_message_amount = amount
         
     def spend_coins(self, amount):
         """Gastar moedas na loja, retorna True se a transação foi bem-sucedida"""
@@ -346,7 +354,24 @@ class Player(Entity):
                 screen.blit(bg_surf, bg_rect)
                 screen.blit(message, message_rect)
         
-        # Exibir contador de munição
-        screen = pygame.display.get_surface()
-        ammo_text = self.font.render(f"Munição: {self.ammo}/{self.max_ammo}", True, (255, 255, 255))
-        screen.blit(ammo_text, (20, 80))
+        # Mostrar mensagem de moedas ganhas, se necessário
+        if hasattr(self, 'coin_message_timer') and self.coin_message_timer > 0:
+            self.coin_message_timer -= 1
+            
+            if self.coin_message_timer > 0:
+                # Obter superfície atual
+                screen = pygame.display.get_surface()
+                
+                # Criar mensagem de moedas ganhas
+                message = self.font.render(f"+{self.coin_message_amount} MOEDAS!", True, (255, 215, 0))
+                message_rect = message.get_rect(center=(screen.get_width() // 2, 130))
+                
+                # Desenhar fundo semi-transparente para a mensagem
+                bg_surf = pygame.Surface((message_rect.width + 20, message_rect.height + 10))
+                bg_surf.fill((30, 30, 0))
+                bg_surf.set_alpha(180)
+                bg_rect = bg_surf.get_rect(center=message_rect.center)
+                
+                # Desenhar na tela
+                screen.blit(bg_surf, bg_rect)
+                screen.blit(message, message_rect)

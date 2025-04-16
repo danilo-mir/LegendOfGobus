@@ -13,18 +13,8 @@ class UI:
         # Barra de vida
         self.health_bar_rect = pygame.Rect(10, 10, HEALTH_BAR_WIDTH, BAR_HEIGHT)
         
-        # Carregar imagens de munição
-        self.ammo_images = []
-        for i in range(6):  # 0 a 5 balas
-            img = pygame.image.load(f'graphics/weapons/municao/municao_{i}.png').convert_alpha()
-            # Reduzir pela metade o tamanho da imagem
-            img_width = img.get_width() // 2
-            img_height = img.get_height() // 2
-            img = pygame.transform.scale(img, (img_width, img_height))
-            self.ammo_images.append(img)
-        
-        # Posição da imagem de munição (ajustada para o novo tamanho)
-        self.ammo_rect = pygame.Rect(10, 40, 50, 20)  # x, y, width, height reduzidos pela metade
+        # Posição do texto de munição
+        self.ammo_text_rect = pygame.Rect(10, 100, 150, 40)
 
         self.weapon_data = fetch_weapon_data()
 
@@ -41,12 +31,21 @@ class UI:
         pygame.draw.rect(self.display_surface, UI_BORDER_COLOR, bg_rect, 3)
     
     def show_ammo(self, ammo):
-        # Garantir que ammo esteja nos limites (0-5)
-        ammo_index = max(0, min(ammo, 5))
+        # Garantir que ammo esteja nos limites (0-10)
+        ammo = max(0, min(ammo, 10))
         
-        # Mostrar a imagem correspondente à quantidade de munição
-        ammo_image = self.ammo_images[ammo_index]
-        self.display_surface.blit(ammo_image, self.ammo_rect)
+        # Criar texto de munição
+        ammo_text = self.font.render(f"Munição: {ammo}/10", True, (255, 255, 255))
+        ammo_text_rect = ammo_text.get_rect(topleft=(10, 100))
+        
+        # Desenhar fundo
+        pygame.draw.rect(self.display_surface, UI_BG_COLOR, ammo_text_rect.inflate(20, 10))
+        
+        # Desenhar texto
+        self.display_surface.blit(ammo_text, ammo_text_rect)
+        
+        # Desenhar borda
+        pygame.draw.rect(self.display_surface, UI_BORDER_COLOR, ammo_text_rect.inflate(20, 10), 3)
 
     # Mostrar o XP
     def show_exp(self, exp):
