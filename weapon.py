@@ -1,6 +1,7 @@
 import pygame
 from abc import ABC, abstractmethod
 from support import fetch_weapon_data
+from entity import Entity
 
 
 class Weapon(ABC, pygame.sprite.Sprite):
@@ -53,12 +54,14 @@ class RangedWeapon(Weapon):
         player.create_projectile(projectile_data)
 
 
-class Projectile(pygame.sprite.Sprite):
-    def __init__(self, projectile_data, player, groups):
+class Projectile(Entity):
+    def __init__(self, projectile_data, player, groups, obstacle_sprites):
         super().__init__(groups)
 
         self.speed = projectile_data['speed']
         self.damage = projectile_data['damage'] + player.player_stats['damage']
+
+        self.obstacle_sprites = obstacle_sprites
 
         direction = player.status
 
@@ -100,11 +103,16 @@ class Projectile(pygame.sprite.Sprite):
 
     def get_damage(self):
         return self.damage
+    
+    def collision(self, direction):
+      "Check for collision and remove the object if it occurs"
+      collided = super().collision(direction)
+      if collided:
+        self.kill()  # A bala desaparece se colidir com algum obstáculo
+      return collided
 
     def update(self):
-        self.hitbox.x += self.direction.x * self.speed
-        self.hitbox.y += self.direction.y * self.speed
-        self.rect.center = self.hitbox.center
+        self.move(self.speed)
 
 
 # Converter tipo da arma para nome da classe

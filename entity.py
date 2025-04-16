@@ -25,16 +25,21 @@ class Entity(pygame.sprite.Sprite):
                 if sprite.hitbox.colliderect(self.hitbox):
                     if self.direction.x > 0:
                         self.hitbox.right = sprite.hitbox.left
+                        return True
                     if self.direction.x < 0:
                         self.hitbox.left = sprite.hitbox.right
+                        return True
 
         if direction == 'vertical':
             for sprite in self.obstacle_sprites:
                 if sprite.hitbox.colliderect(self.hitbox):
                     if self.hitbox.y > 0:
                         self.hitbox.bottom = sprite.hitbox.top
+                        return True
                     if self.direction.y < 0:
                         self.hitbox.top = sprite.hitbox.bottom
+                        return True
+        return False
 
     def get_status(self, *args):
         raise NotImplementedError("Subclassses must implement this method")

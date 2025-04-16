@@ -76,7 +76,7 @@ class Level:
         self.current_attack = create_weapon(weapon_name, self.player, groups)
 
     def create_projectile(self, projectile_data):
-        Projectile(projectile_data, self.player, [self.visibile_sprites, self.attack_sprites])
+        Projectile(projectile_data, self.player, [self.visibile_sprites, self.attack_sprites], self.obstacle_sprites)
     
     def destroy_attack(self):
         if self.current_attack:
