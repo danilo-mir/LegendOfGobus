@@ -171,7 +171,6 @@ class Player(Entity):
             # A direção do jogador pode mudar quando ataca
             if keys[pygame.K_LEFT] and not self.attacking:
                 self.status = 'left'
-                debug(self.status)
             elif keys[pygame.K_RIGHT] and not self.attacking:
                 self.status = 'right'
             if keys[pygame.K_UP] and not self.attacking:

@@ -75,10 +75,6 @@ class Level:
         self.acceleration_rate = 0.02  # Taxa de aceleração mais lenta no gelo
         self.current_ice_multiplier = self.ice_movement_penalty  # Inicialização do multiplicador de gelo
         
-        # Tutorial
-        self.show_ice_tip = self.is_ice  # Mostrar dica sobre o gelo uma vez
-        self.ice_tip_timer = 300 if self.is_ice else 0  # 5 segundos
-        
         # Estado do nível
         self.level_completed = False
         
@@ -102,58 +98,6 @@ class Level:
 
         pygame.mixer.music.set_volume(0.5)
         pygame.mixer.music.play(-1)
-    
-    def is_valid_spawn_position(self, x, y):
-        """Verifica se uma posição é válida para spawn (longe do jogador e não bloqueada)"""
-        # Verificar se está longe o suficiente do jogador
-        player_pos = pygame.math.Vector2(self.player.rect.center)
-        spawn_pos = pygame.math.Vector2(x, y)
-        distance = player_pos.distance_to(spawn_pos)
-        
-        if distance < 300:  # Muito perto do jogador
-            return False
-        
-        # Verificar se não está dentro de um obstáculo
-        test_rect = pygame.Rect(x, y, TILESIZE, TILESIZE)
-        for sprite in self.obstacle_sprites:
-            if sprite.hitbox.colliderect(test_rect):
-                return False
-                
-        return True
-
-    def spawn_monster(self):
-        """Spawna um novo monstro na fase"""
-        if not self.spawn_positions:
-            return False
-            
-        # Verificar se já atingiu o limite de monstros ativos
-        if self.active_monsters >= self.max_active_monsters:
-            return False
-            
-        # Verificar se já matamos o total de monstros
-        if self.monsters_killed >= self.total_monsters:
-            return False
-            
-        # Escolher uma posição aleatória de spawn
-        pos = random.choice(self.spawn_positions)
-        
-        # Usar apenas o monstro "squid" para a fase da floresta
-        monster_type = "squid"  # Tipo fixo, igual ao que estava no WORLD_MAP
-        
-        # Criar o monstro
-        Enemy(
-            monster_type,
-            pos,
-            [self.visibile_sprites, self.attackable_sprites],
-            self.obstacle_sprites,
-            self.damage_player
-        )
-        
-        # Incrementar contador de monstros ativos
-        self.active_monsters += 1
-        
-        print(f"Spawnou monstro {monster_type} na posição {pos}. Monstros ativos: {self.active_monsters}, Monstros mortos: {self.monsters_killed}/{self.total_monsters}")
-        return True
 
     def create_map(self):
         for row_index, row in enumerate(self.game_map):
@@ -301,6 +245,7 @@ class Level:
                                 if self.boss_defeated and (self.beasts_killed + self.active_beasts) >= 15:
                                     print("Nível do vulcão completo! Boss derrotado e beasts suficientes eliminados.")
                                     self.level_completed = True
+
     def damage_player(self, amount):
         if self.player.vulnerable:
             self.player.health -= amount
@@ -449,8 +394,6 @@ class Level:
                 # Aplicar velocidade com o multiplicador atual
                 self.player.speed = self.player.player_stats['speed'] * self.current_ice_multiplier
                 
-                # Mostrar debug de aceleração
-                debug(f"Acelerando: {self.current_ice_multiplier:.2f}", 80)
             else:
                 # Quando o jogador para de pressionar teclas
                 if self.player_momentum.magnitude() > 0.1:  # Continuar deslizando
@@ -507,8 +450,6 @@ class Level:
                     # Atualizar posição do retângulo
                     self.player.rect.center = self.player.hitbox.center
                     
-                    # Mostrar informações de deslizamento para debug
-                    debug(f"Deslizando: {self.player_momentum.x:.1f}, {self.player_momentum.y:.1f}", 40)
                 else:
                     # Parar completamente quando o momentum for muito baixo
                     self.player_momentum = pygame.math.Vector2(0, 0)
@@ -526,15 +467,7 @@ class Level:
         # Mostrar informações do vento quando estiver no deserto
         if self.is_desert and self.wind_system:
             wind_dir, wind_strength = self.wind_system.get_player_speed_modifier()
-            wind_info = f"Vento: {wind_dir.x:.1f},{wind_dir.y:.1f} | Forca: {wind_strength:.1f}"
-            debug(wind_info, 40)  # Adiciona informações do vento abaixo das outras infos
-        
-        # Mostrar informações de monstros se o sistema sequencial estiver ativo
-        monsters_text = f"Monstros: {self.monsters_killed}/{self.total_monsters}"
-        monsters_surf = self.font.render(monsters_text, True, (255, 100, 100))
-        monsters_rect = monsters_surf.get_rect(topleft=(20, 20))
-        self.display_surface.blit(monsters_surf, monsters_rect)
-            
+
         # Mostrar informações do vulcão
         if self.volcano_spawn_active:
             # Contador de beasts
@@ -550,23 +483,6 @@ class Level:
             boss_rect = boss_surf.get_rect(topleft=(20, 50))
             self.display_surface.blit(boss_surf, boss_rect)
         
-        # Mostrar dica sobre o gelo
-        if self.show_ice_tip and self.ice_tip_timer > 0:
-            self.ice_tip_timer -= 1
-            tip_text = "Superficie gelada! Voce comeca lentamente e acelera gradualmente. Cuidado ao mudar de direcao!"
-            tip_surf = self.font.render(tip_text, True, (200, 220, 255))
-            tip_rect = tip_surf.get_rect(center=(WIDTH//2, 50))
-            # Desenhar fundo semi-transparente
-            bg_surf = pygame.Surface((tip_rect.width + 20, tip_rect.height + 10))
-            bg_surf.fill((30, 50, 100))
-            bg_surf.set_alpha(180)
-            bg_rect = bg_surf.get_rect(center=tip_rect.center)
-            self.display_surface.blit(bg_surf, bg_rect)
-            self.display_surface.blit(tip_surf, tip_rect)
-            
-            if self.ice_tip_timer <= 0:
-                self.show_ice_tip = False
-        
         # Verificar se o jogador morreu e o nível deve ser recriado
         self.should_reset_level = False
         if hasattr(self, 'player') and hasattr(self.player, 'check_death'):
@@ -574,13 +490,6 @@ class Level:
         
         # Verificar se o nível foi completado (exceto no sistema sequencial, que usa sua própria lógica)
         enemy_count = len([sprite for sprite in self.attackable_sprites if hasattr(sprite, 'sprite_type') and sprite.sprite_type == 'enemy'])
-        
-        # Mostrar o número de inimigos restantes
-        if enemy_count > 0 or self.enemies_at_start > 0:
-            enemy_text = f"Inimigos: {enemy_count}/{self.enemies_at_start}"
-            enemy_surf = self.font.render(enemy_text, True, (255, 100, 100))
-            enemy_rect = enemy_surf.get_rect(topright=(WIDTH - 20, 20))
-            self.display_surface.blit(enemy_surf, enemy_rect)
         
         # Definir se o nível foi completado apenas se havia inimigos e todos foram derrotados
         if enemy_count == 0 and self.enemies_at_start > 0:
@@ -613,8 +522,6 @@ class YSortCameraGroup(pygame.sprite.Group):
             self.display_surface.blit(sprite.image, offset_pos_rect)
             drawn_rect = pygame.Rect(offset_pos_rect[0], offset_pos_rect[1], sprite.rect.width, sprite.rect.height)
             drawn_hitbox = pygame.Rect(offset_pos_hitbox[0], offset_pos_hitbox[1], sprite.hitbox.width, sprite.hitbox.height)
-            pygame.draw.rect(self.display_surface, 'red', drawn_rect, 1)
-            pygame.draw.rect(self.display_surface, 'green', drawn_hitbox, 1)
 
     def enemy_update(self, player):
         enemy_sprites = [sprite for sprite in self.sprites() if hasattr(sprite, 'sprite_type') and sprite.sprite_type == 'enemy']

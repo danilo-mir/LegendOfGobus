@@ -60,7 +60,7 @@ class Game:
             # Se a transição foi concluída, carregar o próximo nível
             self.level = Level(*self.stages[self.current_stage])
             self.level_transition_active = False
-            self.show_message(f"Fase: {next_name}", (255, 215, 0), 180)
+            # self.show_message(f"Fase: {next_name}", (255, 215, 0), 180)
 
     def run(self):
         while True:
@@ -114,7 +114,7 @@ class Game:
                     self.current_stage = (self.current_stage + 1) % len(self.stages)
                     self.level = Level(*self.stages[self.current_stage])
                     # Mostrar nome da fase atual
-                    self.show_message(f"Fase: {self.stage_names[self.current_stage]}", (255, 215, 0), 180)
+                    # self.show_message(f"Fase: {self.stage_names[self.current_stage]}", (255, 215, 0), 180)
                 if event.key == pygame.K_y:
                     # Abrir a lojinha ao apertar Y
                     self.shop_open = True
