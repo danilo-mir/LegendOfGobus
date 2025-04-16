@@ -45,6 +45,7 @@ class Player(Entity):
         # Controle de munição
         self.ammo = 5  # Iniciar com 5 balas
         self.max_ammo = 5  # Máximo de 5 balas
+        self.no_ammo_message_timer = 0  # Timer para mensagem de sem munição
         
         # Sistema de moedas para a lojinha
         self.coins = 0  # Iniciar sem moedas
@@ -62,6 +63,9 @@ class Player(Entity):
         self.vulnerable = True
         self.hit_time = None
         self.invulnerability_duration = 500
+        
+        # Fonte para mensagens
+        self.font = pygame.font.Font(UI_FONT, 16)
 
     def import_player_assets(self):
         character_path = 'graphics/player/'
@@ -179,12 +183,16 @@ class Player(Entity):
             if keys[pygame.K_LEFT] or keys[pygame.K_RIGHT] or keys[pygame.K_UP] or keys[
                 pygame.K_DOWN] and not self.attacking:
                 # Verificar se tem munição quando usar gun
-                if self.current_weapon == 'gun' and self.ammo > 0:
-                    self.attacking = True
-                    self.attack_time = pygame.time.get_ticks()
-                    self.create_attack(self.current_weapon)
-                    self.ammo -= 1  # Diminui munição ao atirar
-                else:  # Arma melee não usa munição
+                if self.current_weapon == 'gun':
+                    if self.ammo > 0:  # Só permite atirar se tiver munição
+                        self.attacking = True
+                        self.attack_time = pygame.time.get_ticks()
+                        self.create_attack(self.current_weapon)
+                        self.ammo -= 1  # Diminui munição ao atirar
+                    else:
+                        # Feedback visual - ativar o timer da mensagem de sem munição
+                        self.no_ammo_message_timer = 60  # Mostrar por 1 segundo (60 frames)
+                else:  # Armas melee não usam munição
                     self.attacking = True
                     self.attack_time = pygame.time.get_ticks()
                     self.create_attack(self.current_weapon)
@@ -314,3 +322,31 @@ class Player(Entity):
         self.animate()
         self.move(self.speed)
         self.check_death()
+        
+        # Atualizar timer da mensagem de sem munição
+        if self.no_ammo_message_timer > 0:
+            self.no_ammo_message_timer -= 1
+            
+            # Exibir mensagem de sem munição
+            if self.no_ammo_message_timer > 0:
+                # Obter superfície atual
+                screen = pygame.display.get_surface()
+                
+                # Criar mensagem de sem munição
+                message = self.font.render("SEM MUNIÇÃO!", True, (255, 0, 0))
+                message_rect = message.get_rect(center=(screen.get_width() // 2, 100))
+                
+                # Desenhar fundo semi-transparente para a mensagem
+                bg_surf = pygame.Surface((message_rect.width + 20, message_rect.height + 10))
+                bg_surf.fill((50, 0, 0))
+                bg_surf.set_alpha(180)
+                bg_rect = bg_surf.get_rect(center=message_rect.center)
+                
+                # Desenhar na tela
+                screen.blit(bg_surf, bg_rect)
+                screen.blit(message, message_rect)
+        
+        # Exibir contador de munição
+        screen = pygame.display.get_surface()
+        ammo_text = self.font.render(f"Munição: {self.ammo}/{self.max_ammo}", True, (255, 255, 255))
+        screen.blit(ammo_text, (20, 80))

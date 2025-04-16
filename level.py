@@ -18,7 +18,7 @@ class Level:
         self.background = background
         
         # Verificar se estamos na fase do deserto
-        self.is_desert = background == 'graphics/tilemap/desertground.png'
+        self.is_desert = background == DESERTBG
         
         # Verificar se estamos na fase de gelo
         self.is_ice = background == ICEBG
@@ -33,11 +33,15 @@ class Level:
         self.current_attack = None
         self.attack_sprites = pygame.sprite.Group()
         self.attackable_sprites = pygame.sprite.Group()
-        self.attack_sprites = pygame.sprite.Group()
+        
         # Criar mapa
         self.create_map()
+        
         # Interface do usuário
         self.ui = UI()
+        
+        # Debug do número de inimigos
+        print(f"Número de inimigos criados: {len([sprite for sprite in self.attackable_sprites if hasattr(sprite, 'sprite_type') and sprite.sprite_type == 'enemy'])}")
         
         # Controle de deslizamento no gelo
         self.slide_factor = 0.98 if self.is_ice else 0  # Fator de deslizamento (quanto mais próximo de 1, mais desliza)
@@ -48,6 +52,14 @@ class Level:
         self.show_ice_tip = self.is_ice  # Mostrar dica sobre o gelo uma vez
         self.ice_tip_timer = 300 if self.is_ice else 0  # 5 segundos
         self.font = pygame.font.Font(UI_FONT, 20)
+        
+        # Estado do nível
+        self.level_completed = False
+        self.enemies_at_start = len([sprite for sprite in self.attackable_sprites if hasattr(sprite, 'sprite_type') and sprite.sprite_type == 'enemy'])
+        
+        # Garantir que o nível só seja completado se havia inimigos inicialmente
+        if self.enemies_at_start == 0:
+            print(f"AVISO: Nenhum inimigo encontrado no nível. Verifique o mapa!")
 
     def create_map(self):
         for row_index, row in enumerate(self.game_map):
@@ -164,26 +176,81 @@ class Level:
         elif self.is_ice:
             # Aplicar efeito de deslizamento no gelo
             if self.player.direction.magnitude() > 0:
-                # Velocidade normal no gelo (sem penalidade)
-                self.player.speed = self.player.player_stats['speed']
-                # Armazenar momentum do jogador quando ele se move
-                # Acumulação gradual do momentum para um deslizamento mais natural
-                target_momentum = self.player.direction.normalize() * self.player.speed * 1.2
-                # Transição suave para o novo momentum
-                self.player_momentum = self.player_momentum * 0.8 + target_momentum * 0.2
+                # Sistema de aceleração gradual no gelo
+                last_direction = self.player_momentum.normalize() if self.player_momentum.magnitude() > 0 else pygame.Vector2(0, 0)
+                current_direction = self.player.direction.normalize()
+                
+                # Se mudou de direção drasticamente, resetar a aceleração
+                dot_product = current_direction.dot(last_direction) if last_direction.magnitude() > 0 else 0
+                if dot_product < 0:  # Direção oposta
+                    self.current_ice_multiplier = self.ice_movement_penalty
+                
+                # Aumentar gradualmente a velocidade até atingir o valor máximo
+                # Usar uma função não-linear para aceleração mais natural
+                # Acelera mais rápido quando está mais lento, e mais devagar quando está se aproximando da velocidade máxima
+                acceleration_factor = self.acceleration_rate * (1.2 - self.current_ice_multiplier)
+                self.current_ice_multiplier = min(1.0, self.current_ice_multiplier + acceleration_factor)
+                
+                # Aplicar velocidade com o multiplicador atual
+                self.player.speed = self.player.player_stats['speed'] * self.current_ice_multiplier
+                
+                # Atualizar o momentum para deslizar depois (aumentar para 1.5)
+                self.player_momentum = current_direction * self.player.speed * 1.5
+                
+                # Mostrar debug de aceleração
+                debug(f"Acelerando: {self.current_ice_multiplier:.2f}", 80)
             else:
                 # Quando o jogador para de pressionar teclas
                 if self.player_momentum.magnitude() > 0.1:  # Continuar deslizando
                     # Desacelerar gradualmente
                     self.player_momentum *= self.slide_factor
                     
-                    # Aplicar o movimento do deslizamento
-                    self.player.hitbox.x += self.player_momentum.x
-                    self.player.hitbox.y += self.player_momentum.y
+                    # Em vez de usar o sistema de colisão do jogador, vamos verificar colisões manualmente
+                    # para o movimento de deslizamento
                     
-                    # Verificar colisões após o deslizamento
-                    self.player.collision('horizontal')
-                    self.player.collision('vertical')
+                    # Testar o movimento horizontal
+                    future_hitbox_x = self.player.hitbox.copy()
+                    future_hitbox_x.x += self.player_momentum.x
+                    
+                    # Verificar colisão horizontal
+                    horizontal_collision = False
+                    for sprite in self.obstacle_sprites:
+                        if sprite.hitbox.colliderect(future_hitbox_x):
+                            horizontal_collision = True
+                            # Ajustar a posição para que fique encostado no obstáculo
+                            if self.player_momentum.x > 0:  # Movimento para a direita
+                                self.player.hitbox.right = sprite.hitbox.left
+                            else:  # Movimento para a esquerda
+                                self.player.hitbox.left = sprite.hitbox.right
+                            # Parar o momentum horizontal
+                            self.player_momentum.x = 0
+                            break
+                    
+                    # Se não houve colisão horizontal, aplicar o movimento
+                    if not horizontal_collision:
+                        self.player.hitbox.x += self.player_momentum.x
+                    
+                    # Testar o movimento vertical
+                    future_hitbox_y = self.player.hitbox.copy()
+                    future_hitbox_y.y += self.player_momentum.y
+                    
+                    # Verificar colisão vertical
+                    vertical_collision = False
+                    for sprite in self.obstacle_sprites:
+                        if sprite.hitbox.colliderect(future_hitbox_y):
+                            vertical_collision = True
+                            # Ajustar a posição para que fique encostado no obstáculo
+                            if self.player_momentum.y > 0:  # Movimento para baixo
+                                self.player.hitbox.bottom = sprite.hitbox.top
+                            else:  # Movimento para cima
+                                self.player.hitbox.top = sprite.hitbox.bottom
+                            # Parar o momentum vertical
+                            self.player_momentum.y = 0
+                            break
+                    
+                    # Se não houve colisão vertical, aplicar o movimento
+                    if not vertical_collision:
+                        self.player.hitbox.y += self.player_momentum.y
                     
                     # Atualizar posição do retângulo
                     self.player.rect.center = self.player.hitbox.center
@@ -228,10 +295,23 @@ class Level:
                 self.show_ice_tip = False
         
         # Verificar se o jogador morreu e o nível deve ser recriado
-        # Este valor será utilizado pela classe Game
         self.should_reset_level = False
         if hasattr(self, 'player') and hasattr(self.player, 'check_death'):
             self.should_reset_level = self.player.check_death()
+        
+        # Verificar se o nível foi completado
+        enemy_count = len([sprite for sprite in self.attackable_sprites if hasattr(sprite, 'sprite_type') and sprite.sprite_type == 'enemy'])
+        
+        # Mostrar o número de inimigos restantes
+        if enemy_count > 0 or self.enemies_at_start > 0:
+            enemy_text = f"Inimigos: {enemy_count}/{self.enemies_at_start}"
+            enemy_surf = self.font.render(enemy_text, True, (255, 100, 100))
+            enemy_rect = enemy_surf.get_rect(topright=(WIDTH - 20, 20))
+            self.display_surface.blit(enemy_surf, enemy_rect)
+        
+        # Definir se o nível foi completado apenas se havia inimigos e todos foram derrotados
+        if enemy_count == 0 and self.enemies_at_start > 0:
+            self.level_completed = True
         
         return self.should_reset_level
 
