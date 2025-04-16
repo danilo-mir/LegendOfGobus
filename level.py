@@ -20,6 +20,9 @@ class Level:
         # Verificar se estamos na fase do deserto
         self.is_desert = background == 'graphics/tilemap/desertground.png'
         
+        # Verificar se estamos na fase de gelo
+        self.is_ice = background == ICEBG
+        
         # Sistema de vento (apenas no deserto)
         self.wind_system = WindSystem(self.display_surface) if self.is_desert else None
         
@@ -35,6 +38,16 @@ class Level:
         self.create_map()
         # Interface do usuário
         self.ui = UI()
+        
+        # Controle de deslizamento no gelo
+        self.slide_factor = 0.98 if self.is_ice else 0  # Aumentado para 0.98 (desacelera menos)
+        self.player_momentum = pygame.math.Vector2(0, 0)
+        self.ice_movement_penalty = 0.6 if self.is_ice else 1.0  # Penalidade de movimento no gelo
+        
+        # Mensagens de tutorial
+        self.show_ice_tip = self.is_ice  # Mostrar dica sobre o gelo uma vez
+        self.ice_tip_timer = 300 if self.is_ice else 0  # 5 segundos
+        self.font = pygame.font.Font(UI_FONT, 20)
 
     def create_map(self):
         for row_index, row in enumerate(self.game_map):
@@ -59,6 +72,13 @@ class Level:
                     Tree3Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
                 if col == 'R1':
                     Rock1Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
+                # Árvores de gelo
+                if col == 'I1':
+                    IceTree1Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
+                if col == 'I2':
+                    IceTree2Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
+                if col == 'I3':
+                    IceTree3Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
                 if col == 'P':
                     self.player = Player(
                         (x, y),
@@ -141,8 +161,36 @@ class Level:
             
             # Desenhar as partículas do vento
             self.wind_system.draw()
+        elif self.is_ice:
+            # Aplicar efeito de deslizamento no gelo
+            if self.player.direction.magnitude() > 0:
+                # Reduzir a resposta dos controles no gelo
+                self.player.speed = self.player.player_stats['speed'] * self.ice_movement_penalty
+                # Armazenar momentum do jogador quando ele se move
+                self.player_momentum = self.player.direction.normalize() * self.player.speed * 0.9
+            elif self.player_momentum.magnitude() > 0.05:  # Reduzir o limiar para continuar deslizando
+                # Continuar deslizando com base no momentum armazenado
+                self.player_momentum *= self.slide_factor
+                
+                # Aplicar o movimento do deslizamento
+                self.player.hitbox.x += self.player_momentum.x
+                self.player.hitbox.y += self.player_momentum.y
+                
+                # Verificar colisões após o deslizamento
+                self.player.collision('horizontal')
+                self.player.collision('vertical')
+                
+                # Atualizar posição do retângulo
+                self.player.rect.center = self.player.hitbox.center
+                
+                # Mostrar informações de deslizamento para debug
+                debug(f"Deslizando: {self.player_momentum.x:.1f}, {self.player_momentum.y:.1f}", 40)
+            else:
+                # Restaurar velocidade normal quando não está deslizando
+                self.player.speed = self.player.player_stats['speed']
+                self.player_momentum = pygame.math.Vector2(0, 0)
         else:
-            # Restaurar a velocidade normal quando não está no deserto
+            # Restaurar a velocidade normal quando não está no deserto ou no gelo
             self.player.speed = self.player.player_stats['speed']
         
         self.visibile_sprites.custom_draw(self.player)
@@ -156,11 +204,28 @@ class Level:
             wind_dir, wind_strength = self.wind_system.get_player_speed_modifier()
             wind_info = f"Vento: {wind_dir.x:.1f},{wind_dir.y:.1f} | Força: {wind_strength:.1f}"
             debug(wind_info, 40)  # Adiciona informações do vento abaixo das outras infos
+            
+        # Mostrar dica sobre o gelo
+        if self.show_ice_tip and self.ice_tip_timer > 0:
+            self.ice_tip_timer -= 1
+            tip_text = "Cuidado! O gelo é escorregadio - seu movimento e paradas são afetados."
+            tip_surf = self.font.render(tip_text, True, (200, 220, 255))
+            tip_rect = tip_surf.get_rect(center=(WIDTH//2, 50))
+            # Desenhar fundo semi-transparente
+            bg_surf = pygame.Surface((tip_rect.width + 20, tip_rect.height + 10))
+            bg_surf.fill((30, 50, 100))
+            bg_surf.set_alpha(180)
+            bg_rect = bg_surf.get_rect(center=tip_rect.center)
+            self.display_surface.blit(bg_surf, bg_rect)
+            self.display_surface.blit(tip_surf, tip_rect)
+            
+            if self.ice_tip_timer <= 0:
+                self.show_ice_tip = False
         
         # Verificar se o jogador morreu e o nível deve ser recriado
         # Este valor será utilizado pela classe Game
         self.should_reset_level = False
-        if hasattr(self.player, 'check_death'):
+        if hasattr(self, 'player') and hasattr(self.player, 'check_death'):
             self.should_reset_level = self.player.check_death()
         
         return self.should_reset_level
