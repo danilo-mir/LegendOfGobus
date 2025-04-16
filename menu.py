@@ -74,12 +74,20 @@ class Menu:
         self.slider_music = Slider((WIDTH//2 - 100, 200), 200)
         self.slider_sfx = Slider((WIDTH//2 - 100, 260), 200)
 
+        # Música do menu
+        pygame.mixer.music.load("audio/menu.mp3")
+        pygame.mixer.music.set_volume(0.5)
+        pygame.mixer.music.play(-1)
+
     def run(self):
         while self.running:
             self.handle_events()
             self.draw()
             pygame.display.flip()
             self.clock.tick(60)
+
+        # Para a música quando o menu for encerrado
+        pygame.mixer.music.stop()
 
     def handle_events(self):
         for event in pygame.event.get():

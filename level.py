@@ -91,6 +91,19 @@ class Level:
         self.spawn_timer = 0
         self.spawn_cooldown = 60  # 1 segundo a 60 FPS
 
+        # Música de fundo por tipo de fase
+        pygame.mixer.music.stop()
+        if self.is_desert:
+            pygame.mixer.music.load('audio/desert.mp3')
+        elif self.is_ice:
+            pygame.mixer.music.load('audio/ice.mp3')
+        else:
+            pygame.mixer.music.load('audio/grass.mp3')
+
+        pygame.mixer.music.set_volume(0.5)
+        pygame.mixer.music.play(-1)
+
+
     def initialize_monster_system(self):
         """Inicializa o sistema de monstros sequenciais para a fase da floresta"""
         # Encontrar posições adequadas para spawn de inimigos (longe do jogador)

@@ -201,7 +201,7 @@ class Player(Entity):
             if keys[pygame.K_r]:
                 if self.super_counter >= self.player_stats['super_threshold']:
                     self.super_counter = 0
-                    self.ammo = self.max_ammo  # Recarregar munição com super ataque
+                    self.health = min(self.player_stats['max_health'], self.health*1.5)
             if keys[pygame.K_m]:
                 if self.super_counter < self.player_stats['super_threshold']:
                     self.super_counter += 1
