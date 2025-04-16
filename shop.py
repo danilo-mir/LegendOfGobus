@@ -1,7 +1,7 @@
 import pygame
 import sys
 from settings import *
-from menu import Button  # Reutilizando a classe Button do menu
+from menu import Button
 
 class Shop:
     def __init__(self, screen, player):
@@ -15,7 +15,7 @@ class Shop:
         self.bg.fill((30, 30, 50))  # Fundo azul escuro para a lojinha
         self.overlay = pygame.Surface((WIDTH, HEIGHT))
         self.overlay.fill((0, 0, 0))
-        self.overlay.set_alpha(150)  # Transparência
+        self.overlay.set_alpha(150)
         
         # Fontes
         self.title_font = pygame.font.Font(UI_FONT, 40)
@@ -78,7 +78,7 @@ class Shop:
                     
     def buy_ammo(self):
         """Tentar comprar balas usando moedas"""
-        coin_cost = 3  # 3 moedas = 1 bala
+        coin_cost = 3
         
         # Verificar se o jogador tem moedas suficientes
         if self.player.coins >= coin_cost:
@@ -117,7 +117,7 @@ class Shop:
         """Mostrar mensagem de feedback temporária"""
         self.feedback_message = message
         self.feedback_color = color
-        self.feedback_timer = 180  # 3 segundos a 60 FPS
+        self.feedback_timer = 180
             
     def draw(self):
         # Desenhar fundo

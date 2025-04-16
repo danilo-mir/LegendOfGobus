@@ -3,8 +3,8 @@ from settings import *
 from level import Level
 from menu import Menu
 from pause import PauseScreen
-from shop import Shop  # Importar a classe Shop
-from level_transition import LevelTransition  # Importar a tela de transição de nível
+from shop import Shop
+from level_transition import LevelTransition
 
 
 class Game:
@@ -18,8 +18,8 @@ class Game:
         self.stages = [
             (WORLD_MAP, FORESTBG),
             (DESERT_MAP, DESERTBG),
-            (ICE_MAP, ICEBG),  # Fase de gelo
-            (VOLCANO_MAP, VOLCANOBG)  # Adicionar fase do vulcão
+            (ICE_MAP, ICEBG),
+            (VOLCANO_MAP, VOLCANOBG)
         ]
         self.stage_names = ["Floresta", "Deserto", "Lago Congelado", "Vulcão"]  # Nomes das fases
         self.current_stage = 0
@@ -38,11 +38,10 @@ class Game:
         """Mostrar uma mensagem temporária na tela"""
         self.message = text
         self.message_color = color
-        self.message_timer = duration  # 3 segundos a 60 FPS
+        self.message_timer = duration
 
     def reset_level(self):
         """Recria completamente o nível atual, reposicionando o jogador e inimigos."""
-        # Recriar o nível com o mapa atual
         self.level = Level(*self.stages[self.current_stage])
         
     def advance_to_next_level(self):
@@ -113,8 +112,6 @@ class Game:
                     # Troca de fase ao apertar J
                     self.current_stage = (self.current_stage + 1) % len(self.stages)
                     self.level = Level(*self.stages[self.current_stage])
-                    # Mostrar nome da fase atual
-                    # self.show_message(f"Fase: {self.stage_names[self.current_stage]}", (255, 215, 0), 180)
                 if event.key == pygame.K_y:
                     # Abrir a lojinha ao apertar Y
                     self.shop_open = True

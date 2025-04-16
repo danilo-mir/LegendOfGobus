@@ -91,7 +91,7 @@ monster_symbol = {
 }
 
 
-# Novo mapa para a segunda fase (exemplo: deserto)
+# Novo mapa para a segunda fase
 DESERT_MAP = [
  ['D1', 'D1','D1', 'D1', 'D1', 'D1', 'D1', 'D1', 'D1', 'D1', 'D1', 'D1', 'D1', 'D1', 'D1', 'D1', 'D1', 'D1', 'D1', 'D1', 'D1', 'D1', 'D1'],
  ['D1', ',' ,',' , 'sk' , 'O4' , ',', ',', ',', ',', ',', ',', ',', ',', ',', ',', ',', ',', ',', ',', 'O3', ',', ',', 'D1'],

@@ -8,11 +8,11 @@ class DeathScreen:
         self.screen = screen
         self.running = True
         self.clock = pygame.time.Clock()
-        self.should_reset_level = False  # Indica se o nível deve ser recriado
+        self.should_reset_level = False
         
         # Fundo
         self.bg = pygame.Surface((WIDTH, HEIGHT))
-        self.bg.fill((0, 0, 0))  # Fundo preto
+        self.bg.fill((0, 0, 0))
         
         # Fontes
         self.title_font = pygame.font.Font(UI_FONT, 80)
@@ -30,7 +30,7 @@ class DeathScreen:
             self.draw()
             pygame.display.flip()
             self.clock.tick(60)
-        return self.should_reset_level  # Retorna se o nível deve ser recriado
+        return self.should_reset_level
 
     def handle_events(self):
         for event in pygame.event.get():
@@ -42,20 +42,19 @@ class DeathScreen:
                 mouse_pos = pygame.mouse.get_pos()
                 mouse_click = pygame.mouse.get_pressed()
                 
-                if self.buttons[0].is_clicked(mouse_pos, mouse_click):  # Reiniciar
+                if self.buttons[0].is_clicked(mouse_pos, mouse_click):
                     self.running = False
-                    self.should_reset_level = True  # Sinaliza que o nível deve ser recriado
+                    self.should_reset_level = True
                     return
                 
-                if self.buttons[1].is_clicked(mouse_pos, mouse_click):  # Sair
+                if self.buttons[1].is_clicked(mouse_pos, mouse_click):
                     pygame.quit()
                     sys.exit()
 
     def draw(self):
-        # Desenhar fundo
         self.screen.blit(self.bg, (0, 0))
         
-        # Desenhar título "FOI DE GELAS"
+        # Desenhar título 
         title_surf = self.title_font.render("FIM DE JOGO", True, (255, 0, 0))
         title_rect = title_surf.get_rect(center=(WIDTH//2, HEIGHT//3))
         self.screen.blit(title_surf, title_rect)

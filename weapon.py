@@ -16,15 +16,13 @@ class Weapon(ABC, pygame.sprite.Sprite):
 
         # Carregar sprite da arma
         self.full_path = f'{weapon_data["graphic"]}/{direction}.png'
-        original_image = pygame.image.load(self.full_path).convert_alpha()  # Use convert_alpha for transparency
+        original_image = pygame.image.load(self.full_path).convert_alpha()
 
-        # --- NEW CODE START (Weapon Image Scaling - Optional for weapons themselves) ---
         # Define the desired scale factor for the weapon image
         weapon_scale_factor = 0.7
         new_weapon_size = (int(original_image.get_width() * weapon_scale_factor),
                            int(original_image.get_height() * weapon_scale_factor))
         self.image = pygame.transform.scale(original_image, new_weapon_size)
-        # --- NEW CODE END ---
 
         # Posicionar a arma corretamente para ficar na mão do jogador
         if direction == 'right':
@@ -68,13 +66,10 @@ class Projectile(Entity):
         self.full_path = f'{projectile_data["graphic"]}/{direction}.png'
         original_image = pygame.image.load(self.full_path).convert_alpha()
 
-        # --- NEW CODE START (Projectile Image Scaling) ---
-        # Define the desired scale factor for the projectile
         self.scale_factor = 0.7  # You can set a default here or make it configurable
         new_size = (int(original_image.get_width() * self.scale_factor),
                     int(original_image.get_height() * self.scale_factor))
         self.image = pygame.transform.scale(original_image, new_size)
-        # --- NEW CODE END ---
 
         if direction == 'right':
             self.rect = self.image.get_rect(midleft=player.rect.midright + pygame.math.Vector2(projectile_data["r_horizontal_offset"], projectile_data['lr_vertical_offset']) * self.scale_factor)

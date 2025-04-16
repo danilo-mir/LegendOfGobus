@@ -15,7 +15,7 @@ class LevelTransition:
         self.fade_speed = 2
         self.fading_in = True
         self.delay_timer = 0
-        self.delay_duration = 60  # 1 segundo a 60 FPS
+        self.delay_duration = 60
         
         # Superfície para fade
         self.fade_surf = pygame.Surface((WIDTH, HEIGHT))

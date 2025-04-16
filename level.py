@@ -7,7 +7,7 @@ from debug import debug
 from ui import UI
 from weapon import create_weapon, Projectile
 from support import fetch_weapon_data
-from wind import WindSystem  # Importar o sistema de vento
+from wind import WindSystem
 import random
 
 

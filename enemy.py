@@ -23,7 +23,7 @@ class Enemy(Entity):
         self.resistance = monster_info['resistance']
         self.attack_radius = monster_info['attack_radius']
         self.notice_radius = monster_info['notice_radius']
-        self.scale_factor = monster_info.get('scale_factor', 1)  # must be set before import_graphics
+        self.scale_factor = monster_info.get('scale_factor', 1)
 
         # graphics
         self.animations = self.import_graphics(name)
@@ -57,7 +57,6 @@ class Enemy(Entity):
             animations[animation] = import_folder(main_path + animation)
             
         # Redimensionar imagens especificamente para o Tengu e Beast
-        # Resize frames according to the scale factor
         for animation in animations.keys():
             resized_frames = []
             for frame in animations[animation]:
