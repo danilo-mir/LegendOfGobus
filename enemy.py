@@ -54,13 +54,21 @@ class Enemy(Entity):
         for animation in animations.keys():
             animations[animation] = import_folder(main_path + animation)
             
-        # Redimensionar imagens especificamente para o Tengu
+        # Redimensionar imagens especificamente para o Tengu e Beast
         if name == 'tengu':
             for animation in animations.keys():
                 resized_frames = []
                 for frame in animations[animation]:
                     # Multiplicar o tamanho por 3 para o Tengu
                     resized_frame = pygame.transform.scale(frame, (frame.get_width() * 3, frame.get_height() * 3))
+                    resized_frames.append(resized_frame)
+                animations[animation] = resized_frames
+        elif name == 'beast':
+            for animation in animations.keys():
+                resized_frames = []
+                for frame in animations[animation]:
+                    # Multiplicar o tamanho por 2 para o Beast
+                    resized_frame = pygame.transform.scale(frame, (frame.get_width() * 2, frame.get_height() * 2))
                     resized_frames.append(resized_frame)
                 animations[animation] = resized_frames
                 
@@ -83,10 +91,15 @@ class Enemy(Entity):
     def get_status(self, player):
         distance = self.get_player_distance_direction(player)[0]
 
-        # Ajuste especial para o Tengu: reduzir raio de ataque para evitar ataques de longe
+        # Ajustes especiais para monstros específicos
         attack_radius = self.attack_radius
         if self.monster_name == 'tengu':
             attack_radius = 80  # Valor mais razoável para ataque
+        elif self.monster_name == 'beast':
+            # Para o beast, usar o tamanho do colisor como raio de ataque
+            # Isso faz com que ele só ataque quando realmente encostar no jogador
+            hitbox_size = max(self.hitbox.width, self.hitbox.height) / 2
+            attack_radius = hitbox_size
 
         if distance <= attack_radius and self.can_attack:
             if self.status != 'attack':
