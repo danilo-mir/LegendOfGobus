@@ -7,6 +7,7 @@ from debug import debug
 from ui import UI
 from weapon import create_weapon, Projectile
 from support import fetch_weapon_data
+from wind import WindSystem  # Importar o sistema de vento
 
 
 class Level:
@@ -15,6 +16,13 @@ class Level:
         self.display_surface = pygame.display.get_surface()
         self.game_map = game_map
         self.background = background
+        
+        # Verificar se estamos na fase do deserto
+        self.is_desert = background == 'graphics/tilemap/desertground.png'
+        
+        # Sistema de vento (apenas no deserto)
+        self.wind_system = WindSystem(self.display_surface) if self.is_desert else None
+        
         # Criar grupos de sprites
         self.visibile_sprites = YSortCameraGroup()
         self.obstacle_sprites = pygame.sprite.Group()
@@ -107,12 +115,48 @@ class Level:
 
     def run(self):
         self.display_surface.blit(pygame.transform.scale(pygame.image.load(self.background).convert_alpha(), (WIDTH, HEIGHT)), (0, 0))  # Draw background image
+        
+        # Atualizar e aplicar o sistema de vento ao jogador se estiver no deserto
+        if self.is_desert and self.wind_system:
+            self.wind_system.update()
+            
+            # Aplicar o efeito do vento no jogador
+            wind_dir, wind_strength = self.wind_system.get_player_speed_modifier()
+            
+            # Calcular o produto escalar entre a direção do jogador e a direção do vento
+            # Valores positivos indicam que o jogador está se movendo a favor do vento
+            # Valores negativos indicam que o jogador está se movendo contra o vento
+            player_dir = self.player.direction.normalize() if self.player.direction.magnitude() > 0 else pygame.Vector2(0, 0)
+            dot_product = player_dir.dot(wind_dir) if wind_dir.magnitude() > 0 else 0
+            
+            # Ajustar a velocidade do jogador
+            speed_modifier = 1.0
+            if dot_product > 0.3:  # Jogador a favor do vento
+                speed_modifier = 1.0 + (wind_strength * 0.5)  # Aumento de até 50% na velocidade
+            elif dot_product < -0.3:  # Jogador contra o vento
+                speed_modifier = 1.0 - (wind_strength * 0.6)  # Redução de até 60% na velocidade
+            
+            # Aplicar o modificador de velocidade
+            self.player.speed = self.player.player_stats['speed'] * speed_modifier
+            
+            # Desenhar as partículas do vento
+            self.wind_system.draw()
+        else:
+            # Restaurar a velocidade normal quando não está no deserto
+            self.player.speed = self.player.player_stats['speed']
+        
         self.visibile_sprites.custom_draw(self.player)
         self.visibile_sprites.update()
         self.visibile_sprites.enemy_update(self.player)
         self.player_attack_logic()
         self.ui.display(self.player)
         debug(self.attack_sprites)
+        
+        # Mostrar informações do vento quando estiver no deserto
+        if self.is_desert and self.wind_system:
+            wind_dir, wind_strength = self.wind_system.get_player_speed_modifier()
+            wind_info = f"Vento: {wind_dir.x:.1f},{wind_dir.y:.1f} | Força: {wind_strength:.1f}"
+            debug(wind_info, 40)  # Adiciona informações do vento abaixo das outras infos
         
         # Verificar se o jogador morreu e o nível deve ser recriado
         # Este valor será utilizado pela classe Game
