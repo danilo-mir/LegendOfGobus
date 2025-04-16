@@ -46,7 +46,7 @@ class Level:
         self.acceleration_rate = 0.01 if self.is_ice else 0.0  # Taxa de aumento da aceleração (1% por frame)
         self.current_ice_multiplier = self.ice_movement_penalty  # Multiplicador atual
         
-        # Mensagens de tutorial
+        # Tutorial
         self.show_ice_tip = self.is_ice  # Mostrar dica sobre o gelo uma vez
         self.ice_tip_timer = 300 if self.is_ice else 0  # 5 segundos
         self.font = pygame.font.Font(UI_FONT, 20)
@@ -57,30 +57,41 @@ class Level:
                 x = col_index * TILESIZE
                 y = row_index * TILESIZE
                 if col == 'G1':
-                    Grass1Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
+                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/grass/grass_1.png',
+                             (GRASSSIZE, GRASSSIZE))
                 if col == 'G2':
-                    Grass2Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
+                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/grass/grass_2.png',
+                             (GRASSSIZE, GRASSSIZE))
                 if col == 'G3':
-                    Grass3Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
+                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/grass/grass_3.png',
+                             (GRASSSIZE, GRASSSIZE))
                 if col == 'TR1':
-                    Trunk1Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
+                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/0.png',
+                             (TILESIZE, TILESIZE))
                 if col == 'TR2':
-                    Trunk2Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
+                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/01.png',
+                             (TILESIZE, TILESIZE))
                 if col == 'T1':
-                    Tree1Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
+                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/02.png',
+                             (TILESIZE, TILESIZE))
                 if col == 'T2':
-                    Tree2Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
+                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/03.png',
+                             (TILESIZE, TILESIZE))
                 if col == 'T3':
-                    Tree3Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
+                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/04.png',
+                             (TILESIZE, TILESIZE))
                 if col == 'R1':
-                    Rock1Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
-                # Árvores de gelo
+                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/08.png',
+                             (TILESIZE, TILESIZE))
                 if col == 'I1':
-                    IceTree1Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
+                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/05.png',
+                             (TILESIZE, TILESIZE))
                 if col == 'I2':
-                    IceTree2Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
+                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/05.png',
+                             (TILESIZE, TILESIZE))
                 if col == 'I3':
-                    IceTree3Tile((x, y), [self.visibile_sprites, self.obstacle_sprites])
+                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/05.png',
+                             (TILESIZE, TILESIZE))
                 if col == 'P':
                     self.player = Player(
                         (x, y),
