@@ -112,6 +112,6 @@ class Game:
                     # Troca de fase ao apertar J
                     self.current_stage = (self.current_stage + 1) % len(self.stages)
                     self.level = Level(*self.stages[self.current_stage])
-                if event.key == pygame.K_y:
+                if event.key == pygame.K_LCTRL:
                     # Abrir a lojinha ao apertar Y
                     self.shop_open = True
