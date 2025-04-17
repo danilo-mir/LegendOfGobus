@@ -1,4 +1,4 @@
-# The Legend of Gobûs - Breath of Baphôn  
+# The Legend of Gobûs - Breath of Baphen  
 
 ## 🎮 Sobre o Jogo  
 **The Legend of Gobûs - Breath of Baphen** é um **RPG dungeon crawler 2D** inspirado em clássicos como *The Legend of Zelda*. Controle **Gobûs**, um herói em uma missão para derrotar o dragão **Baphen** e salvar o reino de **Anadiansh**.
@@ -52,6 +52,8 @@ O mundo de **Anadiansh** é devastado por **Baphen**, um dragão cujo sopro de f
 | **Trocar de arma** | shift |  
 | **Acessar loja**   | ctrl  |  
 | **Menu de pausa**  | esc   |
+| **Poder de Vida**  | R     |
+
 
 ---
 

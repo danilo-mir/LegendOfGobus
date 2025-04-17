@@ -203,7 +203,7 @@ class DeathScreen(ScreenBase):
         self.screen.blit(title_surf, title_rect)
 
         # Subtitulo
-        subtitle_surf = self.button_font.render("Você morreu!", True, (255, 255, 255))
+        subtitle_surf = self.button_font.render("Voce morreu!", True, (255, 255, 255))
         subtitle_rect = subtitle_surf.get_rect(center=(WIDTH // 2, HEIGHT // 2))
         self.screen.blit(subtitle_surf, subtitle_rect)
 
@@ -407,8 +407,8 @@ class WinScreen(ScreenBase):
     def __init__(self, screen):
         super().__init__(screen)
 
-        self.title_text = self.title_font.render("Você venceu!", True, (255, 215, 0))
-        self.subtitle_text = self.button_font.render("Parabéns!", True, (255, 255, 255))
+        self.title_text = self.title_font.render("Voce venceu!", True, (255, 215, 0))
+        self.subtitle_text = self.button_font.render("Parabens!", True, (255, 255, 255))
 
         # Background (optional: match PauseScreen style)
         self.bg = pygame.image.load(BG)

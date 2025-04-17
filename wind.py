@@ -2,6 +2,7 @@ import pygame
 import random
 from settings import *
 
+
 class WindParticle:
     """Partícula visual que representa o vento na tela"""
     def __init__(self, x, y, direction, speed):
@@ -104,7 +105,7 @@ class WindSystem:
         else:
             self.strength = random.uniform(0.2, 0.8)
             
-        print(f"Vento mudou: Direção {self.direction}, Força {self.strength}")
+        print(f"Vento mudou: Direçao {self.direction}, Força {self.strength}")
         
     def _spawn_particles(self):
         """Criar novas partículas nas bordas da tela, no lado oposto à direção do vento"""

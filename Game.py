@@ -19,7 +19,7 @@ class Game:
             (ICE_MAP, ICEBG),
             (VOLCANO_MAP, VOLCANOBG)
         ]
-        self.stage_names = ["Floresta", "Deserto", "Lago Congelado", "Vulcão"]  # Nomes das fases
+        self.stage_names = ["Floresta", "Deserto", "Lago Congelado", "Vulcao"]  # Nomes das fases
         self.current_stage = 0
         self.level = Level(*self.stages[self.current_stage])
         self.game_paused = False
