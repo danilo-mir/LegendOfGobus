@@ -1,10 +1,10 @@
 import pygame
 from settings import *
 from debug import debug
-from utils import import_folder
+from support import import_folder_player
 from entity import Entity
 from support import fetch_weapon_data
-from death_screen import DeathScreen
+from screens import DeathScreen
 
 
 class Player(Entity):
@@ -131,7 +131,7 @@ class Player(Entity):
                 self.animations['down'] = frames
             else:
                 animation_folder_path = character_path + animation
-                raw_frames = import_folder(animation_folder_path)
+                raw_frames = import_folder_player(animation_folder_path)
                 scaled_frames = [
                     pygame.transform.scale(frame, (PLAYERSIZE, PLAYERSIZE)) for frame in raw_frames
                 ]
