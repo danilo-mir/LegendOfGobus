@@ -137,3 +137,33 @@ VOLCANO_MAP = [
  ['R1', ',' ,',' , ',' , ',' , ',', ',', ',', ',', ',', ',', ',', ',', ',', ',', ',', ',', ',', ',', ',', ',', ',','R1'],
  ['R1', 'R1','R1', 'R1', 'R1', 'R1', 'R1', 'R1', 'R1', 'R1', 'R1', 'R1', 'R1', 'R1', 'R1', 'R1', 'R1', 'R1', 'R1', 'R1', 'R1', 'R1', 'R1'],
 ]
+
+stage_data = {
+    "Floresta" : (WORLD_MAP, FORESTBG),
+    "Deserto" : (DESERT_MAP, DESERTBG),
+    "Lago Congelado" : (ICE_MAP, ICEBG),
+    "Vulcão" : (VOLCANO_MAP, VOLCANOBG)
+}
+
+TILES = {
+    'G1': ('graphics/grass/grass_1.png', (GRASSSIZE, GRASSSIZE)),
+    'G2': ('graphics/grass/grass_2.png', (GRASSSIZE, GRASSSIZE)),
+    'G3': ('graphics/grass/grass_3.png', (GRASSSIZE, GRASSSIZE)),
+    'TR1': ('graphics/objects/0.png', (TILESIZE, TILESIZE)),
+    'TR2': ('graphics/objects/01.png', (TILESIZE, TILESIZE)),
+    'T1': ('graphics/objects/02.png', (TILESIZE, TILESIZE)),
+    'T2': ('graphics/objects/03.png', (TILESIZE, TILESIZE)),
+    'T3': ('graphics/objects/04.png', (TILESIZE, TILESIZE)),
+    'R1': ('graphics/objects/08.png', (TILESIZE, TILESIZE)),
+    'I1': ('graphics/objects/05.png', (TILESIZE, TILESIZE)),
+    'I2': ('graphics/objects/06.png', (TILESIZE, TILESIZE)),
+    'I3': ('graphics/objects/07.png', (TILESIZE, TILESIZE)),
+    'D1': ('graphics/objects/28.png', (TILESIZE, TILESIZE)),
+    'D2': ('graphics/objects/29.png', (TILESIZE, TILESIZE)),
+    'D3': ('graphics/objects/30.png', (TILESIZE, TILESIZE)),
+    'O1': ('graphics/objects/21.png', (GRASSSIZE, GRASSSIZE)),
+    'O2': ('graphics/objects/22.png', (GRASSSIZE, GRASSSIZE)),
+    'O3': ('graphics/objects/23.png', (GRASSSIZE, GRASSSIZE)),
+    'O4': ('graphics/objects/24.png', (GRASSSIZE, GRASSSIZE)),
+}
+
