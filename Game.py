@@ -1,7 +1,7 @@
 import pygame
 from settings import *
 from level import Level
-from screens import PauseScreen, Shop, Menu
+from screens import PauseScreen, Shop, Menu, WinScreen
 from level_transition import LevelTransition
 
 
@@ -46,10 +46,14 @@ class Game:
         """Avança para o próximo nível"""
         current_name = self.stage_names[self.current_stage]
         
+        if self.current_stage == 3:
+            transition = WinScreen(self.screen)
+            transition.run()
+
         # Avançar para o próximo nível
         self.current_stage = (self.current_stage + 1) % len(self.stages)
         next_name = self.stage_names[self.current_stage]
-        
+
         # Mostrar a tela de transição
         self.level_transition_active = True
         transition = LevelTransition(self.screen, current_name, next_name)

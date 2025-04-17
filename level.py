@@ -9,7 +9,6 @@ from support import fetch_weapon_data
 from wind import WindSystem
 import random
 
-
 class Level:
     def __init__(self, game_map=WORLD_MAP, background=FORESTBG):
         # Acesso à variável da tela

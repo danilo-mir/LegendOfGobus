@@ -402,3 +402,52 @@ class Shop(ScreenBase):
         self.feedback_message = message
         self.feedback_color = color
         self.feedback_timer = 180
+
+class WinScreen(ScreenBase):
+    def __init__(self, screen):
+        super().__init__(screen)
+
+        self.title_text = self.title_font.render("Você venceu!", True, (255, 215, 0))
+        self.subtitle_text = self.button_font.render("Parabéns!", True, (255, 255, 255))
+
+        # Background (optional: match PauseScreen style)
+        self.bg = pygame.image.load(BG)
+        self.bg = pygame.transform.scale(self.bg, (WIDTH, HEIGHT))
+
+        self.overlay = pygame.Surface((WIDTH, HEIGHT))
+        self.overlay.fill((0, 0, 0))
+        self.overlay.set_alpha(200)
+
+        # Styled "Quit" button using the same look as PauseScreen
+        self.quit_button = Button("Quit", (WIDTH // 2 - 100, HEIGHT // 2 + 100), (200, 60),
+                                  self.button_font, (255, 165, 0), (255, 255, 255))
+        self.buttons = [self.quit_button]
+
+    def handle_events(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                mouse_click = pygame.mouse.get_pressed()
+                if self.quit_button.is_clicked(mouse_pos, mouse_click):
+                    pygame.quit()
+                    exit()
+
+    def draw(self):
+        self.screen.blit(self.bg, (0, 0))
+        self.screen.blit(self.overlay, (0, 0))
+
+        title_rect = self.title_text.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 100))
+        subtitle_rect = self.subtitle_text.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 30))
+        self.screen.blit(self.title_text, title_rect)
+        self.screen.blit(self.subtitle_text, subtitle_rect)
+
+        # Check if mouse is hovering over the quit button
+        mouse_pos = pygame.mouse.get_pos()
+        is_hovered = self.quit_button.is_hovered(mouse_pos)
+
+        # Draw the quit button with hover effect
+        self.quit_button.draw(self.screen, hover=is_hovered)
