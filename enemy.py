@@ -54,7 +54,7 @@ class Enemy(Entity):
         }
         main_path = f"graphics/monsters/{name}/"
         for animation in animations.keys():
-            animations[animation] = import_folder(main_path + animation)
+            animations[animation] = import_folder_enemy(main_path + animation)
             
         # Redimensionar imagens especificamente para o Tengu e Beast
         for animation in animations.keys():

@@ -4,6 +4,7 @@ from support import fetch_weapon_data
 from entity import Entity
 from settings import *
 
+
 class Weapon(ABC, pygame.sprite.Sprite):
     def __init__(self, weapon_data, player, groups):
         super().__init__(groups)
