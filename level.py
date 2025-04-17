@@ -125,28 +125,6 @@ class Level:
                         if was_alive and target_sprite.health <= 0:
                             # Dar 5 moedas ao jogador quando derrotar um inimigo
                             self.player.add_coins(5)
-                            
-                            # Processar sistema de monstros sequenciais (apenas no nível 1)
-
-                            # Processar sistema do vulcão
-                            if self.volcano_spawn_active:
-                                if hasattr(target_sprite, 'monster_name'):
-                                    if target_sprite.monster_name == 'beast':
-                                        self.active_beasts -= 1
-                                        self.beasts_killed += 1
-                                        print(f"Beast derrotado! {self.beasts_killed}/{self.total_beasts}. Beasts ativos: {self.active_beasts}")
-                                        
-                                        # Spawn de beasts adicionais
-                                        self.spawn_volcano_timer = 180  # 3 segundos de delay
-                                    
-                                    elif target_sprite.monster_name == 'tengu':
-                                        print("Boss Tengu derrotado!")
-                                        self.boss_defeated = True
-                                        
-                                # Verificar condição de vitória: o boss foi derrotado e matamos pelo menos 15 beasts
-                                if self.boss_defeated and (self.beasts_killed + self.active_beasts) >= 15:
-                                    print("Nível do vulcão completo! Boss derrotado e beasts suficientes eliminados.")
-                                    self.level_completed = True
 
     def damage_player(self, amount):
         if self.player.vulnerable:
@@ -185,9 +163,11 @@ class ForestLevel(Level):
         pygame.mixer.music.play(-1)
 
     def run(self):
-        super().run()
+        should_reset_level = super().run()
 
         self.player.speed = self.player.player_stats['speed']
+
+        return should_reset_level
 
 
 class DesertLevel(Level):
@@ -200,7 +180,7 @@ class DesertLevel(Level):
         pygame.mixer.music.play(-1)
 
     def run(self):
-        super().run()
+        should_reset_level = super().run()
 
         if self.wind_system:
             self.wind_system.update()
@@ -229,6 +209,8 @@ class DesertLevel(Level):
             # Desenhar as partículas do vento
             self.wind_system.draw()
 
+        return should_reset_level
+
 class IceLevel(Level):
     def __init__(self, game_map, background):
         super().__init__(game_map, background)
@@ -244,7 +226,7 @@ class IceLevel(Level):
         pygame.mixer.music.play(-1)
 
     def run(self):
-        super().run()
+        should_reset_level = super().run()
 
         # Aplicar efeito de deslizamento no gelo
         if self.player.direction.magnitude() > 0:
@@ -342,6 +324,7 @@ class IceLevel(Level):
                 # Parar completamente quando o momentum for muito baixo
                 self.player_momentum = pygame.math.Vector2(0, 0)
                 self.player.speed = self.player.player_stats['speed']
+        return should_reset_level
 
 
 class VolcanoLevel(Level):
@@ -360,7 +343,7 @@ class VolcanoLevel(Level):
         pygame.mixer.music.play(-1)
 
     def run(self):
-        super().run()
+        should_reset_level = super().run()
 
         self.player.speed = self.player.player_stats['speed']
 
@@ -376,6 +359,8 @@ class VolcanoLevel(Level):
         boss_surf = self.font.render(boss_status, True, boss_color)
         boss_rect = boss_surf.get_rect(topleft=(20, 50))
         self.display_surface.blit(boss_surf, boss_rect)
+
+        return should_reset_level
 
 
 level_name_to_class = {
