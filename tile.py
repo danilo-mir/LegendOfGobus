@@ -1,5 +1,5 @@
 import pygame
-from settings import *
+
 
 class BaseTile(pygame.sprite.Sprite):
     def __init__(self, pos, groups, image_path, size):

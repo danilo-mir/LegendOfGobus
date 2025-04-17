@@ -3,7 +3,6 @@ from settings import *
 from tile import *
 from player import Player
 from enemy import Enemy
-from debug import debug
 from ui import UI
 from weapon import create_weapon, Projectile
 from support import fetch_weapon_data
@@ -65,9 +64,7 @@ class Level:
         # Interface do usuário
         self.ui = UI()
         
-        # Debug do número de inimigos
-        print(f"Número de inimigos criados: {len([sprite for sprite in self.attackable_sprites if hasattr(sprite, 'sprite_type') and sprite.sprite_type == 'enemy'])}")
-        
+
         # Controle de deslizamento no gelo
         self.slide_factor = 0.98 if self.is_ice else 0  # Fator de deslizamento (quanto mais próximo de 1, mais desliza)
         self.player_momentum = pygame.math.Vector2(0, 0)

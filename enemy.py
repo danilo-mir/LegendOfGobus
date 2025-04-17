@@ -2,9 +2,7 @@ import math
 from support import *
 from settings import *
 import pygame
-from settings import *
 from entity import Entity
-from debug import *
 
 
 class Enemy(Entity):
