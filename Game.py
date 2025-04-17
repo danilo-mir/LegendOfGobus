@@ -110,10 +110,5 @@ class Game:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     self.game_paused = not self.game_paused
-                if event.key == pygame.K_j:
-                    # Troca de fase ao apertar J
-                    self.current_stage = (self.current_stage + 1) % len(self.stages)
-                    self.level = Level(*self.stages[self.current_stage])
                 if event.key == pygame.K_LCTRL:
-                    # Abrir a lojinha ao apertar Y
                     self.shop_open = True
