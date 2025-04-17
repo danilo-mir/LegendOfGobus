@@ -1,9 +1,7 @@
 import pygame
 from settings import *
-from debug import debug
 from support import import_folder_player
 from entity import Entity
-from support import fetch_weapon_data
 from screens import DeathScreen
 
 

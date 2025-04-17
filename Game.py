@@ -1,8 +1,7 @@
 import pygame
 from settings import *
 from level import Level
-from menu import Menu
-from screens import PauseScreen, Shop
+from screens import PauseScreen, Shop, Menu
 from level_transition import LevelTransition
 
 
