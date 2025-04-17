@@ -1,6 +1,6 @@
 import pygame
 from settings import *
-from level import Level
+from level import Level, level_factory
 from screens import PauseScreen, Shop, Menu
 from level_transition import LevelTransition
 
@@ -13,15 +13,9 @@ class Game:
         self.clock = pygame.time.Clock()
         menu = Menu(self.screen)
         menu.run()
-        self.stages = [
-            (WORLD_MAP, FORESTBG),
-            (DESERT_MAP, DESERTBG),
-            (ICE_MAP, ICEBG),
-            (VOLCANO_MAP, VOLCANOBG)
-        ]
-        self.stage_names = ["Floresta", "Deserto", "Lago Congelado", "Vulcão"]  # Nomes das fases
+        self.stages = ["Floresta", "Deserto", "Lago Congelado", "Vulcão"]
         self.current_stage = 0
-        self.level = Level(*self.stages[self.current_stage])
+        self.level = level_factory(self.stages[self.current_stage])
         self.game_paused = False
         self.shop_open = False  # Flag para controlar a abertura da lojinha
         self.level_transition_active = False  # Flag para controlar a transição de níveis
@@ -40,11 +34,12 @@ class Game:
 
     def reset_level(self):
         """Recria completamente o nível atual, reposicionando o jogador e inimigos."""
-        self.level = Level(*self.stages[self.current_stage])
+        self.level = level_factory(self.stages[self.current_stage])
+
         
     def advance_to_next_level(self):
         """Avança para o próximo nível"""
-        current_name = self.stage_names[self.current_stage]
+        current_name = self.stages[self.current_stage]
         
         # Avançar para o próximo nível
         self.current_stage = (self.current_stage + 1) % len(self.stages)
@@ -55,7 +50,7 @@ class Game:
         transition = LevelTransition(self.screen, current_name, next_name)
         if transition.run():
             # Se a transição foi concluída, carregar o próximo nível
-            self.level = Level(*self.stages[self.current_stage])
+            self.level = level_factory(self.stages[self.current_stage])
             self.level_transition_active = False
             # self.show_message(f"Fase: {next_name}", (255, 215, 0), 180)
 
@@ -109,7 +104,7 @@ class Game:
                 if event.key == pygame.K_j:
                     # Troca de fase ao apertar J
                     self.current_stage = (self.current_stage + 1) % len(self.stages)
-                    self.level = Level(*self.stages[self.current_stage])
+                    self.level = level_factory(self.stages[self.current_stage])
                 if event.key == pygame.K_LCTRL:
                     # Abrir a lojinha ao apertar Y
                     self.shop_open = True

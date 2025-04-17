@@ -7,8 +7,6 @@ from ui import UI
 from weapon import create_weapon, Projectile
 from support import fetch_weapon_data
 from wind import WindSystem
-import random
-
 
 class Level:
     def __init__(self, game_map=WORLD_MAP, background=FORESTBG):
@@ -16,22 +14,7 @@ class Level:
         self.display_surface = pygame.display.get_surface()
         self.game_map = game_map
         self.background = background
-        
-        # Verificar se estamos na fase do deserto
-        self.is_desert = background == DESERTBG
-        
-        # Verificar se estamos na fase de gelo
-        self.is_ice = background == ICEBG
-        
-        # Verificar se estamos na fase da floresta (fase 1)
-        self.is_forest = background == FORESTBG
-        
-        # Verificar se estamos na fase do vulcão
-        self.is_volcano = background == VOLCANOBG
-        
-        # Sistema de vento (apenas no deserto)
-        self.wind_system = WindSystem(self.display_surface) if self.is_desert else None
-        
+                
         # Criar grupos de sprites
         self.visibile_sprites = YSortCameraGroup()
         self.obstacle_sprites = pygame.sprite.Group()
@@ -39,15 +22,6 @@ class Level:
         self.current_attack = None
         self.attack_sprites = pygame.sprite.Group()
         self.attackable_sprites = pygame.sprite.Group()
-        
-        # Sistema de spawn para o vulcão (beasts adicionais)
-        self.volcano_spawn_active = self.is_volcano
-        self.boss_defeated = False  # Inicialmente o boss não foi derrotado
-        self.beasts_killed = 0
-        self.total_beasts = 20  # Total de 20 beasts para a fase do vulcão
-        self.initial_beasts = 10  # Começamos com 10 beasts no mapa
-        self.active_beasts = 0  # Contador para beasts ativos
-        self.spawn_count = 2  # Número de beasts para spawnar de cada vez
         
         self.monsters_killed = 0
         self.total_monsters = 3  # Total de 3 monstros para matar no nível 1
@@ -64,14 +38,6 @@ class Level:
         # Interface do usuário
         self.ui = UI()
         
-
-        # Controle de deslizamento no gelo
-        self.slide_factor = 0.98 if self.is_ice else 0  # Fator de deslizamento (quanto mais próximo de 1, mais desliza)
-        self.player_momentum = pygame.math.Vector2(0, 0)
-        self.ice_movement_penalty = 0.01  # Começar com apenas 1% da velocidade no gelo
-        self.acceleration_rate = 0.02  # Taxa de aceleração mais lenta no gelo
-        self.current_ice_multiplier = self.ice_movement_penalty  # Inicialização do multiplicador de gelo
-        
         # Estado do nível
         self.level_completed = False
         
@@ -82,83 +48,21 @@ class Level:
         if self.enemies_at_start == 0:
             print(f"AVISO: Nenhum inimigo encontrado no nível. Verifique o mapa!")
 
-        # Música de fundo por tipo de fase
         pygame.mixer.music.stop()
-        if self.is_desert:
-            pygame.mixer.music.load('audio/desert.mp3')
-        elif self.is_ice:
-            pygame.mixer.music.load('audio/ice.mp3')
-        elif self.is_volcano:
-            pygame.mixer.music.load('audio/bafao_fight.mp3')  # Usar a mesma música da floresta temporariamente
-        else:
-            pygame.mixer.music.load('audio/grass.mp3')
-
         pygame.mixer.music.set_volume(0.5)
-        pygame.mixer.music.play(-1)
+
 
     def create_map(self):
         for row_index, row in enumerate(self.game_map):
             for col_index, col in enumerate(row):
                 x = col_index * TILESIZE
                 y = row_index * TILESIZE
-                if col == 'G1':
-                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/grass/grass_1.png',
-                             (GRASSSIZE, GRASSSIZE))
-                if col == 'G2':
-                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/grass/grass_2.png',
-                             (GRASSSIZE, GRASSSIZE))
-                if col == 'G3':
-                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/grass/grass_3.png',
-                             (GRASSSIZE, GRASSSIZE))
-                if col == 'TR1':
-                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/0.png',
-                             (TILESIZE, TILESIZE))
-                if col == 'TR2':
-                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/01.png',
-                             (TILESIZE, TILESIZE))
-                if col == 'T1':
-                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/02.png',
-                             (TILESIZE, TILESIZE))
-                if col == 'T2':
-                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/03.png',
-                             (TILESIZE, TILESIZE))
-                if col == 'T3':
-                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/04.png',
-                             (TILESIZE, TILESIZE))
-                if col == 'R1':
-                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/08.png',
-                             (TILESIZE, TILESIZE))
-                if col == 'I1':
-                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/05.png',
-                             (TILESIZE, TILESIZE))
-                if col == 'I2':
-                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/06.png',
-                             (TILESIZE, TILESIZE))
-                if col == 'I3':
-                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/07.png',
-                             (TILESIZE, TILESIZE))
-                if col == 'D1':
-                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/28.png',
-                             (TILESIZE, TILESIZE))
-                if col == 'D2':
-                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/29.png',
-                             (TILESIZE, TILESIZE))
-                if col == 'D3':
-                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/30.png',
-                             (TILESIZE, TILESIZE))
-                if col == 'O1':
-                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/21.png',
-                             (GRASSSIZE, GRASSSIZE))
-                if col == 'O2':
-                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/22.png',
-                            (GRASSSIZE, GRASSSIZE))
-                if col == 'O3':
-                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/23.png',
-                             (GRASSSIZE, GRASSSIZE))
-                if col == 'O4':
-                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], 'graphics/objects/24.png',
-                             (GRASSSIZE, GRASSSIZE))
-                if col == 'P':
+
+                if col in TILES:
+                    image_path, size = TILES[col]
+                    BaseTile((x, y), [self.visibile_sprites, self.obstacle_sprites], image_path, size)
+                
+                elif col == 'P':
                     self.player = Player(
                         (x, y),
                         [self.visibile_sprites],
@@ -166,8 +70,8 @@ class Level:
                         self.create_attack,
                         self.destroy_attack,
                         self.create_projectile)
+                
                 elif col in monster_symbol:
-                    # Criar monstros a partir do mapa apenas se não estivermos usando o sistema sequencial
                     monster_name = monster_symbol[col]
                     Enemy(
                         monster_name,
@@ -176,6 +80,7 @@ class Level:
                         self.obstacle_sprites,
                         self.damage_player
                     )
+
 
     def create_attack(self, weapon_name):
         weapon_type = fetch_weapon_data()[weapon_name]['type']
@@ -249,88 +154,55 @@ class Level:
             self.player.vulnerable = False
             self.player.hit_time = pygame.time.get_ticks()
 
-    def initialize_volcano_spawn_system(self):
-        """Inicializa o sistema de spawn para beasts adicionais na fase do vulcão"""
-        # Encontrar posições adequadas para spawn de beasts (longe do jogador)
-        for row_index, row in enumerate(self.game_map):
-            for col_index, col in enumerate(row):
-                if col == ',' and random.random() < 0.08:  # 8% de chance para cada espaço vazio
-                    x = col_index * TILESIZE
-                    y = row_index * TILESIZE
-                    # Verificar se está longe o suficiente do jogador
-                    if self.is_valid_spawn_position(x, y):
-                        self.spawn_positions.append((x, y))
-        
-        # Garantir que temos pelo menos algumas posições de spawn
-        if len(self.spawn_positions) < 10:
-            # Criar algumas posições padrão se não encontrarmos o suficiente
-            self.spawn_positions = [
-                (5 * TILESIZE, 2 * TILESIZE),
-                (15 * TILESIZE, 2 * TILESIZE),
-                (3 * TILESIZE, 9 * TILESIZE),
-                (18 * TILESIZE, 9 * TILESIZE),
-                (7 * TILESIZE, 11 * TILESIZE),
-                (12 * TILESIZE, 11 * TILESIZE),
-                (8 * TILESIZE, 3 * TILESIZE),
-                (16 * TILESIZE, 3 * TILESIZE),
-                (2 * TILESIZE, 5 * TILESIZE),
-                (20 * TILESIZE, 5 * TILESIZE)
-            ]
-        
-        # Contar os beasts iniciais no mapa
-        self.active_beasts = len([sprite for sprite in self.attackable_sprites 
-                                 if hasattr(sprite, 'monster_name') and sprite.monster_name == 'beast'])
-        
-        print(f"Sistema de spawn do vulcão inicializado com {len(self.spawn_positions)} posições e {self.active_beasts} beasts iniciais")
-
-    def spawn_volcano_beast(self):
-        """Spawna novos beasts na fase do vulcão (de 2 em 2)"""
-        if not self.spawn_positions:
-            return False
-            
-        # Verificar se já atingiu o limite de beasts totais
-        if self.active_beasts + self.beasts_killed >= self.total_beasts:
-            return False
-        
-        # Contar quantos beasts podem ser spawnados sem exceder o total
-        remaining = self.total_beasts - (self.active_beasts + self.beasts_killed)
-        to_spawn = min(remaining, self.spawn_count)
-        
-        # Spawnar os beasts
-        spawned = 0
-        for _ in range(to_spawn):
-            # Escolher uma posição aleatória de spawn
-            if not self.spawn_positions:
-                break
-                
-            pos = random.choice(self.spawn_positions)
-            
-            # Criar o beast
-            Enemy(
-                "beast",
-                pos,
-                [self.visibile_sprites, self.attackable_sprites],
-                self.obstacle_sprites,
-                self.damage_player
-            )
-            
-            # Incrementar contador de beasts ativos
-            self.active_beasts += 1
-            spawned += 1
-            
-            print(f"Spawnou beast na posição {pos}. Beasts ativos: {self.active_beasts}, Beasts mortos: {self.beasts_killed}/{self.total_beasts}")
-        
-        # Remover as posições usadas para evitar spawnar muito perto
-        if spawned > 0:
-            print(f"Spawnados {spawned} beasts. Total ativo: {self.active_beasts}, Mortos: {self.beasts_killed}/{self.total_beasts}")
-            return True
-        return False
-
     def run(self):
         self.display_surface.blit(pygame.transform.scale(pygame.image.load(self.background).convert_alpha(), (WIDTH, HEIGHT)), (0, 0))  # Draw background image
         
-        # Atualizar e aplicar o sistema de vento ao jogador se estiver no deserto
-        if self.is_desert and self.wind_system:
+        self.visibile_sprites.custom_draw(self.player)
+        self.visibile_sprites.update()
+        self.visibile_sprites.enemy_update(self.player)
+        self.player_attack_logic()
+        self.ui.display(self.player)
+        
+        # Verificar se o jogador morreu e o nível deve ser recriado
+        self.should_reset_level = False
+        if hasattr(self, 'player') and hasattr(self.player, 'check_death'):
+            self.should_reset_level = self.player.check_death()
+        
+        # Verificar se o nível foi completado (exceto no sistema sequencial, que usa sua própria lógica)
+        enemy_count = len([sprite for sprite in self.attackable_sprites if hasattr(sprite, 'sprite_type') and sprite.sprite_type == 'enemy'])
+        
+        # Definir se o nível foi completado apenas se havia inimigos e todos foram derrotados
+        if enemy_count == 0 and self.enemies_at_start > 0:
+            self.level_completed = True
+        
+        return self.should_reset_level
+
+class ForestLevel(Level):
+    def __init__(self, game_map, background):
+        super().__init__(game_map, background)
+
+        pygame.mixer.music.load('audio/grass.mp3')
+        pygame.mixer.music.play(-1)
+
+    def run(self):
+        super().run()
+
+        self.player.speed = self.player.player_stats['speed']
+
+
+class DesertLevel(Level):
+    def __init__(self, game_map, background):
+        super().__init__(game_map, background)
+        
+        self.wind_system = WindSystem(self.display_surface) 
+
+        pygame.mixer.music.load('audio/desert.mp3')
+        pygame.mixer.music.play(-1)
+
+    def run(self):
+        super().run()
+
+        if self.wind_system:
             self.wind_system.update()
             
             # Aplicar o efeito do vento no jogador
@@ -351,149 +223,171 @@ class Level:
             
             # Aplicar o modificador de velocidade
             self.player.speed = self.player.player_stats['speed'] * speed_modifier
+
+            wind_dir, wind_strength = self.wind_system.get_player_speed_modifier()
             
             # Desenhar as partículas do vento
             self.wind_system.draw()
-        elif self.is_ice:
-            # Aplicar efeito de deslizamento no gelo
-            if self.player.direction.magnitude() > 0:
-                # Sistema de aceleração gradual no gelo
-                last_direction = self.player_momentum.normalize() if self.player_momentum.magnitude() > 0 else pygame.Vector2(0, 0)
-                current_direction = self.player.direction.normalize()
+
+class IceLevel(Level):
+    def __init__(self, game_map, background):
+        super().__init__(game_map, background)
+
+        # Controle de deslizamento no gelo
+        self.slide_factor = 0.98 # Fator de deslizamento (quanto mais próximo de 1, mais desliza)
+        self.player_momentum = pygame.math.Vector2(0, 0)
+        self.ice_movement_penalty = 0.01  # Começar com apenas 1% da velocidade no gelo
+        self.acceleration_rate = 0.02  # Taxa de aceleração mais lenta no gelo
+        self.current_ice_multiplier = self.ice_movement_penalty  # Inicialização do multiplicador de gelo
+
+        pygame.mixer.music.load('audio/ice.mp3')
+        pygame.mixer.music.play(-1)
+
+    def run(self):
+        super().run()
+
+        # Aplicar efeito de deslizamento no gelo
+        if self.player.direction.magnitude() > 0:
+            # Sistema de aceleração gradual no gelo
+            last_direction = self.player_momentum.normalize() if self.player_momentum.magnitude() > 0 else pygame.Vector2(0, 0)
+            current_direction = self.player.direction.normalize()
+            
+            # Se mudou de direção drasticamente, resetar parcialmente a aceleração
+            dot_product = current_direction.dot(last_direction) if last_direction.magnitude() > 0 else 0
+            
+            # Em vez de resetar completamente, vamos preservar parte do movimento anterior
+            if dot_product < 0.7:  # Considerada uma mudança significativa de direção
+                # Preservar uma parte do momentum anterior (30%)
+                momentum_preservation = 0.3
                 
-                # Se mudou de direção drasticamente, resetar parcialmente a aceleração
-                dot_product = current_direction.dot(last_direction) if last_direction.magnitude() > 0 else 0
+                # Combinar a nova direção com uma parte da antiga
+                combined_direction = current_direction + (last_direction * momentum_preservation)
+                combined_direction = combined_direction.normalize() if combined_direction.magnitude() > 0 else current_direction
                 
-                # Em vez de resetar completamente, vamos preservar parte do movimento anterior
-                if dot_product < 0.7:  # Considerada uma mudança significativa de direção
-                    # Preservar uma parte do momentum anterior (30%)
-                    momentum_preservation = 0.3
-                    
-                    # Combinar a nova direção com uma parte da antiga
-                    combined_direction = current_direction + (last_direction * momentum_preservation)
-                    combined_direction = combined_direction.normalize() if combined_direction.magnitude() > 0 else current_direction
-                    
-                    # Manter parte da velocidade atual
-                    self.current_ice_multiplier = max(self.ice_movement_penalty, self.current_ice_multiplier * 0.7)
-                    
-                    # Atualizar a direção do player para refletir a combinação
-                    self.player_momentum = combined_direction * self.player.speed * 1.5
-                else:
-                    # Aumentar gradualmente a velocidade até atingir o valor máximo
-                    # Usar uma função não-linear para aceleração mais natural
-                    # Acelera mais rápido quando está mais lento, e mais devagar quando está se aproximando da velocidade máxima
-                    acceleration_factor = self.acceleration_rate * (1.0 - (self.current_ice_multiplier * 0.5))
-                    self.current_ice_multiplier = min(1.0, self.current_ice_multiplier + acceleration_factor)
-                    
-                    # Atualizar o momentum para deslizar depois (aumentar para 1.5)
-                    self.player_momentum = current_direction * self.player.speed * 1.5
+                # Manter parte da velocidade atual
+                self.current_ice_multiplier = max(self.ice_movement_penalty, self.current_ice_multiplier * 0.7)
                 
-                # Aplicar velocidade com o multiplicador atual
-                self.player.speed = self.player.player_stats['speed'] * self.current_ice_multiplier
+                # Atualizar a direção do player para refletir a combinação
+                self.player_momentum = combined_direction * self.player.speed * 1.5
+            else:
+                # Aumentar gradualmente a velocidade até atingir o valor máximo
+                # Usar uma função não-linear para aceleração mais natural
+                # Acelera mais rápido quando está mais lento, e mais devagar quando está se aproximando da velocidade máxima
+                acceleration_factor = self.acceleration_rate * (1.0 - (self.current_ice_multiplier * 0.5))
+                self.current_ice_multiplier = min(1.0, self.current_ice_multiplier + acceleration_factor)
+                
+                # Atualizar o momentum para deslizar depois (aumentar para 1.5)
+                self.player_momentum = current_direction * self.player.speed * 1.5
+            
+            # Aplicar velocidade com o multiplicador atual
+            self.player.speed = self.player.player_stats['speed'] * self.current_ice_multiplier
+            
+        else:
+            # Quando o jogador para de pressionar teclas
+            if self.player_momentum.magnitude() > 0.1:  # Continuar deslizando
+                # Desacelerar gradualmente
+                self.player_momentum *= self.slide_factor
+                
+                # Em vez de usar o sistema de colisão do jogador, vamos verificar colisões manualmente
+                # para o movimento de deslizamento
+                
+                # Testar o movimento horizontal
+                future_hitbox_x = self.player.hitbox.copy()
+                future_hitbox_x.x += self.player_momentum.x
+                
+                # Verificar colisão horizontal
+                horizontal_collision = False
+                for sprite in self.obstacle_sprites:
+                    if sprite.hitbox.colliderect(future_hitbox_x):
+                        horizontal_collision = True
+                        # Ajustar a posição para que fique encostado no obstáculo
+                        if self.player_momentum.x > 0:  # Movimento para a direita
+                            self.player.hitbox.right = sprite.hitbox.left
+                        else:  # Movimento para a esquerda
+                            self.player.hitbox.left = sprite.hitbox.right
+                        # Parar o momentum horizontal
+                        self.player_momentum.x = 0
+                        break
+                
+                # Se não houve colisão horizontal, aplicar o movimento
+                if not horizontal_collision:
+                    self.player.hitbox.x += self.player_momentum.x
+                
+                # Testar o movimento vertical
+                future_hitbox_y = self.player.hitbox.copy()
+                future_hitbox_y.y += self.player_momentum.y
+                
+                # Verificar colisão vertical
+                vertical_collision = False
+                for sprite in self.obstacle_sprites:
+                    if sprite.hitbox.colliderect(future_hitbox_y):
+                        vertical_collision = True
+                        # Ajustar a posição para que fique encostado no obstáculo
+                        if self.player_momentum.y > 0:  # Movimento para baixo
+                            self.player.hitbox.bottom = sprite.hitbox.top
+                        else:  # Movimento para cima
+                            self.player.hitbox.top = sprite.hitbox.bottom
+                        # Parar o momentum vertical
+                        self.player_momentum.y = 0
+                        break
+                
+                # Se não houve colisão vertical, aplicar o movimento
+                if not vertical_collision:
+                    self.player.hitbox.y += self.player_momentum.y
+                
+                # Atualizar posição do retângulo
+                self.player.rect.center = self.player.hitbox.center
                 
             else:
-                # Quando o jogador para de pressionar teclas
-                if self.player_momentum.magnitude() > 0.1:  # Continuar deslizando
-                    # Desacelerar gradualmente
-                    self.player_momentum *= self.slide_factor
-                    
-                    # Em vez de usar o sistema de colisão do jogador, vamos verificar colisões manualmente
-                    # para o movimento de deslizamento
-                    
-                    # Testar o movimento horizontal
-                    future_hitbox_x = self.player.hitbox.copy()
-                    future_hitbox_x.x += self.player_momentum.x
-                    
-                    # Verificar colisão horizontal
-                    horizontal_collision = False
-                    for sprite in self.obstacle_sprites:
-                        if sprite.hitbox.colliderect(future_hitbox_x):
-                            horizontal_collision = True
-                            # Ajustar a posição para que fique encostado no obstáculo
-                            if self.player_momentum.x > 0:  # Movimento para a direita
-                                self.player.hitbox.right = sprite.hitbox.left
-                            else:  # Movimento para a esquerda
-                                self.player.hitbox.left = sprite.hitbox.right
-                            # Parar o momentum horizontal
-                            self.player_momentum.x = 0
-                            break
-                    
-                    # Se não houve colisão horizontal, aplicar o movimento
-                    if not horizontal_collision:
-                        self.player.hitbox.x += self.player_momentum.x
-                    
-                    # Testar o movimento vertical
-                    future_hitbox_y = self.player.hitbox.copy()
-                    future_hitbox_y.y += self.player_momentum.y
-                    
-                    # Verificar colisão vertical
-                    vertical_collision = False
-                    for sprite in self.obstacle_sprites:
-                        if sprite.hitbox.colliderect(future_hitbox_y):
-                            vertical_collision = True
-                            # Ajustar a posição para que fique encostado no obstáculo
-                            if self.player_momentum.y > 0:  # Movimento para baixo
-                                self.player.hitbox.bottom = sprite.hitbox.top
-                            else:  # Movimento para cima
-                                self.player.hitbox.top = sprite.hitbox.bottom
-                            # Parar o momentum vertical
-                            self.player_momentum.y = 0
-                            break
-                    
-                    # Se não houve colisão vertical, aplicar o movimento
-                    if not vertical_collision:
-                        self.player.hitbox.y += self.player_momentum.y
-                    
-                    # Atualizar posição do retângulo
-                    self.player.rect.center = self.player.hitbox.center
-                    
-                else:
-                    # Parar completamente quando o momentum for muito baixo
-                    self.player_momentum = pygame.math.Vector2(0, 0)
-                    self.player.speed = self.player.player_stats['speed']
-        else:
-            # Restaurar a velocidade normal quando não está no deserto ou no gelo
-            self.player.speed = self.player.player_stats['speed']
-        
-        self.visibile_sprites.custom_draw(self.player)
-        self.visibile_sprites.update()
-        self.visibile_sprites.enemy_update(self.player)
-        self.player_attack_logic()
-        self.ui.display(self.player)
-        
-        # Mostrar informações do vento quando estiver no deserto
-        if self.is_desert and self.wind_system:
-            wind_dir, wind_strength = self.wind_system.get_player_speed_modifier()
+                # Parar completamente quando o momentum for muito baixo
+                self.player_momentum = pygame.math.Vector2(0, 0)
+                self.player.speed = self.player.player_stats['speed']
 
-        # Mostrar informações do vulcão
-        if self.volcano_spawn_active:
-            # Contador de beasts
-            beast_text = f"Beasts: {self.beasts_killed}/{self.total_beasts}"
-            beast_surf = self.font.render(beast_text, True, (255, 100, 100))
-            beast_rect = beast_surf.get_rect(topleft=(20, 20))
-            self.display_surface.blit(beast_surf, beast_rect)
-            
-            # Status do boss
-            boss_status = "Boss: Derrotado!" if self.boss_defeated else "Boss: Vivo"
-            boss_color = (100, 255, 100) if self.boss_defeated else (255, 100, 100)
-            boss_surf = self.font.render(boss_status, True, boss_color)
-            boss_rect = boss_surf.get_rect(topleft=(20, 50))
-            self.display_surface.blit(boss_surf, boss_rect)
-        
-        # Verificar se o jogador morreu e o nível deve ser recriado
-        self.should_reset_level = False
-        if hasattr(self, 'player') and hasattr(self.player, 'check_death'):
-            self.should_reset_level = self.player.check_death()
-        
-        # Verificar se o nível foi completado (exceto no sistema sequencial, que usa sua própria lógica)
-        enemy_count = len([sprite for sprite in self.attackable_sprites if hasattr(sprite, 'sprite_type') and sprite.sprite_type == 'enemy'])
-        
-        # Definir se o nível foi completado apenas se havia inimigos e todos foram derrotados
-        if enemy_count == 0 and self.enemies_at_start > 0:
-            self.level_completed = True
-        
-        return self.should_reset_level
 
+class VolcanoLevel(Level):
+    def __init__(self, game_map, background):
+        super().__init__(game_map, background)
+                
+        # Sistema de spawn para o vulcão (beasts adicionais)
+        self.boss_defeated = False  # Inicialmente o boss não foi derrotado
+        self.beasts_killed = 0
+        self.total_beasts = 20  # Total de 20 beasts para a fase do vulcão
+        self.initial_beasts = 10  # Começamos com 10 beasts no mapa
+        self.active_beasts = 0  # Contador para beasts ativos
+        self.spawn_count = 2  # Número de beasts para spawnar de cada vez
+
+        pygame.mixer.music.load('audio/bafao_fight.mp3')  
+        pygame.mixer.music.play(-1)
+
+    def run(self):
+        super().run()
+
+        self.player.speed = self.player.player_stats['speed']
+
+        # Contador de beasts
+        beast_text = f"Beasts: {self.beasts_killed}/{self.total_beasts}"
+        beast_surf = self.font.render(beast_text, True, (255, 100, 100))
+        beast_rect = beast_surf.get_rect(topleft=(20, 20))
+        self.display_surface.blit(beast_surf, beast_rect)
+        
+        # Status do boss
+        boss_status = "Boss: Derrotado!" if self.boss_defeated else "Boss: Vivo"
+        boss_color = (100, 255, 100) if self.boss_defeated else (255, 100, 100)
+        boss_surf = self.font.render(boss_status, True, boss_color)
+        boss_rect = boss_surf.get_rect(topleft=(20, 50))
+        self.display_surface.blit(boss_surf, boss_rect)
+
+
+level_name_to_class = {
+    "Floresta" : ForestLevel,
+    "Deserto" : DesertLevel,
+    "Lago Congelado" : IceLevel,
+    "Vulcão" : VolcanoLevel
+}
+
+def level_factory(stage_name):
+    level_child_class = level_name_to_class[stage_name]
+    return level_child_class(*stage_data[stage_name])
 
 # Grupo de sprites customizado para ordena-los conforme sua posicao y dando um senso de profundidade
 # Também implementa o movimento da câmera caso o mapa seja maior que a tela

@@ -1,6 +1,7 @@
 import pygame
 from settings import *
 import sys
+from abc import ABC
 
 
 class Button:
@@ -49,7 +50,7 @@ class Slider:
             self.value = max(0, min(100, (rel_x / self.rect.width) * 100))
 
 
-class ScreenBase:
+class ScreenBase(ABC):
     def __init__(self, screen):
         self.screen = screen
         self.clock = pygame.time.Clock()
