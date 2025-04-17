@@ -47,7 +47,7 @@ class Game:
 
         # Avançar para o próximo nível
         self.current_stage = (self.current_stage + 1) % len(self.stages)
-        next_name = self.stage_names[self.current_stage]
+        next_name = self.stages[self.current_stage]
 
         # Mostrar a tela de transição
         self.level_transition_active = True
